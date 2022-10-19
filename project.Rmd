@@ -1,0 +1,41 @@
+---
+title: "cherryB"
+author: "Mina Mehdinia"
+date: "2022-10-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("rvest")
+library(rvest)
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+
+```
+
+```{r}
+Wdata <-  read.csv("C:/Users/minat/source/repos/caffeinated_MJM/newdata.csv")
+```
+
+```{r}
+Wdata$Age <- as.numeric(Wdata$Age )
+head(Wdata)
+```
+```{r}
+newdata <- Wdata %>% 
+  filter(!is.na(Wdata$Age))
+newdata
+```
+
+
+```{r}
+glimpse(newdata)
+```
+
+```{r}
+newdata$Time <- strptime(newdata$Time, "%H:%M:%S")
+glimpse(newdata)
+```
+
