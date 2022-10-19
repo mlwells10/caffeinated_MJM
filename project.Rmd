@@ -36,6 +36,7 @@ glimpse(newdata)
 
 ```{r}
 newdata$Time <- strptime(newdata$Time, "%H:%M:%S")
+newdata$Time <- hms::as_hms(newdata$Time)
 glimpse(newdata)
 ```
 
