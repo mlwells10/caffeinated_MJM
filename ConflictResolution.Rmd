@@ -13,7 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Don't write in this line.
 
-Hello Mina!
+Hello Mina! 
+
+Goodbye
 
  <http://rmarkdown.rstudio.com>.
 
