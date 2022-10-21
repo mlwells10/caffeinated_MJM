@@ -1,6 +1,6 @@
 ---
 title: "cherryB"
-author: "Mina Mehdinia"
+author: "Mina Mehdinia, Justin Valentine, Michael Wells"
 date: "2022-10-18"
 output: html_document
 ---
