@@ -7,7 +7,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-install.packages("rvest")
 library(rvest)
 library(tidyverse)
 library(lubridate)
@@ -16,7 +15,7 @@ library(dplyr)
 ```
 
 ```{r}
-Wdata <-  read.csv("C:/Users/minat/source/repos/caffeinated_MJM/newdata.csv")
+Wdata <-  read.csv("newdata.csv")
 ```
 
 ```{r}
