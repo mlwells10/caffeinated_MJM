@@ -1,6 +1,6 @@
 ---
 title: "cherryB"
-author: "Mina Mehdinia"
+author: "Mina Mehdinia,"
 date: "2022-10-18"
 output: html_document
 ---
@@ -32,6 +32,7 @@ newdata
 ```{r}
 glimpse(newdata)
 ```
+
 ```{r}
 #code for missing time is -999.0
 '''
@@ -80,5 +81,9 @@ newdata <- newdata %>%
 newdata$Time <- hms(newdata$Time)
 summary(newdata)
 
+```
+
+```{r}
+arrange(newdata, Race)
 ```
 
