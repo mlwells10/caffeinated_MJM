@@ -1,6 +1,10 @@
 ---
 title: "cherryB"
+<<<<<<< HEAD
 author: "Mina Mehdinia,"
+=======
+author: "Mina Mehdinia, Justin Valentine, Michael Wells"
+>>>>>>> d235fe91149f8d0aabd567d116f58e8bdfba8442
 date: "2022-10-18"
 output: html_document
 ---
