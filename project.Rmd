@@ -39,3 +39,17 @@ newdata$Time <- hms::as_hms(newdata$Time)
 glimpse(newdata)
 ```
 
+```{r}
+newdata %>% 
+  filter(Race == 1976)
+```
+
+```{r}
+arrange(newdata, Race) %>%
+  filter(Race == 2012)
+```
+
+```{r}
+
+```
+

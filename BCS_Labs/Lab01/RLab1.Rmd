@@ -22,14 +22,16 @@ knitr::opts_chunk$set(echo = TRUE)
 load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example of a properly commented line of code)
 
 #Now write code to remove the specified column
-
+dat.76 <- CBdata.1_10[[4]]
+dat.76 <- dat.76[,-6]
+dat.76
 ```
 
 
 2) The function `summary()` is useful for learning basic facts about vectors, data frames, and many other R objects. Use this function to find the mean and median recorded ages in 1976. 
 
 ```{r summary}
-
+summary(dat.76) #mean age is 32.09 and the median age is 32
 ```
 
 
@@ -39,7 +41,15 @@ Hints:
 - Depending on how you write your code, you may need to negate a logical vector using `!`. Ex: `!c(TRUE, TRUE, FALSE)` is identical to `c(FALSE, FALSE, TRUE)`.
 
 ```{r filter_missing_age_loop}
-
+idx = c()
+for(i in 1:nrow(dat.76)){
+  if(is.na(dat.76$Age[i]) == F){
+    idx <- c(idx, T)
+  }else{
+    idx <- c(idx, F)
+  }
+}
+dat.76.clean <- dat.76[idx,] 
 
 ```
 
@@ -47,21 +57,36 @@ Hints:
 How to check your work: If your loop produced a data frame called "dat.76.clean" and the vectorization approach produced a data frame called `dat.76.clean2`, the `identical(dat.76.clean,dat.76.clean2)` should return `TRUE`.
 
 ```{r filter_missing_age_vectorization}
-
-
+dat.76.clean2 <- dat.76[!is.na(dat.76$Age),]
+identical(dat.76.clean,dat.76.clean2)
 ```
 
 5) Filtering out missing age data could be useful when dealing with other years. With this in mind, turn your filter loop or vectorization approach into a function. You should be able to use the function like this: `dat.76.clean <- filter.func(dat.76)`.  
 When you have a function written, run it on the 1976 data and use identical() to verify that your function and the first loop you wrote are doing the same thing.
 
 ```{r filter_func}
-
+filter.func <- function(dat.76){
+  dat.76.clean3 <- dat.76[!is.na(dat.76$Age),]
+  return(dat.76.clean3)
+}
+dat.76.clean3 <- filter.func(dat.76)
+identical(dat.76.clean3, dat.76.clean)
 ```
 
 6) Next, write a loop that combines all of the data from `CBdata.1_10` into one cleaned data frame. Make sure your final data frame has neither the `Pis/Tis` column nor `NA` Age values.  
 Use the `identical()` function to verify that the 1976 data in this larger cleaned data set is the same as the cleaned version of `dat.76`. 
 
 ```{r combine_dat}
+index <- c()
+for (i in 1:length(CBdata.1_10)){
+  for(i in 1:nrow(CBdata.1_10[[i]])){
+    if(is.na(CBdata.1_10[[i]]$Age[i]) == F){
+    index <- c(index, T)
+    }else{
+    index <- c(index, F)
+  }
+}
+}
 
 ```
 
