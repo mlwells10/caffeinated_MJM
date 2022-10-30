@@ -15,6 +15,7 @@ library(rvest)
 library(tidyverse)
 library(lubridate)
 library(dplyr)
+library(ggplot2)
 
 ```
 
@@ -38,44 +39,6 @@ glimpse(newdata)
 ```
 
 ```{r}
-#code for missing time is -999.0
-'''
-
-t = newdata$Time[1]
-
-format_time = function(t)
-{
-  if(t == 'NR')
-    return(-999)
-  hours = substr(t,1,2)
-  minute_format = T
-  if(grepl(':',hours))
-    minute_format =F
-  if(minute_format==F)
-  {
-    hours = substr(t,1,1)
-    minutes = substr(t, 3,4)
-    seconds = substr(t,6,7)
-   
-  }
-  else
-  {
-    hours = 0
-    minutes = substr(t,1,2)
-    seconds = substr(t,4,5)
-    #print(seconds)
-  }
-  total.time = 3600*as.double(hours) + 60*as.double(minutes) + as.double(seconds)
-  return(total.time)
-}  
-#df = df[!is.na(df$Time),]Time = s
-Time = sapply(newdata$Time,format_time)
-newdata$Time = Time
-'''
-```
-
-
-```{r}
 newdata$Time <- strptime(newdata$Time, "%H:%M:%S")
 newdata$Time <- hms::as_hms(newdata$Time)
 
@@ -83,11 +46,67 @@ newdata <- newdata %>%
   filter(!is.na(newdata$Time))
 
 newdata$Time <- hms(newdata$Time)
-summary(newdata)
 
 ```
 
 ```{r}
 arrange(newdata, Race)
+```
+
+```{r}
+
+ct_yrsex <- ct_yrsex[which(ct_yrsex$sex != "NA"), ]
+
+ggplot(ct_yrsex, aes(x = Year, y = n))+
+  geom_line(aes(color = factor(sex)))+
+  scale_x_discrete(limits = c(1973:2022))+
+  guides( color = guide_legend(title = "SEX"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ylab("Number of People")+
+  labs(title = "Number of People in Each Year")
+```
+```{r}
+
+ggplot(newdata, aes(x = Race, y = Age))+
+  geom_point()+
+  scale_x_discrete(limits = c(1974:2022))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ylab("Age")+
+  xlab("Year")
+  labs(title = "")
+```
+
+```{r}
+
+ggpplot(newdata, aes(x = Age, y = Time))+
+  geom_point()+
+  theme_bw()
+```
+
+
+```{r}
+df_cleantown <- newdata[which(newdata$Hometown != "NR"), ]
+
+df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 2 )
+df_cleantown <- df_cleantown %>% 
+  filter(!is.na(df_cleantown$Hometown))
+
+df_cleantown
+```
+
+```{r}
+library(usmap)
+states <- data.frame(df_cleantown$Hometown)
+
+plot_usmap(regions = "states", labels = TRUE)+
+  labs(title = "U.S. States",
+       subtitle = "This is a blank map of the United States.") + 
+  theme(panel.background=element_blank()) 
+  
+```
+
+```{r}
+ggplot()+
+  geom_polygon(df_cleantown$Hometown)
 ```
 
