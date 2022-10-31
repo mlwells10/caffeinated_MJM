@@ -214,6 +214,7 @@ unique <- unique(relat_access02$mac)
 vec_tally <- Vectorize(tally_mac)
 vec_tally(unique)
 ```
+
 ```{r}
 # We believe the two with unusually low counts are probably noise, these being 49 and 113.
 relat_access02 <- relat_access02[!relat_access02$mac %in% c('00:04:0e:5c:23:fc','00:30:bd:f8:7f:c5'),]
@@ -222,11 +223,6 @@ relat_access02 <- relat_access02[!relat_access02$mac %in% c('00:04:0e:5c:23:fc',
 
 
 4.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error, so we'll need to group them.  Develop and apply a function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
-
-```{r}
-
-```
-
 
 5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. 
 
