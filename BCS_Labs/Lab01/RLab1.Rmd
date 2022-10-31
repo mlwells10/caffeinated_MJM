@@ -100,9 +100,17 @@ which(dat[dat$Year==1976,]!= dat.76.clean, arr.ind = T) # We cannot find anywher
 ```
 
 7) Now that you have the combined data set for these 10 years, let's do some basic exploration:  
-a) How does the average of the recorded ages in 1976 compare to that same average over the entire `CBdata.1_10` data set?  
+a) How does the average of the recorded ages in 1976 compare to that same average over the entire `CBdata.1_10` data set?
+Mean CBdata.1_10: 33.26
+Mean 1976:32.09
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. How does the average participant age over the first five years compare to the average age over years 6-10?
+```{r}
+summary(dat[dat$Year%in%c(1973,1974,1975,1976,1977),])
+summary(dat[dat$Year%in%c(1978,1979,1980,1981,1982),])
+``` 
 
+First five years: 31.12
+Last five years: 33.69
 # Playing with the indoor positioning system data
 
 The `IPS_sampledata` data set contains a fraction of the indoor positioning system data for 15 randomly sampled locations.This data set is loaded into memory using the chunk of R code below, complete the following exercises. 
