@@ -76,13 +76,6 @@ ggplot(newdata, aes(x = Race, y = Age))+
   labs(title = "")
 ```
 
-```{r}
-
-ggpplot(newdata, aes(x = Age, y = Time))+
-  geom_point()+
-  theme_bw()
-```
-
 
 ```{r}
 df_cleantown <- newdata[which(newdata$Hometown != "NR"), ]
@@ -108,19 +101,5 @@ plot_usmap(regions = "states", labels = TRUE)+
 ```{r}
 ggplot()+
   geom_polygon(df_cleantown$Hometown)
-```
-
-```{r}
-newdata %>% 
-  filter(Race == 1976)
-```
-
-```{r}
-arrange(newdata, Race) %>%
-  filter(Race == 2012)
-```
-
-```{r}
-
 ```
 
