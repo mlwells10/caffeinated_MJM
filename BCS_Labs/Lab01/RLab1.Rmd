@@ -236,11 +236,11 @@ relat_access02$orientation = angles[angle.index]
 
 
 ```{r}
-signal_summary <- function(dat){
-  subset_data <- relat_access02[relat_access02$posX == dat[1] & relat_access02$posY ==dat[2] & relat_access02$posZ == dat[3] & relat_access02$orientation == dat[4] & relat_access02$mac == dat[5],]
-  
-  return(c(mean(subset_data$signal), sd(subset_data$signal)))
+signal_summary=  function(dat){
+  signal = relat_access02$signal[(relat_access02$posX%in%dat[1]) & (relat_access02$posY%in%dat[2])& (relat_access02$posZ %in% dat[3]) & (relat_access02$orientation%in%dat[4])&(relat_access02$mac%in%dat[5])]
+  return(c(mean(signal),sd(signal)))
 }
+
 
 signal_summary(c(2,0,0,0,'00:14:bf:b1:97:8a'))
 ```
@@ -248,15 +248,19 @@ signal_summary(c(2,0,0,0,'00:14:bf:b1:97:8a'))
 
 6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
 ```{r}
+
 posX = unique(relat_access02$posX)
 posY = unique(relat_access02$posY)
 posZ = unique(relat_access02$posZ)
-
 orient = unique(relat_access02$orientation)
 mac = unique(relat_access02$mac)
-#list of all possible combinations
+#get list of possibe combinations of position, orientation and mac address
 grid = expand.grid(posX,posY,posZ,orient,mac)
-#apply signal_summary to all possible combinations
-apply(grid,1,signal_summary)
-```
 
+
+#convert to list
+grid.list = lapply(1:nrow(grid),function(i){grid[i,]})
+
+#run signal summary on each element of the list
+lapply(grid.list,signal_summary)
+```
