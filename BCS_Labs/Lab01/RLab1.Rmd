@@ -234,4 +234,16 @@ relat_access02$orientation = angles[angle.index]
 
 5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. 
 
+
+```{r}
+signal_summary <- function(posX,posY,posZ, orientation, mac){
+  subset_data <- subset(relat_access02[relat_access02$posX == posX & relat_access02$posY == posY & relat_access02$posZ == posZ & relat_access02$orientation == orientation & relat_access02$mac == mac],)
+  
+  return(c(mean(subset_data$signal), sd(subset_data$signal)))
+}
+
+signal_summary(2,0,0,0,'00:14:bf:b1:97:8a')
+```
+
+
 6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
