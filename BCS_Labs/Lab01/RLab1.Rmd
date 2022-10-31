@@ -144,7 +144,14 @@ summary(IPS_data) #summary of data frame to see all information about dataframe
 
 3. Because we only want data relative to access points, remove observations that correspond to any other type of device.
 
+```{r}
+relat_access <- IPS_data[IPS_data$type != 1,]
+```
+
 4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
+```{r}
+```
+
 
 5. Note that the `time` variable is in milliseconds.  Transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
 
