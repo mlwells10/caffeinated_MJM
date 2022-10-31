@@ -50,7 +50,7 @@ for(i in 1:nrow(dat.76)){
   }
 }
 dat.76.clean <- dat.76[idx,] 
-
+dat.76.clean
 ```
 
  4) Now use vectorization and the `is.na()` function to accomplish the same thing as the loop above.  
@@ -78,16 +78,20 @@ Use the `identical()` function to verify that the 1976 data in this larger clean
 
 ```{r combine_dat}
 index <- c()
+dat <- c()
 for (i in 1:length(CBdata.1_10)){
-  for(i in 1:nrow(CBdata.1_10[[i]])){
-    if(is.na(CBdata.1_10[[i]]$Age[i]) == F){
+  index <- c()
+  for(j in 1:nrow(CBdata.1_10[[i]])){
+    if(is.na(CBdata.1_10[[i]]$Age[j]) == F){
     index <- c(index, T)
     }else{
     index <- c(index, F)
+    }
+  
   }
+  dat <- rbind(dat, CBdata.1_10[[i]][index,])  
 }
-}
-
+dat <- dat[,-6]
 ```
 
 7) Now that you have the combined data set for these 10 years, let's do some basic exploration:  
