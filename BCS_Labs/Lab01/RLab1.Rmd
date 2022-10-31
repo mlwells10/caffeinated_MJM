@@ -165,27 +165,34 @@ summary(IPS_data) #summary of data frame to see all information about dataframe
 3. Because we only want data relative to access points, remove observations that correspond to any other type of device.
 
 ```{r}
+#we only wanna keep the type of device that is equal to 3
 relat_access <- IPS_data[IPS_data$type != 1,]
 ```
 
 4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
 ```{r}
+#Variables that doesn't provide no informariona 
 drop <- c("scanMac","type","channel")
 relat_access02 = relat_access[,!(names(relat_access) %in% drop)]
-relat_access02
+
 ```
 
 
 5. Note that the `time` variable is in milliseconds.  Transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
 
 ```{r}
-relat_access02$time <- relat_access02$time/1000000
-relat_access02$time <- as.POSIXct(relat_access02$time, format = "%S", origin = "0", tzs = "PMS")
+#divide the time by 1000 to convert the time form millisecond to second
+relat_access02$time <- relat_access02$time/1000
+relat_access02$time <- as.POSIXct(relat_access02$time, format = "%S", origin = as.Date( "1970-01-01"), tzs = "PMS")
 ```
 
 ### Examining the data more closely
 
 1. Create the function `tally_mac` whose only input is the MAC address of an access point, and returns the number of observations found in the data set for it.
+```{r}
+
+```
+
 
 2. Use the function `unique` to identify the unique levels for `mac` found in the data set. 
 
