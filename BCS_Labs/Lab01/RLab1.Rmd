@@ -178,6 +178,10 @@ relat_access02
 
 5. Note that the `time` variable is in milliseconds.  Transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
 
+```{r}
+relat_access02$time <- relat_access02$time/1000000
+relat_access02$time <- as.POSIXct(relat_access02$time, format = "%S", origin = "0", tzs = "PMS")
+```
 
 ### Examining the data more closely
 
