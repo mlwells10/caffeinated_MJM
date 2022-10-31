@@ -224,7 +224,11 @@ relat_access02 <- relat_access02[!relat_access02$mac %in% c('00:04:0e:5c:23:fc',
 4.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error, so we'll need to group them.  Develop and apply a function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
 
 ```{r}
-
+#list of angles
+angles = c(0.0,45.0,90.0, 135.0, 180.0,  225.0, 270.0, 315.0)
+#finds the index in angles of the angle closest to relat_access02$orientation
+angle.index = apply(outer(relat_access02$orientation,angles, function(x,y){abs(x-y)}),1,which.min)
+relat_access02$orientation = angles[angle.index]
 ```
 
 
