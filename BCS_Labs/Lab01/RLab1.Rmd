@@ -50,10 +50,7 @@ for(i in 1:nrow(dat.76)){
   }
 }
 dat.76.clean <- dat.76[idx,] 
-<<<<<<< HEAD
 dat.76.clean
-=======
->>>>>>> 353d6dd9fde53acbba6de34761d36f5d11582b11
 ```
 
  4) Now use vectorization and the `is.na()` function to accomplish the same thing as the loop above.  
