@@ -183,9 +183,9 @@ relat_access02 = relat_access[,!(names(relat_access) %in% drop)]
 ```{r}
 #divide the time by 1000 to convert the time form millisecond to second
 relat_access02$time <- relat_access02$time/1000
-
 #use as.POSIXct function to convert time variable to time format. %S is for second 
 relat_access02$time <- as.POSIXct(relat_access02$time, format = "%S", origin = as.Date( "1970-01-01"), tzs = "PMS")
+
 ```
 
 ### Examining the data more closely
@@ -200,9 +200,28 @@ tally_mac <- function(mac){
 
 
 2. Use the function `unique` to identify the unique levels for `mac` found in the data set. 
+
+```{r}
+unique(relat_access02$mac)
+```
+
+
 3. Using an approach learned in class together with `tally_mac`, tally the  number of observations for all access points in the data. While the researchers did their best to clean their data, some noise was introduced by access points on other floors.  Based on the number of counts, identify and remove likely suspects for access points read by mistake.
 
+```{r}
+unique <- unique(relat_access02$mac)
+
+vec_tally <- Vectorize(tally_mac)
+vec_tally(unique)
+```
+
+
 4.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error, so we'll need to group them.  Develop and apply a function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
+
+```{r}
+
+```
+
 
 5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. 
 
