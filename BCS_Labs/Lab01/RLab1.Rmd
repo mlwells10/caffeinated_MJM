@@ -105,7 +105,8 @@ Mean CBdata.1_10: 33.26
 Mean 1976:32.09
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. How does the average participant age over the first five years compare to the average age over years 6-10?
 ```{r}
-summary(dat[dat$Year%in%c(1973,1974,1975,1976,1977),])
+
+summary(dat[dat$Year%in%c(1973,1974,1975,1976,1977),]) # dind 
 summary(dat[dat$Year%in%c(1978,1979,1980,1981,1982),])
 ``` 
 
@@ -169,6 +170,9 @@ relat_access <- IPS_data[IPS_data$type != 1,]
 
 4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
 ```{r}
+drop <- c("scanMac","type","channel")
+relat_access02 = relat_access[,!(names(relat_access) %in% drop)]
+relat_access02
 ```
 
 
