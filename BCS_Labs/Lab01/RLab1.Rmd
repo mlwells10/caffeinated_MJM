@@ -97,7 +97,7 @@ for (i in 1:length(CBdata.1_10)){
 
 dat <- dat[,-6]
 
-}
+
 ```
 
 7) Now that you have the combined data set for these 10 years, let's do some basic exploration:  
