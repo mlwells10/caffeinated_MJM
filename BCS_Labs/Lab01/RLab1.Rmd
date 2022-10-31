@@ -179,13 +179,22 @@ relat_access02
 5. Note that the `time` variable is in milliseconds.  Transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
 
 ```{r}
-relat_access02$time <- relat_access02$time/1000000
-relat_access02$time <- as.POSIXct(relat_access02$time, format = "%S", origin = "0", tzs = "PMS")
+relat_access02$time <- relat_access02$time/1000
+relat_access02$time <- as.POSIXct(relat_access02$time, format = "%S", origin = as.Date("1970/01/01"), tzs = "PMS")
+relat_access02
 ```
 
 ### Examining the data more closely
 
 1. Create the function `tally_mac` whose only input is the MAC address of an access point, and returns the number of observations found in the data set for it.
+
+```{r}
+tally_mac <- function(mac){
+  length(relat_access02$mac[relat_access02$mac == mac])
+}
+
+```
+
 
 2. Use the function `unique` to identify the unique levels for `mac` found in the data set. 
 
