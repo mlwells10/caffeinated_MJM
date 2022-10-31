@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example of a properly commented line of code)
 
 #Now write code to remove the specified column
-dat.76 <- CBdata.1_10[[4]]
+dat.76 <- CBdata.1_10[[4]] 
 dat.76 <- dat.76[,-6]
 dat.76
 ```
@@ -50,7 +50,10 @@ for(i in 1:nrow(dat.76)){
   }
 }
 dat.76.clean <- dat.76[idx,] 
+<<<<<<< HEAD
 dat.76.clean
+=======
+>>>>>>> 353d6dd9fde53acbba6de34761d36f5d11582b11
 ```
 
  4) Now use vectorization and the `is.na()` function to accomplish the same thing as the loop above.  
@@ -91,7 +94,10 @@ for (i in 1:length(CBdata.1_10)){
   }
   dat <- rbind(dat, CBdata.1_10[[i]][index,])  
 }
+
 dat <- dat[,-6]
+
+}
 ```
 
 7) Now that you have the combined data set for these 10 years, let's do some basic exploration:  
@@ -104,7 +110,7 @@ The `IPS_sampledata` data set contains a fraction of the indoor positioning syst
 
 ```{r eval=T, echo=T}
 # loads data set IPS_sampledata
-load("IPS_portion.RData")
+load(IPS_sampledata.RData)
 ```
 
 ### Variable dictionary
@@ -128,12 +134,36 @@ load("IPS_portion.RData")
 ### Let's clean up the data a bit
 
 1. First apply the `summary` function to the `IPS_data` to get a sense of what is available in that data frame. 
+```{r}
+#summary of IPS_sampledata dataset
+IPS_data <- IPS_sampledata
+summary(IPS_data)
+```
+
 
 2. Identify variables that need any `class` conversion. Attempting to avoid code-replication as much as possible, convert these variables into the correct class type.
+```{r}
+#pick the columns that need to be converted to numeric
+cols.num  <- c("time","posX","posY","posZ","orientation","signal","channel","type")
+
+#using sapply function to convert the cols.num to numeric using as.numeric
+IPS_data[cols.num] <- sapply(IPS_data[cols.num],as.numeric)
+sapply(IPS_data, class) #applied to conversion to the data frame
+
+summary(IPS_data) #summary of data frame to see all information about dataframe
+```
+
 
 3. Because we only want data relative to access points, remove observations that correspond to any other type of device.
 
+```{r}
+relat_access <- IPS_data[IPS_data$type != 1,]
+```
+
 4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
+```{r}
+```
+
 
 5. Note that the `time` variable is in milliseconds.  Transform it into seconds and then convert its class into a time format using the function `as.POSIXct`.
 

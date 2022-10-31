@@ -1,6 +1,10 @@
 ---
 title: "cherryB"
+<<<<<<< HEAD
+author: "Mina Mehdinia,"
+=======
 author: "Mina Mehdinia, Justin Valentine, Michael Wells"
+>>>>>>> d235fe91149f8d0aabd567d116f58e8bdfba8442
 date: "2022-10-18"
 output: html_document
 ---
@@ -11,6 +15,7 @@ library(rvest)
 library(tidyverse)
 library(lubridate)
 library(dplyr)
+library(ggplot2)
 
 ```
 
@@ -36,20 +41,65 @@ glimpse(newdata)
 ```{r}
 newdata$Time <- strptime(newdata$Time, "%H:%M:%S")
 newdata$Time <- hms::as_hms(newdata$Time)
-glimpse(newdata)
+
+newdata <- newdata %>% 
+  filter(!is.na(newdata$Time))
+
+newdata$Time <- hms(newdata$Time)
+
 ```
 
 ```{r}
-newdata %>% 
-  filter(Race == 1976)
-```
-
-```{r}
-arrange(newdata, Race) %>%
-  filter(Race == 2012)
+arrange(newdata, Race)
 ```
 
 ```{r}
 
+ct_yrsex <- ct_yrsex[which(ct_yrsex$sex != "NA"), ]
+
+ggplot(ct_yrsex, aes(x = Year, y = n))+
+  geom_line(aes(color = factor(sex)))+
+  scale_x_discrete(limits = c(1973:2022))+
+  guides( color = guide_legend(title = "SEX"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ylab("Number of People")+
+  labs(title = "Number of People in Each Year")
+```
+```{r}
+
+ggplot(newdata, aes(x = Race, y = Age))+
+  geom_point()+
+  scale_x_discrete(limits = c(1974:2022))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ylab("Age")+
+  xlab("Year")
+  labs(title = "")
+```
+
+
+```{r}
+df_cleantown <- newdata[which(newdata$Hometown != "NR"), ]
+
+df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 2 )
+df_cleantown <- df_cleantown %>% 
+  filter(!is.na(df_cleantown$Hometown))
+
+df_cleantown
+```
+
+```{r}
+library(usmap)
+states <- data.frame(df_cleantown$Hometown)
+
+plot_usmap(regions = "states", labels = TRUE)+
+  labs(title = "U.S. States",
+       subtitle = "This is a blank map of the United States.") + 
+  theme(panel.background=element_blank()) 
+  
+```
+
+```{r}
+ggplot()+
+  geom_polygon(df_cleantown$Hometown)
 ```
 
