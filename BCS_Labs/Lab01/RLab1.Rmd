@@ -283,6 +283,7 @@ mat = data.matrix(relat_access02[,c('posX','posY','posZ','orientation')])
 #turn matrix of values into a list of position, orientation and mac
 grid.list = lapply(1:nrow(mat),function(i)({c(mat[i,],relat_access02$mac[i])}))
 #the duplicate function takes row names into consideration; hence our removing them
+#get list of unique combinations of inputs
 uq.grid.list = grid.list[!duplicated(grid.list)]
 #get signal summary of each unique combination of position, orientation and mac
 lapply(uq.grid.list,signal_summary)
