@@ -113,6 +113,9 @@ Mean CBdata.1_10: 33.26
 Mean 1976:32.09
 
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. How does the average participant age over the first five years compare to the average age over years 6-10?
+First five years: mean of 31.12
+Last five years: Mean of 33.69
+The participants got older in later years of the race.
 ```{r first_last_five_year}
 
 summary(dat[dat$Year%in%c(1973,1974,1975,1976,1977),]) # dind 
@@ -129,7 +132,7 @@ The `IPS_sampledata` data set contains a fraction of the indoor positioning syst
 
 ```{r eval=T, echo=T}
 # loads data set IPS_sampledata
-load(IPS_sampledata.RData)
+load('IPS_portion.RData')
 ```
 
 ### Variable dictionary
@@ -182,7 +185,7 @@ relat_access <- IPS_data[IPS_data$type != 1,]
 
 4. Assess if there are any variables that provide redundant or no information. If so, remove them from the data frame.
 ```{r remove_redundant}
-#Variables that doesn't provide no informariona 
+#Variables that doesn't provide informariona 
 drop <- c("scanMac","type","channel")
 relat_access02 = relat_access[,!(names(relat_access) %in% drop)]
 
@@ -227,7 +230,7 @@ unique(relat_access02$mac)
 
 unique <- unique(relat_access02$mac)
 
-vec_tally <- Vectorize(tally_mac)
+vec_tally <- Vectorize(tally_mac) #vectorized version of tally_mac
 vec_tally(unique)
 
 # We believe the two with unusually low counts are probably noise, these being 49 and 113.
@@ -241,6 +244,7 @@ angles = c(0.0,45.0,90.0, 135.0, 180.0,  225.0, 270.0, 315.0)
 #finds the index in angles of the angle closest to relat_access02$orientation
 angle.index = apply(outer(relat_access02$orientation,angles, function(x,y){abs(x-y)}),1,which.min)
 rec_orient <- angles[angle.index]
+relat_access02$orientation = rec_orient
 ```
 
 5. Create the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function must identify and subset the rows in `IPS_sampledata` corresponding to this unique combination, then it must calculate and return the mean and standard deviation for the corresponding signal strengths. 
@@ -248,11 +252,11 @@ rec_orient <- angles[angle.index]
 ```{r signal_summary_function}
 #input: posX, posY, posZ, orientation, mac
 #output: mean and standard deviation for signal
-signal_summary <- function(posX, posY, posZ, orientation, mac){
-  obs = relat_access02[relat_access02$posX == posX & relat_access02$posY == posY & relat_access02$posZ == posZ & rec_orient == orientation & relat_access02$mac == mac,] #
+signal_summary <- function(d){
+  obs = relat_access02[(relat_access02$posX %in% as.numeric(d[1])) & (relat_access02$posY %in% as.numeric(d[2])) & (relat_access02$posZ %in% as.numeric(d[3])) & (rec_orient %in% as.numeric(d[4])) & (relat_access02$mac %in%d[5]),] #
   return(c(mean(obs$signal),sd(obs$signal)))  
 }
-signal_summary(2,0,0,0,"00:14:bf:b1:97:8a")
+signal_summary(c(2,0,0,45,"00:14:bf:b1:97:8a"))
 ```
 
 6.  Create a list where each entry corresponds to a named list including unique combination of a location, an orientation, and an access point.  Use this list in combination with `lapply` and `signal_summary` to generate a summary of signals for each unique combination. `Hint`: you may want to create a new variable with a unique identifier that combines location, `rec_orient` and `mac` to make your life simpler.  One way to go about this is using the `paste` function (see `?paste` for help on its use) with these variables in a row-by-row fashion.
@@ -271,3 +275,15 @@ grid.list = lapply(1:nrow(grid),function(i){grid[i,]})
 lapply(grid.list,signal_summary)
 ```
 
+```{r}
+#alternate faster and more useful version of the same problem
+#convert to data matrix so as to remove row names from data
+mat = data.matrix(relat_access02[,c('posX','posY','posZ','orientation')])
+
+#turn matrix of values into a list of position, orientation and mac
+grid.list = lapply(1:nrow(mat),function(i)({c(mat[i,],relat_access02$mac[i])}))
+#the duplicate function takes row names into consideration; hence our removing them
+uq.grid.list = grid.list[!duplicated(grid.list)]
+#get signal summary of each unique combination of position, orientation and mac
+lapply(uq.grid.list,signal_summary)
+```
