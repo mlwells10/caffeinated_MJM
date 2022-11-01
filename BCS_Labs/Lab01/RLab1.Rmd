@@ -3,6 +3,10 @@ title: "R Coding Lab Part 1"
 output: rmdformats::html_docco
 ---
 
+
+# Michael Wells, Justin Valentine, Mina Mehdinia 10/31/2022
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
