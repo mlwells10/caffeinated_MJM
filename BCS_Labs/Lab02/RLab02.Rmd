@@ -48,6 +48,7 @@ dat.76 = dat.76 %>% filter(!is.na(Age))
 Use the `identical()` function to verify that the 1976 data in this larger cleaned data set is the same as the cleaned version of `dat.76`. 
 
 ```{r combine_dat}
+
 dat <- bind_rows(CBdata.1_10) %>%
   filter(!is.na(Age)) %>% 
   select(-`PiS/TiS`)
