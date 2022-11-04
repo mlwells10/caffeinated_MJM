@@ -53,6 +53,7 @@ dat = bind_rows(CBdata.1_10) %>%
   select(-`PiS/TiS`)
 dat.76.02 %>% filter(Year == 1976)
 identical(dat.76,dat.76.02)
+
 ```
 
 5) Now that you have the combined data set for these 10 years, let's compare some basic results to what you found last week. Use piping and `dplyr` functions in your computations.  
