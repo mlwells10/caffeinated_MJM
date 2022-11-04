@@ -56,9 +56,25 @@ identical(dat.76,dat.76.02)
 
 ```
 
-5) Now that you have the combined data set for these 10 years, let's compare some basic results to what you found last week. Use piping and `dplyr` functions in your computations.  
+5) Now that you have the combined data set for these 10 years, let's compare some basic results to what you found last week. Use piping and `dplyr` functions in your computations. 
 a) Calculate the average of the recorded ages in 1976 and that same average over the entire `CBdata.1_10` data set, and make sure these numbers match the ones you found in Lab 1.  
+```{r}
+dat.76 %>% 
+  summarise(mean(Age))
+dat %>% 
+  summarise(mean(Age))
+```
+
 b) Recall that the `CBdata.1_10` contains the first ten year's worth of cherry blossom race data. Compute the average participant age over the first five years and the average age over years 6-10, and make sure these numbers match the ones you found in Lab 1.  
+```{r}
+dat %>% 
+  filter(Year >= 1973 & Year <=1977) %>% 
+  summarise(mean(Age))
+dat %>% 
+  filter(Year >= 1978 & Year <=1982) %>% 
+  summarise(mean(Age))
+```
+
 
 
 6) Let's now incorporate weather data into our cherry blossom data set. We will be dealing with multiple data sources, so this is a perfect oppritunity to practice `join` skills...
