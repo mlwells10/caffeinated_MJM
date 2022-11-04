@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example of a properly commented line of code)
 
-dat.76 <- CBdata.1_10[[4]]
+dat.76 <- CBdata.1_10[[4]] 
 dat.76 %>% select(-`PiS/TiS`)
 ```
 
