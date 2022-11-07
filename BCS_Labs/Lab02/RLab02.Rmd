@@ -199,3 +199,9 @@ rec_orient =  case_when(IPS_sampledata$orientation >= 0.0 & IPS_sampledata$orien
 4. Last week you created the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function identified and subset the rows in `IPS_sampledata` corresponding to this unique combination, then calculated and returned the mean and standard deviation for the corresponding signal strengths. You then used `lapply` to compute mean and standard deviation values for all combinations of location, orientation, and access point ID. 
 Use piping,`summarise()`, and other `dplyr` functions to run this same computation without the use of loops or `lapply`. Compare your results with those from last week to confirm you're doing the right thing!
 
+```{r}
+signal_summary <- function(data,posX,posY,posZ,rec_orient,mac){
+  data %>% distinct(posX,posY,posZ,orientation,mac,signal) %>% summarize(mean(signal), sd(signal))
+}
+signal_summary(IPS_sampledata,2,0,0,0.3,'00:14:bf:b1:97:8a')
+```
