@@ -200,8 +200,18 @@ rec_orient =  case_when(IPS_sampledata$orientation >= 0.0 & IPS_sampledata$orien
 Use piping,`summarise()`, and other `dplyr` functions to run this same computation without the use of loops or `lapply`. Compare your results with those from last week to confirm you're doing the right thing!
 
 ```{r}
+<<<<<<< HEAD
+IPS_data = IPS_sampledata %>% mutate(rec_orient)
+signal_summary <- function(d){
+  IPS_data %>% filter(posX==d[1],posY==d[2],posZ == d[3],rec_orient==d[4],mac==d[5]) %>% summarize(mean(signal), sd(signal))
+}
+#IPS_data %>% rowwise() %>% signal_summary(c(posX,posY,posZ,rec_orient,mac))
+IPS_unique = IPS_data %>% distinct(posX,posY,posZ,rec_orient,mac)
+IPS_unique[1:10,] %>% rowwise() %>% mutate(signal_summary(c(posX,posY,posZ,rec_orient,mac)))
+=======
 signal_summary <- function(data,posX,posY,posZ,rec_orient,mac){
   data %>% distinct(posX,posY,posZ,orientation,mac,signal) %>% summarize(mean(signal), sd(signal))
 }
 signal_summary(IPS_sampledata,2,0,0,0.3,'00:14:bf:b1:97:8a')
+>>>>>>> 6ae8311a8c5e70b77b19a3ecbda80c90bd308a70
 ```
