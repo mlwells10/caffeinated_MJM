@@ -186,6 +186,16 @@ IPS_sampledata
 
 
 3.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error.  Use the `case_when` function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
+```{r}
+
+```
+
 
 4. Last week you created the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function identified and subset the rows in `IPS_sampledata` corresponding to this unique combination, then calculated and returned the mean and standard deviation for the corresponding signal strengths. You then used `lapply` to compute mean and standard deviation values for all combinations of location, orientation, and access point ID. 
 Use piping,`summarise()`, and other `dplyr` functions to run this same computation without the use of loops or `lapply`. Compare your results with those from last week to confirm you're doing the right thing!
+```{r}
+signal_summary <- function(data,posX,posY,posZ,rec_orient,mac){
+  data %>% distinct(posX,posY,posZ,rec_orientation,mac) %>% summarize(mean(signal), sd(signal))
+}
+```
+
