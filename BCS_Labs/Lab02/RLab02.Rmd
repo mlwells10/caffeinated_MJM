@@ -91,20 +91,23 @@ head(data)
 b) Open the `Rite_of_Spring_1973_2020-1.pdf` document, and record the dates of the first 10 races. Store this information in a vector or data frame.
 ```{r}
 first_10 <- c('1973/04/01', '1974/03/31', '1975/04/06', '1976/04/04', '1977/04/03', '1978/04/02', '1979/04/01', '1980/03/30', '1981/04/05', '1982/04/04')
-as.Date(first_10, "%Y/%m/%d")
+first_10=as.Date(first_10, "%Y/%m/%d")
 dates = c(1973,1974,1975,1976,1977,1978,1979,1980,1981,1982)
 dates.df = data.frame(first_10,dates)
-colnames(dates.df) = c('Date','Year')
+colnames(dates.df) = c('DATE','Year')
 ```
 c) Use a `join` function to add a date column to your cherry blossom data frame. Hints: (i) the `paste()` and `paste0` functions are useful for creating character vectors (ii) it would be useful for these dates to have the same format as those found in the weather data set...
 ```{r}
 new.dat = dat %>% right_join(dates.df, by = "Year")
+head(new.dat)
 ```
 
 
 d) Use a `join` function to add precipitation `PRCP`  and minimum daily temperature `TMIN` columns to your cherry blossom data set.
 ```{r}
-
+new_dat1 <- data %>% select(DATE, PRCP, TMIN) %>% 
+  right_join(new.dat, by = "DATE")
+head(new_dat1)
 ```
 
 # Playing with the indoor positioning system data
