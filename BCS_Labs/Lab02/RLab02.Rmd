@@ -187,7 +187,12 @@ IPS_sampledata
 
 3.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error.  Use the `case_when` function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
 ```{r}
-
+rec_orient =  case_when(IPS_sampledata$orientation >= 0.0 & IPS_sampledata$orientation <= 22.5 ~ 0.0,
+                        IPS_sampledata$orientation > 22.5 & IPS_sampledata$orientation <= 67.5 ~ 45.0,
+                        IPS_sampledata$orientation > 67.5 & IPS_sampledata$orientation <= 111.5 ~ 90.0,
+                        IPS_sampledata$orientation > 111.5 & IPS_sampledata$orientation <= 157.5 ~ 135.0,
+                        IPS_sampledata$orientation > 157.5 & IPS_sampledata$orientation <= 202.5 ~ 180.0,
+                        IPS_sampledata$orientation > 202.5 & IPS_sampledata$orientation <= 247.5 ~ 225.0,          IPS_sampledata$orientation > 247.5 & IPS_sampledata$orientation <= 292.5 ~ 270.0,          IPS_sampledata$orientation > 292.5 ~ 315.0)
 ```
 
 
