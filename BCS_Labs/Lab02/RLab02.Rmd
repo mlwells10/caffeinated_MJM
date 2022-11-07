@@ -192,15 +192,10 @@ rec_orient =  case_when(IPS_sampledata$orientation >= 0.0 & IPS_sampledata$orien
                         IPS_sampledata$orientation > 111.5 & IPS_sampledata$orientation <= 157.5 ~ 135.0,
                         IPS_sampledata$orientation > 157.5 & IPS_sampledata$orientation <= 202.5 ~ 180.0,
                         IPS_sampledata$orientation > 202.5 & IPS_sampledata$orientation <= 247.5 ~ 225.0,          IPS_sampledata$orientation > 247.5 & IPS_sampledata$orientation <= 292.5 ~ 270.0,          IPS_sampledata$orientation > 292.5 ~ 315.0)
-
 ```
 
 
 
 4. Last week you created the function `signal_summary` that takes as inputs a location (`posX`, `posY`, `posZ`), an orientation (`rec_orient`) and an access point id (`mac`).  The function identified and subset the rows in `IPS_sampledata` corresponding to this unique combination, then calculated and returned the mean and standard deviation for the corresponding signal strengths. You then used `lapply` to compute mean and standard deviation values for all combinations of location, orientation, and access point ID. 
 Use piping,`summarise()`, and other `dplyr` functions to run this same computation without the use of loops or `lapply`. Compare your results with those from last week to confirm you're doing the right thing!
-
-```{r}
-
-```
 
