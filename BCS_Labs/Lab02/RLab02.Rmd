@@ -21,6 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r import_data}
 library(dplyr)
+library(tidyr)
 load("CBdata.1_10.RData" ) #Loading the cherry blossom data. (this is an example of a properly commented line of code)
 
 dat.76 <- CBdata.1_10[[4]] #the 4th df is the df for year == 1976
@@ -158,13 +159,23 @@ IPS_sampledata$time <- IPS_sampledata$time %>%  as.POSIXct(format = "%S", origin
 
 5. Convert this data set to a more wide format by creating one column for each access point, with each of those columns containing the corresponding signal strengths. Hint: you should end up with a data frame that has a lot fewer rows!  
 Set this data set aside and use the long format data for the rest of the assignment
+```{r}
+IPS_sampledata %>% pivot_wider(names_from = mac, values_from = signal) #idk if this is right, prob not
+```
 
 
 ### Examining the data more closely
 
 1. Using grouping and `dplyr` functions, tally the  number of observations for all access points in the data. 
+```{r}
+IPS_sampledata %>% group_by(mac) %>% tally()
+```
 
 2. While the researchers did their best to clean their data, some noise was introduced by access points on other floors.  Based on the number of counts, identify and remove likely suspects for access points read by mistake, again using `dplyr` functions.
+```{r}
+#It looks like the first, 3rd and 5th might be erroneous
+```
+
 
 3.  The orientation of the hand-held device considered was supposed to be exactly set to the 8 angles from 0-315 in increments of 45 degrees (360 is equivalent to 0). However, in practice the measured orientations were close to the 8 expected but had some error.  Use the `case_when` function to recode the orientation values as one of 0, 45, 90, 135, 180, 225, 270, 315. Call the recoded orientation variable `rec_orient`.
 
