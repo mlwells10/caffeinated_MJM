@@ -1,0 +1,126 @@
+---
+title: "Data Visualization Lab"
+subtitle: "IPS Teams"
+output: rmdformats::downcute
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Complete the following lab as a group. This document should exist in your GitHub repo while you're working on it. Your code should be heavily commented so someone reading your code can follow along easily. See the first code snippet below for an example of commented code.**
+
+**Here's the catch: For any given problem, the person writing the code should not be the person commenting that code, and every person must both code AND comment at least one problem in this lab (you decide how to split the work). This will involve lots of pushing and pulling through Git, and you may have to resolve conflicts if you're not careful! Refer to last Thursday's class notes for details on conflict resolution.**
+
+**ALSO, all plots generated should have labeled axes, titles, and legends when appropriate. Don't forget units of measurement! Make sure these plots could be interpreted by your client.**
+
+
+# Playing with the indoor positioning system data
+
+The `IPS_sampledata` data set contains a fraction of the indoor positioning system data for 15 randomly sampled locations.This data set is loaded into memory using the chunk of R code below, complete the following exercises. 
+
+The exercises below aim to help you polish your data visualization skills in R while simulatanelously helping you gain a better understanding of the IPS data.
+
+First, let's load up the data set.
+
+```{r eval=TRUE, echo=TRUE, message=FALSE}
+# loads data set IPS_sampledata
+load("IPS_portion.RData")
+mac_locs <- readr::read_table("accessPointLocations.txt")
+```
+
+## Variable dictionary
+
+- `time`: timestamp in milliseconds since midnight 01/01/1970 UTC
+
+- `scanMac`: MAC address of the scanning device (this is a handheld device)
+
+- `posX`, `posY` and `posZ`: the (x, y, z) physical coordinate of the scanning device
+
+- `orientation`: degree orientation of the user carrying the scanning device in degrees
+
+- `mac`: MAC address of an access point
+
+- `signal`: signal strength in dBm (Decibel-milliwatts)
+
+- `channel`: the channel frequency
+
+- `type`: type of device (access point = 3, device in adhoc mode = 1)
+
+## Preparing the data
+
+For this part of the lab you may use some of the code from the previous two labs to save some time.
+
+1. Transform the variables in the data set into their correct types.
+
+```{r transform_vars}
+# your code here
+```
+
+
+2. From `IPS_sampledata`, keep only records for the six access points included in the `mac_locs` table, save these to `IPS_sampledata`.
+
+```{r filter_by_macs}
+# your code here
+
+
+```
+
+3. Create a grouped version of the `orientation` variable, with groups (bins) determined by the proximity to angles 0, 45, 90, 135, 180, 225, 270, 315.
+
+```{r bin_orientation}
+# your code here
+
+
+```
+
+
+4. Combine the information in `IPS_sampledata` and `mac_locs` using one of the `join_` functions we learned in class.
+
+```{r mac_joins}
+# your code here
+
+
+```
+
+
+## Getting useful visualizations
+
+Throughout this section you'll have some freedom to create useful visualizations for your project.  [**Here is a link**](https://github.com/rstudio/cheatsheets/blob/main/data-visualization-2.1.pdf) to a `ggplot2` cheat-sheet, and [**here is another link**](https://r-graph-gallery.com/index.html) to a nice R graph gallery for inspiration.
+
+1. Generate a scatter plot showing the locations (`posX` and `posY` in `IPS_Sampledata`) of the handheld device, as well as those from the access points (variables `x` and `y` from `mac_locs`).   Use the `aesthetic` of your choosing to distinguish the handheld device locations from those corresponding to the access points.
+
+```{r loc_scatter}
+# your code here
+
+
+```
+
+
+2. Use the resulting data set from exercise 4 from the *"Preparing the Data"* section, `group` and `summarize` it in the appropriate way to obtain the median, mean, standard deviation and any other summary statistic you consider useful to assess the signal strength for each combination of:  location, orientation (the binned version), and access point.
+
+```{r summary_by_combo}
+# your code here
+
+
+```
+
+
+3. Using the data generated from the exercise above, produce one or more visualizations (at most 3) to explore the relationship between  orientation angle, location (relative to the access point), and signal strength, using `ggplot2` tools discussed in class. Briefly comment on the relationships you observe in your visualization(s) between orientation angle, distance between locations and access points, and signal strength. From your visualization(s), what cardinal direction can you relate the 0 degree orientation with?
+
+```{r cool_dat_vis}
+# your code here
+
+
+```
+
+
+4. Replicate the plot attached in the link.
+
+```{r rep_figure}
+xfun::embed_file("SignalByLocation.pdf")
+```
+
+
+
+
