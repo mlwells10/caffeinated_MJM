@@ -27,10 +27,33 @@ load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example 
 1) Looking at race times all on their own.
     a) Import the data from `CBdata.1_10.RData` and combine all 10 year's worth of data into one data frame, removing observations with missing age or time data (this should be very similar to previous labs). For each year, create a histogram of race times and plot a the corresponding density curve in the same figure. Arrage all ten of these plots into one figure 
     b) Plot the density curves for all ten years in one figure, along with a density curve of the combined data set (for a total of 11 curves). The main focus should be displaying the combined density, but all 11 densities should be discernible.
+```{r}
+#part a
+dat = bind_rows(CBdata.1_10)
+dat = dat[(!is.na(dat$Age))&(!is.na(dat$Time)),]
+dat$Time = hms(dat$Time)
+dat$Time = as.numeric(seconds(dat$Time))/60.0
+dat = dat[(!is.na(dat$Time)),]
+ggplot(data=dat,aes(x=Time)) + geom_histogram(binwidth=5) + facet_wrap(Year~.)+theme(axis.text.x = element_text())+xlab("Time (minutes)")+ylab("Counts")+ggtitle("Race times every year")
+ggplot(data=dat,aes(x=Time)) + geom_density() + facet_wrap(Year~.)+theme(axis.text.x = element_text())+xlab("Time (minutes)")+ggtitle("Race times every year")
+```
+
+```{r}
+#part b
+ggplot(data=dat,aes(x=Time)) + geom_density(aes(group=Year,color=Year))+geom_density(color='Red',lwd=2)+theme(axis.text.x = element_text())+xlab("Time (minutes)")+ggtitle("Density of race times by year", subtitle="Red is over all years")
+```
+
+
   
 2) Correlating age and time: Create a scatter plot of age and race time, with time being the response. All ten year's worth of data should be included, but you should be able to tell which year each point comes from. Include trend lines for each year, along with a trend line for the combined data set.
+```{r}
+ggplot(data=dat,aes(x=Age,y=Time)) + geom_point(aes(group=Year,color=Year)) + geom_smooth(method=lm,aes(group=Year,color=Year)) + geom_smooth(method=lm,color='Red',lwd=2)+
+  scale_color_viridis_c()
+```
 
 Write a short interpretation of the plot as if you were explaining it to your client.
+
+
   
   
 3) Relating age and times categorically:  
@@ -39,4 +62,7 @@ The age groups we're interested in are defined by decade, so separate people in 
 Generate one plot that displays the age composition of each of the ten performance groups. Make sure you're using all ten year's worth of data.  
 Hint: You can compute performance groups manually from `Year` and `Time`, or by carefully manipulating `Pis/Tis`.
 
+```{r}
+
+```
 
