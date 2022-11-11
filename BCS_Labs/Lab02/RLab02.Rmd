@@ -203,6 +203,6 @@ Use piping,`summarise()`, and other `dplyr` functions to run this same computati
 signal_summary <- function(data,posX,posY,posZ,rec_orient,mac){
   data %>% distinct(posX,posY,posZ,orientation,mac,signal) %>% summarize(mean(signal), sd(signal))
 }
-signal_summary(IPS_sampledata,2,0,0,0.3,'00:14:bf:b1:97:8a')
+signal_summary(IPS_sampledata,2.0,0,0,0.3,'00:14:bf:b1:97:8a')
 ```
 
