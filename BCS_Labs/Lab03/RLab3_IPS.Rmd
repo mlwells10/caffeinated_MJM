@@ -6,6 +6,7 @@ output: rmdformats::downcute
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
 ```
 
 **Complete the following lab as a group. This document should exist in your GitHub repo while you're working on it. Your code should be heavily commented so someone reading your code can follow along easily. See the first code snippet below for an example of commented code.**
@@ -54,23 +55,32 @@ For this part of the lab you may use some of the code from the previous two labs
 1. Transform the variables in the data set into their correct types.
 
 ```{r transform_vars}
-# your code here
+#class conversion
+IPS_sampledata[,c(1,3:6,8:10)] <- IPS_sampledata %>% select(time, posX, posY, posZ, orientation, signal, channel, type) %>% sapply(as.numeric)
 ```
 
 
 2. From `IPS_sampledata`, keep only records for the six access points included in the `mac_locs` table, save these to `IPS_sampledata`.
 
 ```{r filter_by_macs}
-# your code here
-
-
+#maclist is a list of six access point in the mac_locs
+maclist <- c('00:0f:a3:39:e1:c0','00:14:bf:b1:97:8a','00:14:bf:3b:c7:c6','00:14:bf:b1:97:90','00:14:bf:b1:97:8d','00:14:bf:b1:97:81')
+IPS_sampledata <-  IPS_sampledata %>% filter(mac == maclist) #keep only those six access point
 ```
 
 3. Create a grouped version of the `orientation` variable, with groups (bins) determined by the proximity to angles 0, 45, 90, 135, 180, 225, 270, 315.
 
 ```{r bin_orientation}
-# your code here
-
+#Using case_when function to set the orientation value to given values and using mutate to create new column called orient_group for group version
+IPS_sampledata <- IPS_sampledata %>% mutate(orient_group =  case_when(
+  IPS_sampledata$orientation >= 0.0 & IPS_sampledata$orientation <= 22.5 ~ 0.0,
+  IPS_sampledata$orientation > 22.5 & IPS_sampledata$orientation <= 67.5 ~ 45.0,
+  IPS_sampledata$orientation > 67.5 & IPS_sampledata$orientation <= 111.5 ~ 90.0,
+  IPS_sampledata$orientation > 111.5 & IPS_sampledata$orientation <= 157.5 ~ 135.0,
+  IPS_sampledata$orientation > 157.5 & IPS_sampledata$orientation <= 202.5 ~ 180.0,
+  IPS_sampledata$orientation > 202.5 & IPS_sampledata$orientation <= 247.5 ~ 225.0,          
+  IPS_sampledata$orientation > 247.5 & IPS_sampledata$orientation <= 292.5 ~ 270.0,         
+  IPS_sampledata$orientation > 292.5 ~ 315.0))
 
 ```
 
@@ -78,9 +88,9 @@ For this part of the lab you may use some of the code from the previous two labs
 4. Combine the information in `IPS_sampledata` and `mac_locs` using one of the `join_` functions we learned in class.
 
 ```{r mac_joins}
-# your code here
-
-
+colnames(mac_locs) = c('mac','x','y') # change the column name Mac to mac in mac_locs data frame
+comb_data <- mac_locs %>% select(mac,x,y) %>% 
+  right_join(IPS_sampledata, by = "mac") #using right join to combine IPS_sampledata and mac_locs
 ```
 
 
@@ -92,8 +102,10 @@ Throughout this section you'll have some freedom to create useful visualizations
 
 ```{r loc_scatter}
 # your code here
-
-
+ggplot(IPS_sampledata, aes(x= posX, y = posY)) + 
+  geom_point()
+ggplot(mac_locs, aes(x= x, y = y)) + 
+  geom_point()
 ```
 
 
