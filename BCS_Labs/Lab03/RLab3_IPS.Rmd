@@ -6,6 +6,7 @@ output: rmdformats::downcute
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
 ```
 
 **Complete the following lab as a group. This document should exist in your GitHub repo while you're working on it. Your code should be heavily commented so someone reading your code can follow along easily. See the first code snippet below for an example of commented code.**
@@ -54,23 +55,34 @@ For this part of the lab you may use some of the code from the previous two labs
 1. Transform the variables in the data set into their correct types.
 
 ```{r transform_vars}
-# your code here
+#class conversion
+IPS_sampledata[,c(1,3:6,8:10)] <- IPS_sampledata %>% select(time, posX, posY, posZ, orientation, signal, channel, type) %>% sapply(as.numeric)
+
+IPS_sampledata <- IPS_sampledata %>% mutate(time = time/1000) #using mutate function to convert time to second and save it to the same varibale name
 ```
 
 
 2. From `IPS_sampledata`, keep only records for the six access points included in the `mac_locs` table, save these to `IPS_sampledata`.
 
 ```{r filter_by_macs}
-# your code here
 
+IPS_sampledata <- filter(IPS_sampledata, mac %in% mac_locs$Macs) #keep only those six access point
 
 ```
 
 3. Create a grouped version of the `orientation` variable, with groups (bins) determined by the proximity to angles 0, 45, 90, 135, 180, 225, 270, 315.
 
 ```{r bin_orientation}
-# your code here
-
+#Using case_when function to set the orientation value to given values and using mutate to create new column called orient_group for group version
+IPS_sampledata <- IPS_sampledata %>% mutate(orient_group =  case_when(
+  IPS_sampledata$orientation >= 0.0 & IPS_sampledata$orientation <= 22.5 ~ 0.0,
+  IPS_sampledata$orientation > 22.5 & IPS_sampledata$orientation <= 67.5 ~ 45.0,
+  IPS_sampledata$orientation > 67.5 & IPS_sampledata$orientation <= 111.5 ~ 90.0,
+  IPS_sampledata$orientation > 111.5 & IPS_sampledata$orientation <= 157.5 ~ 135.0,
+  IPS_sampledata$orientation > 157.5 & IPS_sampledata$orientation <= 202.5 ~ 180.0,
+  IPS_sampledata$orientation > 202.5 & IPS_sampledata$orientation <= 247.5 ~ 225.0,          
+  IPS_sampledata$orientation > 247.5 & IPS_sampledata$orientation <= 292.5 ~ 270.0,         
+  IPS_sampledata$orientation > 292.5 ~ 315.0))
 
 ```
 
@@ -78,9 +90,8 @@ For this part of the lab you may use some of the code from the previous two labs
 4. Combine the information in `IPS_sampledata` and `mac_locs` using one of the `join_` functions we learned in class.
 
 ```{r mac_joins}
-# your code here
-
-
+colnames(mac_locs) = c('mac','x','y') # change the column name Mac to mac in mac_locs data frame
+comb_data <- right_join(IPS_sampledata,mac_locs,by = "mac") #using right join to combine IPS_sampledata and mac_locs
 ```
 
 
@@ -91,8 +102,13 @@ Throughout this section you'll have some freedom to create useful visualizations
 1. Generate a scatter plot showing the locations (`posX` and `posY` in `IPS_Sampledata`) of the handheld device, as well as those from the access points (variables `x` and `y` from `mac_locs`).   Use the `aesthetic` of your choosing to distinguish the handheld device locations from those corresponding to the access points.
 
 ```{r loc_scatter}
-# your code here
+# I think is wrong
 
+ggplot(IPS_sampledata, aes(x= posX, y = posY, color = mac)) + 
+  geom_point()
+
+ggplot(mac_locs, aes(x= x, y = y, color = mac)) + 
+  geom_point()
 
 ```
 
@@ -101,7 +117,10 @@ Throughout this section you'll have some freedom to create useful visualizations
 
 ```{r summary_by_combo}
 # your code here
-
+comb_data %>% group_by(posX,posY,posZ,orientation,mac,x,y) %>%
+  summarise(mean = mean(signal),
+            median = median(signal),
+            sd = sd(signal))
 
 ```
 
@@ -119,6 +138,22 @@ Throughout this section you'll have some freedom to create useful visualizations
 
 ```{r rep_figure}
 xfun::embed_file("SignalByLocation.pdf")
+```
+
+
+```{r rep_figure}
+comb_data <- comb_data %>% mutate(posXY = paste(posX, posY, sep = ",")) 
+
+ggplot(comb_data, aes(x = posXY, y=signal)) +
+  geom_point(colour = "cornflowerblue",position = "jitter")+
+  geom_boxplot()+
+  facet_grid(vars(mac),vars(orient_group))+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle = 90, hjust = 1))+
+  labs(title="Signal strength by location", 
+       subtitle = "(by access point/orientation combination)",
+       x="location coordinates",
+       y="signal")
 ```
 
 
