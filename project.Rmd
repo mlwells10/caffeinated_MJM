@@ -12,7 +12,10 @@ library(tidyverse)
 library(lubridate)
 library(dplyr)
 library(ggplot2)
-
+#install.packages("devtools")
+#devtools::install_github("dtkaplan/statisticalModeling")
+library(devtools)
+library(statisticalModeling)
 ```
 
 ```{r}
@@ -97,5 +100,32 @@ plot_usmap(regions = "states", labels = TRUE)+
 ```{r}
 ggplot()+
   geom_polygon(df_cleantown$Hometown)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+
 ```
 
