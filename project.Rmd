@@ -12,11 +12,13 @@ library(tidyverse)
 library(lubridate)
 library(dplyr)
 library(ggplot2)
-#install.packages("devtools")
+#install.packages("plotly")
 #devtools::install_github("dtkaplan/statisticalModeling")
 #library(devtools)
 library(statisticalModeling)
 library(olsrr)
+library(scatterplot3d)
+library(plotly)
 ```
 
 ```{r}
@@ -186,10 +188,27 @@ summary(model_f)
 
 The addition of TMIN was not significant. 
 
+```{r}
+confint(model_f)
+```
+
+```{r}
+#lags the shit out of my computer
+#plot_ly(data_t, x = ~Division, y = ~times, z = ~PRCP, type = "scatter3d", mode   = 'markers')
+```
+
+```{r}
+anova(model_f)
+```
+
+```{r}
+plot(model_f)
+```
+
 
 ```{r}
 #new_inputs <- data.frame(Age = seq(20,100,5))
-predict(model_f, Division = 'DivisionW0119', PRCP = 1.6)
+#predict(model_f, Division = 'DivisionW0119', PRCP = 1.6)
 #evaluate_model(model_f,new_inputs)
 ```
 
