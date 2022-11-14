@@ -3,7 +3,7 @@ title: "R Coding Lab Part 3: CB"
 output: rmdformats::downcute
 ---
   
-  ```{r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -19,8 +19,6 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example of a properly commented line of code)
-
-
 ```
 # Cherry Blossom Race Plotting Problems
 
@@ -55,14 +53,13 @@ ggplot(data=dat,aes(x=Time)) + geom_density(aes(group=Year,color=Year))+geom_den
 2) Correlating age and time: Create a scatter plot of age and race time, with time being the response. All ten year's worth of data should be included, but you should be able to tell which year each point comes from. Include trend lines for each year, along with a trend line for the combined data set.
 ```{r}
 ggplot(data=dat,aes(x=Age,y=Time)) + geom_point(aes(group=Year,color=Year)) + geom_smooth(method=lm,aes(group=Year,color=Year)) + geom_smooth(method=lm,color='Red',lwd=2)+
-  scale_color_viridis_c()
+  scale_color_viridis_c() +ggtitle("Age and Time in all Year")
 ```
 
 Write a short interpretation of the plot as if you were explaining it to your client.
 
+In each year time increases as of age. positive slop(trending upward line) shows as people aged, the time increase. Trend is consistent in all years. The black line represent the year 1973 and and it is short because we only have 2 people in age 17 and 23, and they have extremely fast paces. so it is not enough to make a conclusion of this year. 
 
-
- 
   
 3) Relating age and times categorically:  
 We're interested in the age composition for ten performance groups. The performance groups are defined based ten percentiles (10%, 20%,...100%) of relative finish position. For example, someone finishing 3rd out of 125 would be in the 10th-percentile group, while someone finishing 985 out of 1013 would be in the 100th-percentile group.  
@@ -100,9 +97,11 @@ if(alpha <= .50){
 x <- icdf(dat$Time,0.30)
 x
 ```
+
 ```{r}
 dat %>% filter(Time == x)
 ```
+
 
 
 ```{r}
