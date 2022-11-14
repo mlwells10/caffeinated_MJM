@@ -59,12 +59,7 @@ ggplot(data=dat,aes(x=Age,y=Time)) + geom_point(aes(group=Year,color=Year)) + ge
 ```
 
 Write a short interpretation of the plot as if you were explaining it to your client.
-```{r}
-dat %>% ggplot(aes(x = Age, y = Time, color = Year))+
-  geom_point()+
-  geom_smooth(method = "lm")+
-  scale_color_viridis_c()
-```
+
 
 
  
@@ -75,7 +70,37 @@ The age groups we're interested in are defined by decade, so separate people in 
 Generate one plot that displays the age composition of each of the ten performance groups. Make sure you're using all ten year's worth of data.  
 Hint: You can compute performance groups manually from `Year` and `Time`, or by carefully manipulating `Pis/Tis`.
 
-```{r}
 
+```{r}
+icdf <- function(x, alpha)
+{
+############################################################################
+# This is the quantile function or inverse cumulative distribution function# 
+# x     : vector of scores                  #
+# alpha : a value between 0 and 1                                          #
+# The function will return                                                 #
+#  a score value x[int{alpha*(n+1)}] if alpha does not exceed 0.50         #
+# a score value x[(n+1) - int{(1-alpha)*(n+1)}] if alpha exceeds 0.50      #
+# where n is the length of the vector x                                    #
+############################################################################
+   
+
+x <- sort(x)
+n <- length(x)
+if(alpha <= .50){
+  return(x[floor(alpha*(n+1))])
+} else{
+  return(x[(n+1) - floor((1-alpha)*(n+1))])
+}
+
+}
+```
+
+```{r}
+x <- icdf(dat$Time,0.30)
+x
+```
+```{r}
+dat %>% filter(Time == x)
 ```
 
