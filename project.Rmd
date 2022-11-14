@@ -192,6 +192,8 @@ The addition of TMIN was not significant.
 confint(model_f)
 ```
 
+The presence of precipitation lowers run time as might be expected
+
 ```{r}
 #lags the shit out of my computer
 #plot_ly(data_t, x = ~Division, y = ~times, z = ~PRCP, type = "scatter3d", mode   = 'markers')
@@ -201,15 +203,18 @@ confint(model_f)
 anova(model_f)
 ```
 
+
+
 ```{r}
 plot(model_f)
 ```
 
 
 ```{r}
-#new_inputs <- data.frame(Age = seq(20,100,5))
+new_inputs <- data.frame(Division = c('W2529'), PRCP = c(1.5))
 #predict(model_f, Division = 'DivisionW0119', PRCP = 1.6)
 #evaluate_model(model_f,new_inputs)
+predict(model_f,new_inputs)
 ```
 
  
