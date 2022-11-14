@@ -97,6 +97,7 @@ if(alpha <= .50){
 x <- icdf(dat$Time,0.30)
 x
 ```
+
 ```{r}
 dat %>% filter(Time == x)
 ```
