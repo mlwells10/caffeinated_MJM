@@ -58,7 +58,7 @@ ggplot(data=dat,aes(x=Age,y=Time)) + geom_point(aes(group=Year,color=Year)) + ge
 
 Write a short interpretation of the plot as if you were explaining it to your client.
 
-In each year time increases as of age. positive slop(trending upward line) shows as people aged, the time increase. Trend is consistent in all years. The black line represent the year 1973 and and it is short because we only have 2 people in age 17 and 23, and they have extremely fast paces. so it is not enough to make a conclusion of this year. ii
+In each year time increases as of age. positive slop(trending upward line) shows as people aged, the time increase. Trend is consistent in all years. The black line represent the year 1973 and and it is short because we only have 2 people in age 17 and 23, and they have extremely fast paces. so it is not enough to make a conclusion of this year. 
 
   
 3) Relating age and times categorically:  
