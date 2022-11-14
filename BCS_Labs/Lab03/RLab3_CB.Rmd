@@ -34,8 +34,9 @@ dat = dat[(!is.na(dat$Age))&(!is.na(dat$Time)),]
 dat$Time = hms(dat$Time)
 dat$Time = as.numeric(seconds(dat$Time))/60.0
 dat = dat[(!is.na(dat$Time)),]
-ggplot(data=dat,aes(x=Time)) + geom_histogram(binwidth=5) + facet_wrap(Year~.)+theme(axis.text.x = element_text())+xlab("Time (minutes)")+ylab("Counts")+ggtitle("Race times every year")
-ggplot(data=dat,aes(x=Time)) + geom_density() + facet_wrap(Year~.)+theme(axis.text.x = element_text())+xlab("Time (minutes)")+ggtitle("Race times every year")
+
+ggplot(data=dat,aes(x=Time)) + geom_histogram(aes(y= ..density..),binwidth=5) + geom_density()+ facet_wrap(Year~.)+theme(axis.text.x = element_text())+xlab("Time (minutes)")+ylab("Counts")+ggtitle("Race times every year")
+
 ```
 
 ```{r}
