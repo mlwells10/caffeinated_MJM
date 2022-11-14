@@ -96,15 +96,12 @@ x
 dat %>% filter(Time == x)
 ```
 
-
 ```{r}
 age_group = case_when(dat$Age <= 10 ~ "Age<=10", dat$Age > 10 & dat$Age <=20 ~ "10 < Age <= 20", dat$Age > 20 & dat$Age <=30 ~ "20 < Age <= 30", dat$Age > 30 & dat$Age <=40 ~ "30 < Age <= 40", dat$Age > 40 & dat$Age<=50 ~ "40 < Age <= 50", dat$Age > 50 & dat$Age <= 60 ~ "50 < Age <= 60",dat$Age > 60 & dat$Age <= 70 ~ "60 < Age <= 70",dat$Age > 70 & dat$Age <=80 ~ "70 < Age <= 80", dat$Age > 80 ~ "Age > 80")
 dat  = dat %>% mutate(age_group)
-head(dat)
-```
-
-```{r}
-dat <- dat%>% mutate( decade = 10*floor( Age/10 ) )
+qtile = c(icdf(dat$Time,0.15),icdf(dat$Time,0.25),icdf(dat$Time,0.35),icdf(dat$Time,0.45),icdf(dat$Time,0.55),icdf(dat$Time,0.65),icdf(dat$Time,0.75),icdf(dat$Time,0.85),icdf(dat$Time,0.95))
+performance_group = case_when(dat$Time <= qtile[1] ~ "10th Percentile", dat$Time > qtile[1] & dat$Time <= qtile[2] ~ "20th Percentile", dat$Time > qtile[2] & dat$Time <= qtile[3] ~ "30th Percentile", dat$Time > qtile[3] & dat$Time <= qtile[4] ~ "40th Percentile" , dat$Time > qtile[4] & dat$Time <= qtile[5] ~ "50th Percentile", dat$Time > qtile[5] & dat$Time <= qtile[6] ~ "60th Percentile",dat$Time > qtile[6] & dat$Time <= qtile[7] ~ "70th Percentile",dat$Time > qtile[7] & dat$Time <= qtile[8] ~ "80th Percentile", dat$Time > qtile[8] & dat$Time <= qtile[9] ~ "90th Percentile", dat$Time > qtile[9] ~ "100th Percentile")
+dat = dat %>% mutate(performance_group)
 ```
 
 
