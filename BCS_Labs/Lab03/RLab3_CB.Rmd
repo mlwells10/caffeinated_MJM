@@ -94,7 +94,7 @@ if(alpha <= .50){
 ```
 
 ```{r}
-x <- icdf(dat$Time,0.30)
+x <- icdf(dat$Time,0.20)
 x
 ```
 
