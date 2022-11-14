@@ -28,12 +28,6 @@ load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example 
 b) Plot the density curves for all ten years in one figure, along with a density curve of the combined data set (for a total of 11 curves). The main focus should be displaying the combined density, but all 11 densities should be discernible.
 
 ```{r}
-dat %>% ggplot(aes(x = Time))+
-  geom_density(aes(group=Year, color = Year))+
-  geom_density(color = 'Red')
-```
-
-```{r}
 #part a
 dat = bind_rows(CBdata.1_10)
 dat = dat[(!is.na(dat$Age))&(!is.na(dat$Time)),]
@@ -101,3 +95,15 @@ x
 ```{r}
 dat %>% filter(Time == x)
 ```
+
+```{r}
+age_group = case_when(dat$Age <= 10 ~ "Age<=10", dat$Age > 10 & dat$Age <=20 ~ "10 < Age <= 20", dat$Age > 20 & dat$Age <=30 ~ "20 < Age <= 30", dat$Age > 30 & dat$Age <=40 ~ "30 < Age <= 40", dat$Age > 40 & dat$Age<=50 ~ "40 < Age <= 50", dat$Age > 50 & dat$Age <= 60 ~ "50 < Age <= 60",dat$Age > 60 & dat$Age <= 70 ~ "60 < Age <= 70",dat$Age > 70 & dat$Age <=80 ~ "70 < Age <= 80", dat$Age > 80 ~ "Age > 80")
+dat  = dat %>% mutate(age_group)
+head(dat)
+```
+
+```{r}
+dat <- dat%>% mutate( decade = 10*floor( Age/10 ) )
+```
+
+
