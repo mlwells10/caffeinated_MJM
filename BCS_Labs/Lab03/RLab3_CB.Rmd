@@ -76,6 +76,7 @@ Generate one plot that displays the age composition of each of the ten performan
 Hint: You can compute performance groups manually from `Year` and `Time`, or by carefully manipulating `Pis/Tis`.
 
 ```{r}
-
+age_group = case_when(dat$Age <= 10 ~ "Age<=10", dat$Age > 10 & dat$Age <=20 ~ "10 < Age <= 20", dat$Age > 20 & dat$Age <=30 ~ "20 < Age <= 30", dat$Age > 30 & dat$Age <=40 ~ "30 < Age <= 40", dat$Age > 40 & dat$Age<=50 ~ "40 < Age <= 50", dat$Age > 50 & dat$Age <= 60 ~ "50 < Age <= 60",dat$Age > 60 & dat$Age <= 70 ~ "60 < Age <= 70",dat$Age > 70 & dat$Age <=80 ~ "70 < Age <= 80", dat$Age > 80 ~ "Age > 80")
+dat  = dat %>% mutate(age_group)
 ```
 
