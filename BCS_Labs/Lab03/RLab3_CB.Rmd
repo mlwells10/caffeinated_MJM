@@ -112,3 +112,13 @@ performance_group = case_when(dat$Time <= qtile[1] ~ "10th Percentile", dat$Time
 dat = dat %>% mutate(performance_group)
 ```
 
+```{r}
+dat %>% ggplot(aes(x = performance_group, fill = age_group))+
+  geom_bar(position = "dodge")+
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  ggtitle("Performance groups and ages")+
+  xlab("Performance Groups")+
+  ylab("Counts")
+
+```
+
