@@ -26,27 +26,15 @@ load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example 
 
 1) Looking at race times all on their own.
     a) Import the data from `CBdata.1_10.RData` and combine all 10 year's worth of data into one data frame, removing observations with missing age or time data (this should be very similar to previous labs). For each year, create a histogram of race times and plot a the corresponding density curve in the same figure. Arrage all ten of these plots into one figure 
-```{r}
-dat = bind_rows(CBdata.1_10)
-dat <- dat[is.na(dat$Age) != T & is.na(dat$Time) != T,]
-dat$Time = hms(dat$Time)
-dat$Time = as.numeric(seconds(dat$Time)) / 60
-dat %>% ggplot(aes(x = Time))+
-  geom_histogram(binwidth = 5)+
-  facet_wrap(Year~.)+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  xlab("Time in minutes") + 
-  ylab("Counts")+
-  ggtitle("Race times every year")
-```
     
-    b) Plot the density curves for all ten years in one figure, along with a density curve of the combined data set (for a total of 11 curves). The main focus should be displaying the combined density, but all 11 densities should be discernible.
+b) Plot the density curves for all ten years in one figure, along with a density curve of the combined data set (for a total of 11 curves). The main focus should be displaying the combined density, but all 11 densities should be discernible.
 
 ```{r}
 dat %>% ggplot(aes(x = Time))+
   geom_density(aes(group=Year, color = Year))+
   geom_density(color = 'Red')
 ```
+
 ```{r}
 #part a
 dat = bind_rows(CBdata.1_10)
