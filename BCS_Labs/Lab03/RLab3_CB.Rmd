@@ -42,8 +42,6 @@ ggplot(data=dat,aes(x=Time)) + geom_density() + facet_wrap(Year~.)+theme(axis.te
 #part b
 ggplot(data=dat,aes(x=Time)) + geom_density(aes(group=Year,color=Year))+geom_density(color='Red',lwd=2)+theme(axis.text.x = element_text())+xlab("Time (minutes)")+ggtitle("Density of race times by year", subtitle="Red is over all years")
 ```
-
-
   
 2) Correlating age and time: Create a scatter plot of age and race time, with time being the response. All ten year's worth of data should be included, but you should be able to tell which year each point comes from. Include trend lines for each year, along with a trend line for the combined data set.
 ```{r}
