@@ -16,6 +16,7 @@ library(ggplot2)
 #devtools::install_github("dtkaplan/statisticalModeling")
 #library(devtools)
 library(statisticalModeling)
+library(olsrr)
 ```
 
 ```{r}
@@ -138,3 +139,59 @@ head(data_w)
 ```
 
 
+
+
+
+
+
+```{r}
+#needed to create a new column of times in integer seconds to run a model
+data_t <- data_w %>% mutate(times = as.numeric(Time))
+model_1 <- lm(times~0+Age, data=data_t)
+summary(model_1)
+```
+
+Age is a significant predicter of run time
+
+```{r}
+model_2 <- lm(times~0+Division, data = data_t)
+summary(model_2)
+```
+
+I think Division is probably a better predictor than Age. We cannot include both due to multicollinearity. 
+
+
+```{r}
+model_3 <- lm(times~ 0+PRCP, data=data_t )
+summary(model_3)
+```
+
+Precipitation is a significant predictor. 
+
+
+
+```{r}
+model_4 <- lm(times~0+ TMIN, data=data_t )
+summary(model_4)
+```
+
+Minimum temperature is a significant predictor
+
+
+
+```{r}
+model_f <- lm(times~0+Division +  PRCP , data=data_t)
+summary(model_f)
+```
+
+The addition of TMIN was not significant. 
+
+
+```{r}
+#new_inputs <- data.frame(Age = seq(20,100,5))
+predict(model_f, Division = 'DivisionW0119', PRCP = 1.6)
+#evaluate_model(model_f,new_inputs)
+```
+
+ 
+ 
