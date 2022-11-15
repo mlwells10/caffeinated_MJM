@@ -2,7 +2,8 @@
 title: "R Coding Lab Part 3: CB"
 output: rmdformats::downcute
 ---
-  
+# # Michael Wells, Justin Valentine, Mina Mehdinia
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -15,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r import_data,eval=F, echo=F}
+#libraries
 library(dplyr)
 library(ggplot2)
 library(lubridate)
@@ -27,27 +29,45 @@ load("CBdata.1_10.RData") #Loading the cherry blossom data. (this is an example 
     
 b) Plot the density curves for all ten years in one figure, along with a density curve of the combined data set (for a total of 11 curves). The main focus should be displaying the combined density, but all 11 densities should be discernible.
 
-```{r}
+```{r warning=False}
 #part a
 dat = bind_rows(CBdata.1_10)
-dat = dat[(!is.na(dat$Age))&(!is.na(dat$Time)),]
-dat$Time = hms(dat$Time)
-dat$Time = as.numeric(seconds(dat$Time))/60.0
-dat = dat[(!is.na(dat$Time)),]
+dat = dat[(!is.na(dat$Age))&(!is.na(dat$Time)),] #removing NA in Age and Time observation
+dat$Time = hms(dat$Time) #convert time to hours, minutes, second
+dat$Time = as.numeric(seconds(dat$Time))/60.0 #convert Time to second and to double
+dat = dat[(!is.na(dat$Time)),] #becuse of convertion to second some data will give NA, and becuase of that, we remove NA again
 
-ggplot(data=dat,aes(x=Time)) + geom_histogram(aes(y= ..density..),binwidth=5) + geom_density()+ facet_wrap(Year~.)+theme(axis.text.x = element_text())+xlab("Time (minutes)")+ylab("Counts")+ggtitle("Race times every year")
+#plot race time for 10 year using ggplot
+ggplot(data=dat,aes(x=Time)) + 
+  geom_histogram(aes(y= ..density..),binwidth=5) + #histogram plot
+  geom_density()+ #density plot
+  facet_wrap(Year~.)+ #makes a long ribbon of panels and wraps it into 2d
+  theme(axis.text.x = element_text())+ #Specify all axes' labels for panel
+  xlab("Time (minutes)")+ #x-axis title
+  ylab("Counts")+ #y-axis title
+  ggtitle("Race times every year") #title of the plot
 
 ```
 
-```{r}
+```{r warning=FALSE}
 #part b
-ggplot(data=dat,aes(x=Time)) + geom_density(aes(group=Year,color=Year))+geom_density(color='Red',lwd=2)+theme(axis.text.x = element_text())+xlab("Time (minutes)")+ggtitle("Density of race times by year", subtitle="Red is over all years")
+ggplot(data=dat,aes(x=Time)) + 
+  geom_density(aes(group=Year,color=Year))+ #density curves for all ten years
+  geom_density(color='Red',lwd=2)+
+  theme(axis.text.x = element_text())+
+  xlab("Time (minutes)")+
+  ggtitle("Density of race times by year", subtitle="Red is over all years")
 ```
   
 2) Correlating age and time: Create a scatter plot of age and race time, with time being the response. All ten year's worth of data should be included, but you should be able to tell which year each point comes from. Include trend lines for each year, along with a trend line for the combined data set.
-```{r}
-ggplot(data=dat,aes(x=Age,y=Time)) + geom_point(aes(group=Year,color=Year)) + geom_smooth(method=lm,aes(group=Year,color=Year)) + geom_smooth(method=lm,color='Red',lwd=2)+
-  scale_color_viridis_c() +ggtitle("Age and Time in all Year")
+```{r warning=FALSE}
+#plot for age and time in 10 years
+ggplot(data=dat,aes(x=Age,y=Time)) + 
+  geom_point(aes(group=Year,color=Year)) + # scatterplot
+  geom_smooth(method=lm,aes(group=Year,color=Year)) + #adds line over a plot
+  geom_smooth(method=lm,color='Red',lwd=2)+
+  scale_color_viridis_c() + #Sets the order of colors in the scale
+  ggtitle("Age and Time in all Year")
 ```
 
 Write a short interpretation of the plot as if you were explaining it to your client.
@@ -97,11 +117,27 @@ dat %>% filter(Time == x)
 ```
 
 ```{r}
+#separate people's age by decade
 age_group = case_when(dat$Age <= 10 ~ "Age<=10", dat$Age > 10 & dat$Age <=20 ~ "10 < Age <= 20", dat$Age > 20 & dat$Age <=30 ~ "20 < Age <= 30", dat$Age > 30 & dat$Age <=40 ~ "30 < Age <= 40", dat$Age > 40 & dat$Age<=50 ~ "40 < Age <= 50", dat$Age > 50 & dat$Age <= 60 ~ "50 < Age <= 60",dat$Age > 60 & dat$Age <= 70 ~ "60 < Age <= 70",dat$Age > 70 & dat$Age <=80 ~ "70 < Age <= 80", dat$Age > 80 ~ "Age > 80")
+
 dat  = dat %>% mutate(age_group)
+
 qtile = c(icdf(dat$Time,0.15),icdf(dat$Time,0.25),icdf(dat$Time,0.35),icdf(dat$Time,0.45),icdf(dat$Time,0.55),icdf(dat$Time,0.65),icdf(dat$Time,0.75),icdf(dat$Time,0.85),icdf(dat$Time,0.95))
+
+#10 performance group
 performance_group = case_when(dat$Time <= qtile[1] ~ "10th Percentile", dat$Time > qtile[1] & dat$Time <= qtile[2] ~ "20th Percentile", dat$Time > qtile[2] & dat$Time <= qtile[3] ~ "30th Percentile", dat$Time > qtile[3] & dat$Time <= qtile[4] ~ "40th Percentile" , dat$Time > qtile[4] & dat$Time <= qtile[5] ~ "50th Percentile", dat$Time > qtile[5] & dat$Time <= qtile[6] ~ "60th Percentile",dat$Time > qtile[6] & dat$Time <= qtile[7] ~ "70th Percentile",dat$Time > qtile[7] & dat$Time <= qtile[8] ~ "80th Percentile", dat$Time > qtile[8] & dat$Time <= qtile[9] ~ "90th Percentile", dat$Time > qtile[9] ~ "100th Percentile")
+
 dat = dat %>% mutate(performance_group)
 ```
 
+
+```{r}
+dat %>% ggplot(aes(x = performance_group, fill = age_group))+
+  geom_bar(position = "dodge")+ 
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  ggtitle("Performance groups and ages")+
+  xlab("Performance Groups")+
+  ylab("Counts")
+
+```
 
