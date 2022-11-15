@@ -218,7 +218,25 @@ predict(model_f,new_inputs)
 ```
 
 ```{r}
-fmodel(model_f, ~ Division+ PRCP)
+fmodel(model_f, ~ Division + PRCP)
+```
+
+```{r}
+unique(data_w$PRCP) #should probably trim some of these values since 0.0 and 0.01 are functionally the same
+```
+
+
+
+
+```{r}
+PRCP <- data_w %>% filter(is.na(PRCP) == F)
+new_inputs <- expand.grid(Division = unique(data_w$Division), PRCP = unique(PRCP$PRCP))
+new_inputs
+```
+
+```{r}
+#Predictions for every pair of division / PRCP
+evaluate_model(model_f,new_inputs)
 ```
  
  
