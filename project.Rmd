@@ -23,39 +23,39 @@ library(plotly)
 
 ```{r}
 Wdata <-  read.csv("newdata.csv")
+Mdata <- read.csv("mendataclean.csv")
+
 ```
 
 ```{r}
 Wdata$Age <- as.numeric(Wdata$Age )
-head(Wdata)
-```
-```{r}
-newdata <- Wdata %>% 
-  filter(!is.na(Wdata$Age))
-newdata
-```
-
-
-```{r}
-glimpse(newdata)
-```
-
-```{r}
-newdata$Time <- strptime(newdata$Time, "%H:%M:%S")
-newdata$Time <- hms::as_hms(newdata$Time)
-
-newdata <- newdata %>% 
-  filter(!is.na(newdata$Time))
-
-newdata$Time <- hms(newdata$Time)
+wdat = Wdata[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
+wdat$Time = hms(wdat$Time) #convert time to hours, minutes, second
+wdat$Time = as.numeric(seconds(wdat$Time))/60.0 #convert Time to minutes and to double
+wdat = wdat[(!is.na(wdat$Time)),] #because of conversion to minutes some data will give NA, and because of that, we remove NA again
+wdat
 
 ```
 
+
 ```{r}
-arrange(newdata, Race)
+wdat <- wdat %>% 
+  filter(!is.na(wdat$Age))
+wdat
+```
+
+
+```{r}
+glimpse(wdat)
+```
+
+
+```{r}
+wdat <- arrange(wdat, Race)
 ```
 
 ```{r}
+load("cts_per_yeargender.Rdata")
 
 ct_yrsex <- ct_yrsex[which(ct_yrsex$sex != "NA"), ]
 

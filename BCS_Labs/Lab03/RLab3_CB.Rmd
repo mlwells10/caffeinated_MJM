@@ -34,8 +34,8 @@ b) Plot the density curves for all ten years in one figure, along with a density
 dat = bind_rows(CBdata.1_10)
 dat = dat[(!is.na(dat$Age))&(!is.na(dat$Time)),] #removing NA in Age and Time observation
 dat$Time = hms(dat$Time) #convert time to hours, minutes, second
-dat$Time = as.numeric(seconds(dat$Time))/60.0 #convert Time to second and to double
-dat = dat[(!is.na(dat$Time)),] #becuse of convertion to second some data will give NA, and becuase of that, we remove NA again
+dat$Time = as.numeric(seconds(dat$Time))/60.0 #convert Time to minutes and to double
+dat = dat[(!is.na(dat$Time)),] #because of conversion to minutes some data will give NA, and because of that, we remove NA again
 
 #plot race time for 10 year using ggplot
 ggplot(data=dat,aes(x=Time)) + 
