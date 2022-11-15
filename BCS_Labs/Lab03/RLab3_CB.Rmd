@@ -72,9 +72,9 @@ ggplot(data=dat,aes(x=Age,y=Time)) +
 
 Write a short interpretation of the plot as if you were explaining it to your client.
 
-In each year time increases as of age. positive slop(trending upward line) shows as people aged, the time increase. Trend is consistent in all years. The black line represent the year 1973 and and it is short because we only have 2 people in age 17 and 23, and they have extremely fast paces. so it is not enough to make a conclusion of this year. 
+In each year time increases as age increases. The positive slop(trending upward line) shows as people aged, the time increased. The trend is consistent in all years. The black line represents the year 1973 and and it is short because we only have 2 people that year, ages 17 and 23, and they have extremely fast paces, so it is not enough to make a conclusion for this year. 
 
-  
+
 3) Relating age and times categorically:  
 We're interested in the age composition for ten performance groups. The performance groups are defined based ten percentiles (10%, 20%,...100%) of relative finish position. For example, someone finishing 3rd out of 125 would be in the 10th-percentile group, while someone finishing 985 out of 1013 would be in the 100th-percentile group.  
 The age groups we're interested in are defined by decade, so separate people in their 20's from people in their 30's and so forth.  
