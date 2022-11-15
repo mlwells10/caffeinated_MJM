@@ -138,6 +138,5 @@ dat %>% ggplot(aes(x = performance_group, fill = age_group))+
   ggtitle("Performance groups and ages")+
   xlab("Performance Groups")+
   ylab("Counts")
-
 ```
 
