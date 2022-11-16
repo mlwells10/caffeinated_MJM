@@ -35,6 +35,12 @@ wdat$Time = as.numeric(seconds(wdat$Time))/60.0 #convert Time to minutes and to 
 wdat = wdat[(!is.na(wdat$Time)),] #because of conversion to minutes some data will give NA, and because of that, we remove NA again
 wdat
 
+Mdata$Age <- as.numeric(Mdata$Age )
+mdat = Mdata[(!is.na(Mdata$Age))&(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
+mdat$Time = hms(mdat$Time) #convert time to hours, minutes, second
+mdat$Time = as.numeric(seconds(mdat$Time))/60.0 #convert Time to minutes and to double
+mdat = mdat[(!is.na(mdat$Time)),] #because of conversion to minutes some data will give NA, and because of that, we remove NA again
+mdat
 ```
 
 
@@ -42,6 +48,10 @@ wdat
 wdat <- wdat %>% 
   filter(!is.na(wdat$Age))
 wdat
+
+mdat <- mdat %>% 
+  filter(!is.na(mdat$Age))
+mdat
 ```
 
 
@@ -52,6 +62,8 @@ glimpse(wdat)
 
 ```{r}
 wdat <- arrange(wdat, Race)
+mdat <- arrange(dat, Race)
+
 ```
 
 ```{r}
@@ -68,19 +80,40 @@ ggplot(ct_yrsex, aes(x = Year, y = n))+
   labs(title = "Number of People in Each Year")
 ```
 ```{r}
+age_group = case_when(wdat$Age <= 10 ~ "Age<=10", wdat$Age > 10 & wdat$Age <=20 ~ "10 < Age <= 20", wdat$Age > 20 & wdat$Age <=30 ~ "20 < Age <= 30", wdat$Age > 30 & wdat$Age <=40 ~ "30 < Age <= 40", wdat$Age > 40 & wdat$Age<=50 ~ "40 < Age <= 50", wdat$Age > 50 & wdat$Age <= 60 ~ "50 < Age <= 60",wdat$Age > 60 & wdat$Age <= 70 ~ "60 < Age <= 70",wdat$Age > 70 & wdat$Age <=80 ~ "70 < Age <= 80", wdat$Age > 80 ~ "Age > 80")
 
-ggplot(newdata, aes(x = Race, y = Age))+
-  geom_point()+
+wdat  = wdat %>% mutate(age_group)
+
+ggplot(wdat, aes(x = Race, fill = age_group))+
+  geom_bar(position = "dodge")+ 
   scale_x_discrete(limits = c(1974:2022))+
+  scale_fill_discrete(name = "Age Group")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  ylab("Age")+
-  xlab("Year")
-  labs(title = "")
+  xlab("Year")+
+  ylab("Count")+
+  labs(title = "Range of Age in each Year for all Women")
+```
+```{r}
+age_group = case_when(mdat$Age <= 10 ~ "Age<=10", mdat$Age > 10 & mdat$Age <=20 ~ "10 < Age <= 20", mdat$Age > 20 & mdat$Age <=30 ~ "20 < Age <= 30", mdat$Age > 30 & mdat$Age <=40 ~ "30 < Age <= 40", mdat$Age > 40 & mdat$Age<=50 ~ "40 < Age <= 50", mdat$Age > 50 & mdat$Age <= 60 ~ "50 < Age <= 60",mdat$Age > 60 & mdat$Age <= 70 ~ "60 < Age <= 70",mdat$Age > 70 & mdat$Age <=80 ~ "70 < Age <= 80", mdat$Age > 80 ~ "Age > 80")
+
+mdat  = mdat %>% mutate(age_group)
+
+ggplot(mdat, aes(x = Race, fill = age_group))+
+  geom_bar(position = "dodge")+ 
+  scale_x_discrete(limits = c(1973:2022))+
+  scale_fill_discrete(name = "Age Group")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  xlab("Year")+
+  ylab("Count")+
+  labs(title = "Range of Age in each Year for all Men")
+```
+```{r}
+all_data <- rbind(wdat,mdat)
 ```
 
 
 ```{r}
-df_cleantown <- newdata[which(newdata$Hometown != "NR"), ]
+df_cleantown <- wdat[which(wdat$Hometown != "NR"), ]
 
 df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 2 )
 df_cleantown <- df_cleantown %>% 
@@ -101,8 +134,11 @@ plot_usmap(regions = "states", labels = TRUE)+
 ```
 
 ```{r}
-ggplot()+
-  geom_polygon(df_cleantown$Hometown)
+#library(broom)
+#spdf_fortified <- tidy(df_cleantown$Hometown)
+
+#ggplot()+
+#  geom_polygon(df_cleantown$Hometown)
 ```
 
 
