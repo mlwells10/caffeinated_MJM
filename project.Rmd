@@ -228,7 +228,7 @@ The addition of TMIN was not significant.
 confint(model_f)
 ```
 
-The presence of precipitation lowers run time as might be expected
+The presence of precipitation lowers run time
 
 ```{r}
 #lags the shit out of my computer
@@ -248,7 +248,6 @@ plot(model_f)
 
 ```{r}
 new_inputs <- data.frame(Division = c('W2529'), PRCP = c(1.5))
-#predict(model_f, Division = 'DivisionW0119', PRCP = 1.6)
 #evaluate_model(model_f,new_inputs)
 predict(model_f,new_inputs)
 ```
