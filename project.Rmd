@@ -164,7 +164,7 @@ colnames(dates.df) = c('DATE','Race')
 
 
 ```{r}
-#using right join to add the year of first 10 races to the cherry blossom data frame
+#using left join to add the year of first 10 races to the cherry blossom data frame
 data_join_Race = newdata %>% left_join(dates.df, by = "Race")
 head(data_join_Race)
 ```
