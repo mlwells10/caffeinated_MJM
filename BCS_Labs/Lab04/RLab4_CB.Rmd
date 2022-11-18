@@ -32,13 +32,10 @@ library(ggplot2)
 
 ```{r}
 data <- read.csv("humans-names.csv")
-<<<<<<< HEAD
 morleydata <- read.table("morley.dat", header = T)
-=======
-morleydata <- read.table("morley.dat",header=T)
 
 
->>>>>>> a9a576cc6a6181907d3ed553346d6d5f0ddbb645
+
 ```
 
 ```{r}
@@ -57,15 +54,13 @@ morleydata$Expt <- as.factor(morleydata$Expt)
 head(morleydata)
 ```
 
-<<<<<<< HEAD
-=======
+
 
 ```{r}
 morleydata %>% ggplot(aes(x = Speed, fill = Expt))+
   geom_density(alpha = 0.3)
 ```
 
->>>>>>> a9a576cc6a6181907d3ed553346d6d5f0ddbb645
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
 
 
