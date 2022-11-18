@@ -60,9 +60,7 @@ morleydata %>% ggplot(aes(x = Speed, fill = Expt))+
 ```
 
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
-```{r}
 
-```
 
 
 # Mispelled Names
