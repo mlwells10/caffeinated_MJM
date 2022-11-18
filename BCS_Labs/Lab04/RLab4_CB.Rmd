@@ -26,9 +26,7 @@ Apart from the physics questions, the dataset derived by the Michelson–Morley 
 1) Using R to identify the outliers first within each setup (defined by the `Expt` number) and then within the data collection as a whole. The hope in the original experiment was that each setup would show a significant difference in central tendency. We did not cover confidence levels and null hypotheses, so simply create visualization(s) that aids you in gaining insight into how much apparent difference exists between the several setups.
 ```{r}
 data <- read.csv("humans-names.csv")
-morleydata <- read.csv("morley.dat")
-
-
+morleydata <- read.table("morley.dat", header = T)
 ```
 
 
