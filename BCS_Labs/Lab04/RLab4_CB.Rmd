@@ -25,11 +25,35 @@ Apart from the physics questions, the dataset derived by the Michelson–Morley 
 
 1) Using R to identify the outliers first within each setup (defined by the `Expt` number) and then within the data collection as a whole. The hope in the original experiment was that each setup would show a significant difference in central tendency. We did not cover confidence levels and null hypotheses, so simply create visualization(s) that aids you in gaining insight into how much apparent difference exists between the several setups.
 ```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
 data <- read.csv("humans-names.csv")
 ```
 
+```{r}
+expt = unique(morley$Expt)
+expt.i = expt[1]
+for(expt.i in expt)
+{
+  morley.i = morley[morley$Expt==expt.i,]
+  print(ggplot(morley.i,aes(y=Speed)) + geom_boxplot() + ggtitle(expt.i))
+}
+ggplot(morley,aes(y=Speed)) + geom_boxplot() + ggtitle("Entire dataset")
+```
+
+
+```{r}
+
+```
 
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
+```{r}
+
+```
+
 
 # Mispelled Names
 Our data set `humans-names.csv` contains 25,000 height and weight measurements. Each row has a person’s first name pulled from the US Social Security Agency list of common first names over the last century.
