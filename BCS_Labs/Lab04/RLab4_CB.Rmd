@@ -39,22 +39,48 @@ morleydata <- read.csv("morley.dat")
 ```{r}
 expt = unique(morley$Expt)
 expt.i = expt[1]
+mu = c()
+std = c()
+idx.list = list()
 for(expt.i in expt)
 {
   morley.i = morley[morley$Expt==expt.i,]
   print(ggplot(morley.i,aes(y=Speed)) + geom_boxplot() + ggtitle(expt.i))
+  q1 = quantile(morley.i$Speed, 0.25)
+  q3 = quantile(morley.i$Speed, 0.75)
+  IQR = 1.5*(q3-q1)
+  
+  idx = which(morley.i$Speed < (q1 - IQR) | morley.i$Speed > (q3+IQR))
+  print(IQR)
+  idx.list = c(idx.list, list(idx)) 
+
+  
 }
 ggplot(morley,aes(y=Speed)) + geom_boxplot() + ggtitle("Entire dataset")
 ```
 
 
 ```{r}
-
+i=1
+index = c()
+for (expt.i in expt)
+{
+  idx.expt = which(morley$Expt==expt.i)
+  idx = idx.expt[1] + idx.list[[i]]
+  i=i+1
+  index = c(index,idx)
+}
+index = setdiff(1:nrow(morley),index)
+morley = morley[index,]
 ```
 
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
 ```{r}
-
+for(expt.i in expt)
+{
+  morley.i = morley[morley$Expt==expt.i,]
+  print(ggplot(morley.i,aes(y=Speed)) + geom_boxplot() + ggtitle(expt.i))
+}
 ```
 
 
