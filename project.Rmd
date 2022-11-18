@@ -62,7 +62,7 @@ glimpse(wdat)
 
 ```{r}
 wdat <- arrange(wdat, Race)
-mdat <- arrange(dat, Race)
+mdat <- arrange(mdat, Race)
 
 ```
 
@@ -110,17 +110,64 @@ ggplot(mdat, aes(x = Race, fill = age_group))+
 ```{r}
 all_data <- rbind(wdat,mdat)
 ```
+```{r}
+all_data <- all_data %>% mutate(sex = (
+strsplit(all_data$Division,"") %>% sapply( "[", 1 )))
+
+ggplot(all_data, aes(x= Age, y = Time, fill = sex, colour = sex))+
+  geom_col()
+
+```
 
 
 ```{r}
 df_cleantown <- wdat[which(wdat$Hometown != "NR"), ]
 
-df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 2 )
+df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 1 )
 df_cleantown <- df_cleantown %>% 
   filter(!is.na(df_cleantown$Hometown))
 
 df_cleantown
 ```
+
+```{r}
+df_cleantown$Hometown <- tolower(df_cleantown$Hometown) #Returns the lowercase string.
+
+all_states<-map_data("state")
+
+library(ggplot2)
+ggplot() +
+  geom_polygon(data = all_states, aes( x = long, y = lat, group = group), fill="white", color="grey") +
+  theme_void() +
+  coord_map()
+
+all_states = all_states %>%
+  right_join(. , df_cleantown, by=c("region" ="Hometown"))
+all_states <- arrange(all_states, Race)
+
+all_states <- all_states %>% 
+  filter(!is.na(all_states$long))
+all_states
+
+#ggplot() +
+#  geom_polygon(data = all_states, aes( x = long, y = lat, group = group)) +
+#  theme_void() +
+#  coord_map()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r}
 library(usmap)
