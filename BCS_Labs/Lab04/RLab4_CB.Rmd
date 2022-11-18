@@ -45,11 +45,6 @@ for(expt.i in expt)
 ggplot(morley,aes(y=Speed)) + geom_boxplot() + ggtitle("Entire dataset")
 ```
 
-
-```{r}
-
-```
-
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
 ```{r}
 
@@ -63,6 +58,10 @@ Unfortunately, our hypothetical data collectors for this dataset are simply terr
 
 1) Identify every genuine name and correct all the misspelled ones to the correct canonical spelling. Use all the data wrangling tools you'd like (e.g. `dplyr` functions), but make sure you're checking each reassignment to make sure the names get classified correctly. You'll fully automate this process later. It is probably reasonable to assume that rare spellings are typos, at least if they are also relatively similar to common spellings.  
 Hint: There are a number of ways to measure the similarity of strings and that provide a clue as to likely typos. One general class of approach is in terms of edit distance between strings, which describes how many edititing operations need to be done to tranform one string into another. The R package `stringdist` provides Damerau–Levenshtein, Hamming, Levenshtein, and optimal string alignment as measures of edit distance. Keep in mind that sometimes multiple legitimate names are actually close to each other in terms of similarity measures (Dan VS Don, Jacob VS Jakob, etc). If you want to use `stringdist` for this problem, start by looking at the functions `stringdist()` and `stringdistmatrix()`.
+
+```{r}
+
+```
 
 2) For each of the genuine names identified in (1), produce a histogram showing the distribution of Damerau–Levenshtein distances from the genuine name to the miscassified data. Make sure distances from genuine names to other genuine names are not included in these distributions.  
 Arrange all of the histograms into one figure write a short interpretation of it intended for a non-statistician client. 
