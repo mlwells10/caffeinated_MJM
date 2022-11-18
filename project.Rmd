@@ -23,39 +23,51 @@ library(plotly)
 
 ```{r}
 Wdata <-  read.csv("newdata.csv")
+Mdata <- read.csv("mendataclean.csv")
+
 ```
 
 ```{r}
 Wdata$Age <- as.numeric(Wdata$Age )
-head(Wdata)
-```
-```{r}
-newdata <- Wdata %>% 
-  filter(!is.na(Wdata$Age))
-newdata
-```
+wdat = Wdata[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
+wdat$Time = hms(wdat$Time) #convert time to hours, minutes, second
+wdat$Time = as.numeric(seconds(wdat$Time))/60.0 #convert Time to minutes and to double
+wdat = wdat[(!is.na(wdat$Time)),] #because of conversion to minutes some data will give NA, and because of that, we remove NA again
+wdat
 
-
-```{r}
-glimpse(newdata)
-```
-
-```{r}
-newdata$Time <- strptime(newdata$Time, "%H:%M:%S")
-newdata$Time <- hms::as_hms(newdata$Time)
-
-newdata <- newdata %>% 
-  filter(!is.na(newdata$Time))
-
-newdata$Time <- hms(newdata$Time)
-
+Mdata$Age <- as.numeric(Mdata$Age )
+mdat = Mdata[(!is.na(Mdata$Age))&(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
+mdat$Time = hms(mdat$Time) #convert time to hours, minutes, second
+mdat$Time = as.numeric(seconds(mdat$Time))/60.0 #convert Time to minutes and to double
+mdat = mdat[(!is.na(mdat$Time)),] #because of conversion to minutes some data will give NA, and because of that, we remove NA again
+mdat
 ```
 
+
 ```{r}
-arrange(newdata, Race)
+wdat <- wdat %>% 
+  filter(!is.na(wdat$Age))
+wdat
+
+mdat <- mdat %>% 
+  filter(!is.na(mdat$Age))
+mdat
+```
+
+
+```{r}
+glimpse(wdat)
+```
+
+
+```{r}
+wdat <- arrange(wdat, Race)
+mdat <- arrange(dat, Race)
+
 ```
 
 ```{r}
+load("cts_per_yeargender.Rdata")
 
 ct_yrsex <- ct_yrsex[which(ct_yrsex$sex != "NA"), ]
 
@@ -68,19 +80,40 @@ ggplot(ct_yrsex, aes(x = Year, y = n))+
   labs(title = "Number of People in Each Year")
 ```
 ```{r}
+age_group = case_when(wdat$Age <= 10 ~ "Age<=10", wdat$Age > 10 & wdat$Age <=20 ~ "10 < Age <= 20", wdat$Age > 20 & wdat$Age <=30 ~ "20 < Age <= 30", wdat$Age > 30 & wdat$Age <=40 ~ "30 < Age <= 40", wdat$Age > 40 & wdat$Age<=50 ~ "40 < Age <= 50", wdat$Age > 50 & wdat$Age <= 60 ~ "50 < Age <= 60",wdat$Age > 60 & wdat$Age <= 70 ~ "60 < Age <= 70",wdat$Age > 70 & wdat$Age <=80 ~ "70 < Age <= 80", wdat$Age > 80 ~ "Age > 80")
 
-ggplot(newdata, aes(x = Race, y = Age))+
-  geom_point()+
+wdat  = wdat %>% mutate(age_group)
+
+ggplot(wdat, aes(x = Race, fill = age_group))+
+  geom_bar(position = "dodge")+ 
   scale_x_discrete(limits = c(1974:2022))+
+  scale_fill_discrete(name = "Age Group")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  ylab("Age")+
-  xlab("Year")
-  labs(title = "")
+  xlab("Year")+
+  ylab("Count")+
+  labs(title = "Range of Age in each Year for all Women")
+```
+```{r}
+age_group = case_when(mdat$Age <= 10 ~ "Age<=10", mdat$Age > 10 & mdat$Age <=20 ~ "10 < Age <= 20", mdat$Age > 20 & mdat$Age <=30 ~ "20 < Age <= 30", mdat$Age > 30 & mdat$Age <=40 ~ "30 < Age <= 40", mdat$Age > 40 & mdat$Age<=50 ~ "40 < Age <= 50", mdat$Age > 50 & mdat$Age <= 60 ~ "50 < Age <= 60",mdat$Age > 60 & mdat$Age <= 70 ~ "60 < Age <= 70",mdat$Age > 70 & mdat$Age <=80 ~ "70 < Age <= 80", mdat$Age > 80 ~ "Age > 80")
+
+mdat  = mdat %>% mutate(age_group)
+
+ggplot(mdat, aes(x = Race, fill = age_group))+
+  geom_bar(position = "dodge")+ 
+  scale_x_discrete(limits = c(1973:2022))+
+  scale_fill_discrete(name = "Age Group")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  xlab("Year")+
+  ylab("Count")+
+  labs(title = "Range of Age in each Year for all Men")
+```
+```{r}
+all_data <- rbind(wdat,mdat)
 ```
 
 
 ```{r}
-df_cleantown <- newdata[which(newdata$Hometown != "NR"), ]
+df_cleantown <- wdat[which(wdat$Hometown != "NR"), ]
 
 df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 2 )
 df_cleantown <- df_cleantown %>% 
@@ -101,8 +134,11 @@ plot_usmap(regions = "states", labels = TRUE)+
 ```
 
 ```{r}
-ggplot()+
-  geom_polygon(df_cleantown$Hometown)
+#library(broom)
+#spdf_fortified <- tidy(df_cleantown$Hometown)
+
+#ggplot()+
+#  geom_polygon(df_cleantown$Hometown)
 ```
 
 
@@ -128,7 +164,7 @@ colnames(dates.df) = c('DATE','Race')
 
 
 ```{r}
-#using right join to add the year of first 10 races to the cherry blossom data frame
+#using left join to add the year of first 10 races to the cherry blossom data frame
 data_join_Race = newdata %>% left_join(dates.df, by = "Race")
 head(data_join_Race)
 ```
@@ -192,7 +228,7 @@ The addition of TMIN was not significant.
 confint(model_f)
 ```
 
-The presence of precipitation lowers run time as might be expected
+The presence of precipitation lowers run time
 
 ```{r}
 #lags the shit out of my computer
@@ -212,13 +248,30 @@ plot(model_f)
 
 ```{r}
 new_inputs <- data.frame(Division = c('W2529'), PRCP = c(1.5))
-#predict(model_f, Division = 'DivisionW0119', PRCP = 1.6)
 #evaluate_model(model_f,new_inputs)
 predict(model_f,new_inputs)
 ```
 
 ```{r}
-fmodel(model_f, ~ Division+ PRCP)
+fmodel(model_f, ~ Division + PRCP)
+```
+
+```{r}
+unique(data_w$PRCP) #should probably trim some of these values since 0.0 and 0.01 are functionally the same
+```
+
+
+
+
+```{r}
+PRCP <- data_w %>% filter(is.na(PRCP) == F)
+new_inputs <- expand.grid(Division = unique(data_w$Division), PRCP = unique(PRCP$PRCP))
+new_inputs
+```
+
+```{r}
+#Predictions for every pair of division / PRCP
+evaluate_model(model_f,new_inputs)
 ```
  
  
