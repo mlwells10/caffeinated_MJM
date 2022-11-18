@@ -31,6 +31,9 @@ library(ggplot2)
 
 ```{r}
 data <- read.csv("humans-names.csv")
+morleydata <- read.csv("morley.dat")
+
+
 ```
 
 ```{r}
