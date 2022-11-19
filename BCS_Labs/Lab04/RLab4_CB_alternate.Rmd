@@ -27,18 +27,18 @@ Apart from the physics questions, the dataset derived by the Michelson–Morley 
 
 ```{r}
 library(dplyr)
-library(ggplot2)
+library(ggplot2) #The libraries we will use. 
 ```
 
 ```{r}
 data <- read.csv("humans-names.csv")
 morleydata <- read.table("morley.dat",header=T)
 morley = read.table("morley.dat",header=T)
-
+#Reading in the data
 ```
 
 ```{r}
-expt = unique(morley$Expt)
+expt = unique(morley$Expt) #Look at each of the unique Experiments, 1-5
 expt.i = expt[1]
 mu = c()
 std = c()
@@ -47,33 +47,39 @@ for(expt.i in expt)
 {
   morley.i = morley[morley$Expt==expt.i,]
   print(ggplot(morley.i,aes(y=Speed)) + geom_boxplot() + ggtitle(expt.i))
-  q1 = quantile(morley.i$Speed, 0.25)
-  q3 = quantile(morley.i$Speed, 0.75)
-  IQR = 1.5*(q3-q1)
+  q1 = quantile(morley.i$Speed, 0.25) #First quantile
+  q3 = quantile(morley.i$Speed, 0.75) #Third quantile
+  IQR = 1.5*(q3-q1) #Calculate inter-quartile range then multiply by 1.5 for outlier bounds
   
   idx = which(morley.i$Speed < (q1 - IQR) | morley.i$Speed > (q3+IQR))
   #print(IQR)
   idx.list = c(idx.list, list(idx)) 
-  print(morley.i$Speed[idx])
+  print(morley.i$Speed[idx]) # outliers are 1.5*IQR above or below Q3/Q1 respectively
   
 }
 ggplot(morley,aes(y=Speed)) + geom_boxplot() + ggtitle("Entire dataset")
 ```
 ```{r}
-morleydata$Expt <- as.factor(morleydata$Expt)
+morleydata$Expt <- as.factor(morleydata$Expt) #Set Expt as a factor rather than a number
 #morley2$Expt = as.factor(morley2$Expt)
 morleydata%>% ggplot(aes(x = Speed, fill = Expt))+
   geom_density(alpha = 0.3)
+#This density plot gives an overview of all 5 experiments and how their shapes compare
 ```
+
+Experiment 1 looks to be more left-skewed than the rest. 2 is a little bit right skewed. 3 has a noticeable peak, and then several outliers branching off. 4 is very mound shaped with a large plateau in the middle. 5 looks fairly symmetric. They all seem to peak around the same Speed except for Experiment 1.
+
+
 ```{r}
 morleydata%>% group_by(Run) %>%  ggplot(aes(x = Expt, y = Speed))+
   geom_boxplot()+
-  xlab("Experiment")
+  xlab("Experiment") #Boxplots for all 5 of the experiments, showing range of the data and outliers
 ```
+
+We can see Experiment 3 has 4 outliers, Experiment 1 has 1. The central tendency of experiments 2-5 seem to be pretty similar, but Experiment 1 looks to be a little bit higher than the rest. 
 
 
 ```{r}
-
 i=1
 index = c()
 for (expt.i in expt)
@@ -81,21 +87,19 @@ for (expt.i in expt)
   idx.expt = which(morley$Expt==expt.i)
   idx = idx.expt[1] + idx.list[[i]]-1
   i=i+1
-  index = c(index,idx)
+  index = c(index,idx) #creating a list of outliers
 }
-index = setdiff(1:nrow(morley),index)
+index = setdiff(1:nrow(morley),index) #removing outliers from the data
 morley2 = morley[index,]
 ```
 
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
 ```{r}
-for(expt.i in expt)
-{
-  morley.i = morley2[morley2$Expt==expt.i,]
-  print(ggplot(morley.i,aes(y=Speed)) + geom_boxplot() + ggtitle(expt.i))
-}
+morley2%>% group_by(Run) %>%  ggplot(aes(x = Expt, y = Speed))+
+  geom_boxplot()+
+  xlab("Experiment")
 ```
-
+The outliers are gone but there's still a noticeable difference between Experiment 1 and the rest.
 
 ```{r}
 morley2$Expt = as.factor(morley2$Expt)
@@ -105,6 +109,13 @@ morley2%>% ggplot(aes(x = Speed, fill = Expt))+
 ```
 
 The differences are reduced but substantial differences remain.
+
+
+```{r}
+model <- aov(Speed~Expt, data=morley2) #simple ANOVA
+summary(model)
+```
+At least one of the means is different from the rest since the p-value is very close to 0. 
 
 # Mispelled Names
 Our data set `humans-names.csv` contains 25,000 height and weight measurements. Each row has a person’s first name pulled from the US Social Security Agency list of common first names over the last century.
