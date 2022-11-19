@@ -61,11 +61,14 @@ ggplot(morley,aes(y=Speed)) + geom_boxplot() + ggtitle("Entire dataset")
 ```
 ```{r}
 morleydata$Expt <- as.factor(morleydata$Expt)
-
-head(morleydata)
 #morley2$Expt = as.factor(morley2$Expt)
 morleydata%>% ggplot(aes(x = Speed, fill = Expt))+
   geom_density(alpha = 0.3)
+```
+```{r}
+morleydata%>% group_by(Run) %>%  ggplot(aes(x = Expt, y = Speed))+
+  geom_boxplot()+
+  xlab("Experiment")
 ```
 
 
