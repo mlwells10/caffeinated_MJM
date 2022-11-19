@@ -188,7 +188,8 @@ names = unique(data$Name)
 clean.data = function(data)
 {
   data.3 = data
-  correct.names = c('James','David','Barbara','John','Michael','William','Elizabeth','Joseph','Jessica','Susan','Patricia','Robert','Linda','Mary','Marie','Jennifer','Richard','Jon')
+  #correct.names = c('James','David','Barbara','John','Michael','William','Elizabeth','Joseph','Jessica','Susan','Patricia','Robert','Linda','Mary','Marie','Jennifer','Richard','Jon')
+  correct.names = unique(data$Name[1:100])
   names.mat = outer(correct.names,names,function(x,y){stringdist(x,y)})
   idx = apply(names.mat,2,function(x){which(x<=2)})
   for(i in 1:length(names))
