@@ -97,7 +97,7 @@ morley2 = morley[index,]
 ```{r}
 morley2%>% group_by(Run) %>%  ggplot(aes(x = Expt, y = Speed))+
   geom_boxplot()+
-  xlab("Experiment")
+  xlab("Experiment") #Boxplots with the new data set without outliers. 
 ```
 The outliers are gone but there's still a noticeable difference between Experiment 1 and the rest.
 
@@ -115,7 +115,11 @@ The differences are reduced but substantial differences remain.
 model <- aov(Speed~Expt, data=morley2) #simple ANOVA
 summary(model)
 ```
+
 At least one of the means is different from the rest since the p-value is very close to 0. 
+
+
+
 
 # Mispelled Names
 Our data set `humans-names.csv` contains 25,000 height and weight measurements. Each row has a person’s first name pulled from the US Social Security Agency list of common first names over the last century.
@@ -123,23 +127,23 @@ Our data set `humans-names.csv` contains 25,000 height and weight measurements. 
 Unfortunately, our hypothetical data collectors for this dataset are simply terrible typists, and they make typos when entering names with alarming frequency. There are some number of intended names in this dataset, but quite a few simple miscodings of those names as well. Your goal is to clean up these mispelled names.
 
 1) Identify every genuine name and correct all the misspelled ones to the correct canonical spelling. Use all the data wrangling tools you'd like (e.g. `dplyr` functions), but make sure you're checking each reassignment to make sure the names get classified correctly. You'll fully automate this process later. It is probably reasonable to assume that rare spellings are typos, at least if they are also relatively similar to common spellings.  
-Hint: There are a number of ways to measure the similarity of strings and that provide a clue as to likely typos. One general class of approach is in terms of edit distance between strings, which describes how many edititing operations need to be done to tranform one string into another. The R package `stringdist` provides Damerau–Levenshtein, Hamming, Levenshtein, and optimal string alignment as measures of edit distance. Keep in mind that sometimes multiple legitimate names are actually close to each other in terms of similarity measures (Dan VS Don, Jacob VS Jakob, etc). If you want to use `stringdist` for this problem, start by looking at the functions `stringdist()` and `stringdistmatrix()`.
+Hint: There are a number of ways to measure the similarity of strings and that provide a clue as to likely typos. One general class of approach is in terms of edit distance between strings, which describes how many editing operations need to be done to transform one string into another. The R package `stringdist` provides Damerau–Levenshtein, Hamming, Levenshtein, and optimal string alignment as measures of edit distance. Keep in mind that sometimes multiple legitimate names are actually close to each other in terms of similarity measures (Dan VS Don, Jacob VS Jakob, etc). If you want to use `stringdist` for this problem, start by looking at the functions `stringdist()` and `stringdistmatrix()`.
 ```{r}
 
-library(stringdist)
+library(stringdist) 
 data = read.csv('humans-names.csv')
-names = unique(data$Name)
+names = unique(data$Name) # Look at all of the unique names in the data
 data.2 = data
-correct.names = c('James','David','Barbara','John','Michael','William','Elizabeth','Joseph','Jessica','Susan','Patricia','Robert','Linda','Mary','Marie','Jennifer','Richard','Jon')
-names.mat = outer(correct.names,names,function(x,y){stringdist(x,y)})
-idx = apply(names.mat,2,function(x){which(x<=2)})
+correct.names = c('James','David','Barbara','John','Michael','William','Elizabeth','Joseph','Jessica','Susan','Patricia','Robert','Linda','Mary','Marie','Jennifer','Richard','Jon') #Not misspelled
+names.mat = outer(correct.names,names,function(x,y){stringdist(x,y)}) #applying stringdist func
+idx = apply(names.mat,2,function(x){which(x<=2)}) #setting x <= 2
 for(i in 1:length(names))
 {
   if(length(idx[[i]])==1)
-    data.2$Name[data$Name==names[i]] = correct.names[idx[[i]]]
+    data.2$Name[data$Name==names[i]] = correct.names[idx[[i]]] #No correction made
   else
   {  
-    if(names[i]=='eJohn')
+    if(names[i]=='eJohn') #Common misspellings and how to correct them
       data.2$Name[data$Name==names[i]] = 'John'
     else if(names[i]=='ohn')
       data.2$Name[data$Name==names[i]] = 'John'
@@ -184,12 +188,12 @@ print(data.2$Name[!data.2$Name%in%correct.names])
 ```
 
 
-2) For each of the genuine names identified in (1), produce a histogram showing the distribution of Damerau–Levenshtein distances from the genuine name to the miscassified data. Make sure distances from genuine names to other genuine names are not included in these distributions.  
+2) For each of the genuine names identified in (1), produce a histogram showing the distribution of Damerau–Levenshtein distances from the genuine name to the misclassified data. Make sure distances from genuine names to other genuine names are not included in these distributions.  
 Arrange all of the histograms into one figure write a short interpretation of it intended for a non-statistician client. 
 ```{r}
-names = data$Name[!data$Name%in%correct.names]
-correct = data.2$Name[!data$Name%in%correct.names]
-dist = data.frame(correct,stringdist(names,correct,method='dl'))
+names = data$Name[!data$Name%in%correct.names] #The names that are definitely not correct
+correct = data.2$Name[!data$Name%in%correct.names] #The names that are definitely correct
+dist = data.frame(correct,stringdist(names,correct,method='dl')) #Distance between them
 colnames(dist)= c('Name','distance')
 ggplot(dist,aes(x=distance,group=Name)) + geom_histogram(binwidth=1)+xlab('Number of mistakes')+facet_wrap(Name~.) +ggtitle('Histogram of number of spelling mistakes for each name.')
 ```
@@ -198,23 +202,24 @@ Most names can be fixed with a single edit, but several names need 2 edits to fi
 
 3) Write code that reclassifies names similar to problem (1), but fully automated. You should end up with a function that takes the original data set and returns a cleaned version. Compare this cleaned data frame to the one from problem (1) and quantify the accuracy (i.e. what proportion of rows match?). Make sure your automated process achieves 90%, but shoot for higher if possible! 
 ```{r}
-names = unique(data$Name)
+names = unique(data$Name) #All of the unique names in the data
 clean.data = function(data)
 {
   data.3 = data
   
   correct.names = unique(data$Name[1:100]) #assume the first 100 names are correct
   names.mat = outer(correct.names,names,function(x,y){stringdist(x,y)})
-  idx = apply(names.mat,2,function(x){which(x<=2)})
+  idx = apply(names.mat,2,function(x){which(x<=2)}) # set x<=2
   for(i in 1:length(names))
   {
-    data.3$Name[data$Name==names[i]] = correct.names[idx[[i]]][1]
+    data.3$Name[data$Name==names[i]] = correct.names[idx[[i]]][1] #Make corrections
   }
   return(data.3) 
 }
 data.3 = clean.data(data)
-acc=length(data.3$Name[data.3$Name==data.2$Name])/length(data.3$Name)*100
+acc=length(data.3$Name[data.3$Name==data.2$Name])/length(data.3$Name)*100 #Looking at the proportions that match
 print('Accuracy:')
 print(sprintf('%f%s',acc,'%'))
 ```
 
+Accuracy is over 97%. Hurray!
