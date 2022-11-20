@@ -113,9 +113,10 @@ all_data <- rbind(wdat,mdat)
 ```{r}
 all_data <- all_data %>% mutate(sex = (
 strsplit(all_data$Division,"") %>% sapply( "[", 1 )))
-
-ggplot(all_data, aes(x= Age, y = Time, fill = sex, colour = sex))+
-  geom_col()
+all_data %>% filter(Time <2000) %>% 
+ggplot(aes(fill = sex, colour = sex, group = sex))+
+  geom_point(aes(x = Age, y = Time))+
+  geom_smooth(aes(x = Age, y = Time))
 
 ```
 
@@ -149,10 +150,10 @@ all_states <- all_states %>%
   filter(!is.na(all_states$long))
 all_states
 
-#ggplot() +
-#  geom_polygon(data = all_states, aes( x = long, y = lat, group = group)) +
-#  theme_void() +
-#  coord_map()
+ggplot() +
+  geom_polygon(data = all_states, aes( x = long, y = lat, group = group)) +
+  theme_void() +
+  coord_map()
 ```
 
 
