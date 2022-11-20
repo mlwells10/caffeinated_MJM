@@ -58,17 +58,30 @@ head(morleydata)
 
 ```{r}
 morleydata %>% ggplot(aes(x = Speed, fill = Expt))+
-  geom_density(alpha = 0.3)
+  geom_density(alpha = 0.2)
 ```
 
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
 
 ```{r}
-morleydata %>% filter(Expt == 1) %>% select(Speed) %>% lapply(quantile)
+x <- morleydata %>% filter(Expt == 1) %>% select(Speed) %>% lapply(quantile) #quantile for first experiment
+x
 ```
+
 ```{r}
-morleydata %>% filter(Expt == 1) %>% select(Speed) %>% filter(Speed <= 655)
+y <- x$Speed[4] - x$Speed[2]
+y <- y * 1.5
+z <- x$Speed[2] - y
 ```
+
+
+```{r}
+z
+```
+
+
+
+
 
 
 # Mispelled Names

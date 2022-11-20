@@ -27,18 +27,18 @@ Apart from the physics questions, the dataset derived by the Michelson–Morley 
 
 ```{r}
 library(dplyr)
-library(ggplot2)
+library(ggplot2) #The libraries we will use. 
 ```
 
 ```{r}
 data <- read.csv("humans-names.csv")
 morleydata <- read.table("morley.dat",header=T)
-
-
+morley = read.table("morley.dat",header=T)
+#Reading in the data
 ```
 
 ```{r}
-expt = unique(morley$Expt)
+expt = unique(morley$Expt) #Look at each of the unique Experiments, 1-5
 expt.i = expt[1]
 mu = c()
 std = c()
@@ -47,60 +47,78 @@ for(expt.i in expt)
 {
   morley.i = morley[morley$Expt==expt.i,]
   print(ggplot(morley.i,aes(y=Speed)) + geom_boxplot() + ggtitle(expt.i))
-  q1 = quantile(morley.i$Speed, 0.25)
-  q3 = quantile(morley.i$Speed, 0.75)
-  IQR = 1.5*(q3-q1)
+  q1 = quantile(morley.i$Speed, 0.25) #First quantile
+  q3 = quantile(morley.i$Speed, 0.75) #Third quantile
+  IQR = 1.5*(q3-q1) #Calculate inter-quartile range then multiply by 1.5 for outlier bounds
   
   idx = which(morley.i$Speed < (q1 - IQR) | morley.i$Speed > (q3+IQR))
-  print(IQR)
+  #print(IQR)
   idx.list = c(idx.list, list(idx)) 
-
+  print(morley.i$Speed[idx]) # outliers are 1.5*IQR above or below Q3/Q1 respectively
   
 }
 ggplot(morley,aes(y=Speed)) + geom_boxplot() + ggtitle("Entire dataset")
 ```
 ```{r}
-morleydata$Expt <- as.factor(morleydata$Expt)
-
-head(morleydata)
+morleydata$Expt <- as.factor(morleydata$Expt) #Set Expt as a factor rather than a number
+#morley2$Expt = as.factor(morley2$Expt)
+morleydata%>% ggplot(aes(x = Speed, fill = Expt))+
+  geom_density(alpha = 0.3)
+#This density plot gives an overview of all 5 experiments and how their shapes compare
 ```
+
+Experiment 1 looks to be more left-skewed than the rest. 2 is a little bit right skewed. 3 has a noticeable peak, and then several outliers branching off. 4 is very mound shaped with a large plateau in the middle. 5 looks fairly symmetric. They all seem to peak around the same Speed except for Experiment 1.
 
 
 ```{r}
+morleydata%>% group_by(Run) %>%  ggplot(aes(x = Expt, y = Speed))+
+  geom_boxplot()+
+  xlab("Experiment") #Boxplots for all 5 of the experiments, showing range of the data and outliers
+```
 
+We can see Experiment 3 has 4 outliers, Experiment 1 has 1. The central tendency of experiments 2-5 seem to be pretty similar, but Experiment 1 looks to be a little bit higher than the rest. 
+
+
+```{r}
 i=1
 index = c()
 for (expt.i in expt)
 {
   idx.expt = which(morley$Expt==expt.i)
-  idx = idx.expt[1] + idx.list[[i]]
+  idx = idx.expt[1] + idx.list[[i]]-1
   i=i+1
-  index = c(index,idx)
+  index = c(index,idx) #creating a list of outliers
 }
-index = setdiff(1:nrow(morley),index)
-morley = morley[index,]
+index = setdiff(1:nrow(morley),index) #removing outliers from the data
+morley2 = morley[index,]
 ```
 
 2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
 ```{r}
-for(expt.i in expt)
-{
-  morley.i = morley[morley$Expt==expt.i,]
-  print(ggplot(morley.i,aes(y=Speed)) + geom_boxplot() + ggtitle(expt.i))
-}
+morley2%>% group_by(Run) %>%  ggplot(aes(x = Expt, y = Speed))+
+  geom_boxplot()+
+  xlab("Experiment") #Boxplots with the new data set without outliers. 
+```
+The outliers are gone but there's still a noticeable difference between Experiment 1 and the rest.
+
+```{r}
+morley2$Expt = as.factor(morley2$Expt)
+morley2%>% ggplot(aes(x = Speed, fill = Expt))+
+  geom_density(alpha = 0.3)
+
 ```
 
-
-
-2) If you discard the outliers within each setup, are the differences between setups increased or decreased? Answer with either a visualization or by looking at statistics on the reduced groups.
+The differences are reduced but substantial differences remain.
 
 
 ```{r}
-morleydata %>% filter(Expt == 1) %>% select(Speed) %>% lapply(quantile)
+model <- aov(Speed~Expt, data=morley2) #simple ANOVA
+summary(model)
 ```
-```{r}
-morleydata %>% filter(Expt == 1) %>% select(Speed) %>% filter(Speed <= 655)
-```
+
+At least one of the means is different from the rest since the p-value is very close to 0. 
+
+
 
 
 # Mispelled Names
@@ -109,9 +127,99 @@ Our data set `humans-names.csv` contains 25,000 height and weight measurements. 
 Unfortunately, our hypothetical data collectors for this dataset are simply terrible typists, and they make typos when entering names with alarming frequency. There are some number of intended names in this dataset, but quite a few simple miscodings of those names as well. Your goal is to clean up these mispelled names.
 
 1) Identify every genuine name and correct all the misspelled ones to the correct canonical spelling. Use all the data wrangling tools you'd like (e.g. `dplyr` functions), but make sure you're checking each reassignment to make sure the names get classified correctly. You'll fully automate this process later. It is probably reasonable to assume that rare spellings are typos, at least if they are also relatively similar to common spellings.  
-Hint: There are a number of ways to measure the similarity of strings and that provide a clue as to likely typos. One general class of approach is in terms of edit distance between strings, which describes how many edititing operations need to be done to tranform one string into another. The R package `stringdist` provides Damerau–Levenshtein, Hamming, Levenshtein, and optimal string alignment as measures of edit distance. Keep in mind that sometimes multiple legitimate names are actually close to each other in terms of similarity measures (Dan VS Don, Jacob VS Jakob, etc). If you want to use `stringdist` for this problem, start by looking at the functions `stringdist()` and `stringdistmatrix()`.
+Hint: There are a number of ways to measure the similarity of strings and that provide a clue as to likely typos. One general class of approach is in terms of edit distance between strings, which describes how many editing operations need to be done to transform one string into another. The R package `stringdist` provides Damerau–Levenshtein, Hamming, Levenshtein, and optimal string alignment as measures of edit distance. Keep in mind that sometimes multiple legitimate names are actually close to each other in terms of similarity measures (Dan VS Don, Jacob VS Jakob, etc). If you want to use `stringdist` for this problem, start by looking at the functions `stringdist()` and `stringdistmatrix()`.
+```{r}
 
-2) For each of the genuine names identified in (1), produce a histogram showing the distribution of Damerau–Levenshtein distances from the genuine name to the miscassified data. Make sure distances from genuine names to other genuine names are not included in these distributions.  
+library(stringdist) 
+data = read.csv('humans-names.csv')
+names = unique(data$Name) # Look at all of the unique names in the data
+data.2 = data
+correct.names = c('James','David','Barbara','John','Michael','William','Elizabeth','Joseph','Jessica','Susan','Patricia','Robert','Linda','Mary','Marie','Jennifer','Richard','Jon') #Not misspelled
+names.mat = outer(correct.names,names,function(x,y){stringdist(x,y)}) #applying stringdist func
+idx = apply(names.mat,2,function(x){which(x<=2)}) #setting x <= 2
+for(i in 1:length(names))
+{
+  if(length(idx[[i]])==1)
+    data.2$Name[data$Name==names[i]] = correct.names[idx[[i]]] #No correction made
+  else
+  {  
+    if(names[i]=='eJohn') #Common misspellings and how to correct them
+      data.2$Name[data$Name==names[i]] = 'John'
+    else if(names[i]=='ohn')
+      data.2$Name[data$Name==names[i]] = 'John'
+    else if(names[i]=='Jeon')
+      data.2$Name[data$Name==names[i]] = 'Jon'
+    else if(names[i]=='Johen')
+      data.2$Name[data$Name==names[i]] = 'John'
+    else if(names[i]=='Mari')
+      data.2$Name[data$Name==names[i]] = 'Marie'
+    else if(names[i]=='oJhn')
+      data.2$Name[data$Name==names[i]] = 'John'
+    else if(names[i]=='Joh')
+      data.2$Name[data$Name==names[i]] = 'John'
+    else if(names[i]=='Maire')
+      data.2$Name[data$Name==names[i]] = 'Marie'
+    else if(names[i]=='on')
+      data.2$Name[data$Name==names[i]] = 'Jon'
+    else if(names[i]=='Marei')
+      data.2$Name[data$Name==names[i]] = 'Marie'
+    else if(names[i]=='Mar')
+      data.2$Name[data$Name==names[i]] = 'Mary'
+     else if(names[i]=='Jhn')
+      data.2$Name[data$Name==names[i]] = 'John'
+    else if(names[i]=='Maire')
+      data.2$Name[data$Name==names[i]] = 'Marie'
+    else if(names[i]=='Jn')
+      data.2$Name[data$Name==names[i]] = 'Jon'
+    else if(names[i]=='Marey')
+      data.2$Name[data$Name==names[i]] = 'Mary'
+    else if(names[i]=='Jhon')
+      data.2$Name[data$Name==names[i]] = 'John'
+     else if(names[i]=='Jonh')
+      data.2$Name[data$Name==names[i]] = 'John'
+    else if(names[i]=='Joen')
+      data.2$Name[data$Name==names[i]] = 'Jon'
+    else if(names[i]=='Jo')
+      data.2$Name[data$Name==names[i]] = 'Jon'
+   
+  }
+}
+print(data.2$Name[!data.2$Name%in%correct.names])
+```
+
+
+2) For each of the genuine names identified in (1), produce a histogram showing the distribution of Damerau–Levenshtein distances from the genuine name to the misclassified data. Make sure distances from genuine names to other genuine names are not included in these distributions.  
 Arrange all of the histograms into one figure write a short interpretation of it intended for a non-statistician client. 
+```{r}
+names = data$Name[!data$Name%in%correct.names] #The names that are definitely not correct
+correct = data.2$Name[!data$Name%in%correct.names] #The names that are definitely correct
+dist = data.frame(correct,stringdist(names,correct,method='dl')) #Distance between them
+colnames(dist)= c('Name','distance')
+ggplot(dist,aes(x=distance,group=Name)) + geom_histogram(binwidth=1)+xlab('Number of mistakes')+facet_wrap(Name~.) +ggtitle('Histogram of number of spelling mistakes for each name.')
+```
+Most names can be fixed with a single edit, but several names need 2 edits to fix.  None of the names need more than 2 edits.
+
 
 3) Write code that reclassifies names similar to problem (1), but fully automated. You should end up with a function that takes the original data set and returns a cleaned version. Compare this cleaned data frame to the one from problem (1) and quantify the accuracy (i.e. what proportion of rows match?). Make sure your automated process achieves 90%, but shoot for higher if possible! 
+```{r}
+names = unique(data$Name) #All of the unique names in the data
+clean.data = function(data)
+{
+  data.3 = data
+  
+  correct.names = unique(data$Name[1:100]) #assume the first 100 names are correct
+  names.mat = outer(correct.names,names,function(x,y){stringdist(x,y)})
+  idx = apply(names.mat,2,function(x){which(x<=2)}) # set x<=2
+  for(i in 1:length(names))
+  {
+    data.3$Name[data$Name==names[i]] = correct.names[idx[[i]]][1] #Make corrections
+  }
+  return(data.3) 
+}
+data.3 = clean.data(data)
+acc=length(data.3$Name[data.3$Name==data.2$Name])/length(data.3$Name)*100 #Looking at the proportions that match
+print('Accuracy:')
+print(sprintf('%f%s',acc,'%'))
+```
+
+Accuracy is over 97%. Hurray!
