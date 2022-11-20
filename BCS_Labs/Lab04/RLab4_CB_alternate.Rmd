@@ -26,12 +26,13 @@ Apart from the physics questions, the dataset derived by the Michelson–Morley 
 1) Using R to identify the outliers first within each setup (defined by the `Expt` number) and then within the data collection as a whole. The hope in the original experiment was that each setup would show a significant difference in central tendency. We did not cover confidence levels and null hypotheses, so simply create visualization(s) that aids you in gaining insight into how much apparent difference exists between the several setups.
 
 ```{r}
+#The libraries we will use. 
 library(dplyr)
-library(ggplot2) #The libraries we will use. 
+library(ggplot2) 
+library(stringdist) 
 ```
 
 ```{r}
-data <- read.csv("humans-names.csv")
 morleydata <- read.table("morley.dat",header=T)
 morley = read.table("morley.dat",header=T)
 #Reading in the data
@@ -57,7 +58,7 @@ for(expt.i in expt)
   print(morley.i$Speed[idx]) # outliers are 1.5*IQR above or below Q3/Q1 respectively
   
 }
-ggplot(morley,aes(y=Speed)) + geom_boxplot() + ggtitle("Entire dataset")
+ggplot(morley,aes(y=Speed)) + geom_boxplot() + ggtitle("Entire dataset") #using box plot to visually see the outliers.
 ```
 ```{r}
 morleydata$Expt <- as.factor(morleydata$Expt) #Set Expt as a factor rather than a number
@@ -129,13 +130,13 @@ Unfortunately, our hypothetical data collectors for this dataset are simply terr
 1) Identify every genuine name and correct all the misspelled ones to the correct canonical spelling. Use all the data wrangling tools you'd like (e.g. `dplyr` functions), but make sure you're checking each reassignment to make sure the names get classified correctly. You'll fully automate this process later. It is probably reasonable to assume that rare spellings are typos, at least if they are also relatively similar to common spellings.  
 Hint: There are a number of ways to measure the similarity of strings and that provide a clue as to likely typos. One general class of approach is in terms of edit distance between strings, which describes how many editing operations need to be done to transform one string into another. The R package `stringdist` provides Damerau–Levenshtein, Hamming, Levenshtein, and optimal string alignment as measures of edit distance. Keep in mind that sometimes multiple legitimate names are actually close to each other in terms of similarity measures (Dan VS Don, Jacob VS Jakob, etc). If you want to use `stringdist` for this problem, start by looking at the functions `stringdist()` and `stringdistmatrix()`.
 ```{r}
-
-library(stringdist) 
-data = read.csv('humans-names.csv')
+data = read.csv('humans-names.csv') 
 names = unique(data$Name) # Look at all of the unique names in the data
 data.2 = data
 correct.names = c('James','David','Barbara','John','Michael','William','Elizabeth','Joseph','Jessica','Susan','Patricia','Robert','Linda','Mary','Marie','Jennifer','Richard','Jon') #Not misspelled
+
 names.mat = outer(correct.names,names,function(x,y){stringdist(x,y)}) #applying stringdist func
+
 idx = apply(names.mat,2,function(x){which(x<=2)}) #setting x <= 2
 for(i in 1:length(names))
 {
