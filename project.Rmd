@@ -29,6 +29,43 @@ Mdata <- read.csv("mendataclean.csv")
 ```
 
 ```{r}
+Wdat = Wdata[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
+Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
+Wdat <- Wdat %>% filter(Time != "NR") #removing NR
+Wdat <- add_rownames(Wdat) #necessary for indexing
+```
+
+```{r}
+#Find all the times that are in the format of M:S:00 and change class to Time
+#This is necessary otherwise they will be recorded as a race time of >50 hours
+starts_5 <- Wdat %>% 
+   filter(str_detect(Time, "^5")) %>% select(Time,rowname) 
+starts_5$Time <- starts_5$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% ms()
+starts_5
+```
+
+```{r}
+#The majority of times are recorded as H M S but are still class Char
+test_1 <- Wdat %>% #starts with 0
+   filter(str_detect(Time, "^0")) %>% select(Time,rowname) 
+test_2 <- Wdat %>% #starts with 1
+   filter(str_detect(Time, "^1")) %>% select(Time,rowname) 
+test_3 <- Wdat %>% #starts with 2
+   filter(str_detect(Time, "^2")) %>% select(Time,rowname) 
+test_complete <- rbind(test_1,test_2,test_3)
+test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
+  hm()
+test_complete <- rbind(test_complete,starts_5)
+test_complete
+```
+
+```{r}
+Wdat <- left_join(Wdat,test_complete, by="rowname")
+Wdat
+```
+
+
+```{r}
 Wdata$Age <- as.numeric(Wdata$Age )
 wdat = Wdata[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
 wdat$Time = hms(wdat$Time) #convert time to hours, minutes, second
@@ -226,7 +263,7 @@ head(data_w)
 ```
 
 ```{r}
-library(CCA)
+#library(CCA)
 X <- data_w %>% dplyr::select(Time, Age) 
 ```
 
@@ -245,8 +282,8 @@ head(test_data)
 
 
 ```{r}
-test_data %>% #remove the ones that start with 3, prob 4
-  filter(str_detect(Time, "^3"))
+test_data %>% #all times that start with a 5- these are recorded in wrong format
+  filter(str_detect(Time, "^5"))
 ```
 
 
@@ -268,9 +305,55 @@ test_data[Y$rowname,]
 
 
 
+
+
 ```{r}
-test_data$Time <- hms(test_data$Time)
-test_data
+#experimenting
+timevar <- paste(round(runif(10,10,59)),round(runif(10,10,59)),"00",sep=":")
+timevar #sample data
+```
+
+```{r} 
+#experimenting
+timevar %>% #changes it to time M S
+  str_extract(pattern = "^\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
+  ms()
+```
+
+
+
+
+```{r}
+testing <- test_data %>% #starts with 5
+   filter(str_detect(Time, "^5")) %>% select(Time,rowname) 
+testing$Time <- testing$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
+  ms()
+testing
+```
+
+```{r}
+test_1 <- test_data %>% #starts with 5
+   filter(str_detect(Time, "^0")) %>% select(Time,rowname) 
+test_2 <- test_data %>% #starts with 5
+   filter(str_detect(Time, "^1")) %>% select(Time,rowname) 
+test_3 <- test_data %>% #starts with 5
+   filter(str_detect(Time, "^2")) %>% select(Time,rowname) 
+test_complete <- rbind(test_1,test_2,test_3)
+test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
+  hm()
+test_complete <- rbind(test_complete,testing)
+test_complete
+```
+
+
+
+
+
+
+
+```{r}
+test_data_joined <- left_join(test_data,test_complete, by="rowname")
+
 ```
 
 
