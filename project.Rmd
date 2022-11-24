@@ -46,12 +46,11 @@ mdat
 
 ```{r}
 wdat <- wdat %>% 
-  filter(!is.na(wdat$Age))
+  filter(!is.na(wdat$Age) & Race <= 2019)
 wdat
 
 mdat <- mdat %>% 
-  filter(!is.na(mdat$Age))
-mdat
+  filter(!is.na(mdat$Age) & Race <= 2019)
 ```
 
 
@@ -86,7 +85,7 @@ wdat  = wdat %>% mutate(age_group)
 
 ggplot(wdat, aes(x = Race, fill = age_group))+
   geom_bar(position = "dodge")+ 
-  scale_x_discrete(limits = c(1974:2022))+
+  scale_x_discrete(limits = c(1974:2019))+
   scale_fill_discrete(name = "Age Group")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Year")+
@@ -100,7 +99,7 @@ mdat  = mdat %>% mutate(age_group)
 
 ggplot(mdat, aes(x = Race, fill = age_group))+
   geom_bar(position = "dodge")+ 
-  scale_x_discrete(limits = c(1973:2022))+
+  scale_x_discrete(limits = c(1973:2019))+
   scale_fill_discrete(name = "Age Group")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Year")+
@@ -213,7 +212,7 @@ colnames(dates.df) = c('DATE','Race')
 
 ```{r}
 #using left join to add the year of first 10 races to the cherry blossom data frame
-data_join_Race = newdata %>% left_join(dates.df, by = "Race")
+data_join_Race = mdat %>% left_join(dates.df, by = "Race")
 head(data_join_Race)
 ```
 
@@ -237,44 +236,19 @@ model_1 <- lm(times~0+Age, data=data_t)
 summary(model_1)
 ```
 
-Age is a significant predicter of run time
-
-```{r}
-model_2 <- lm(times~0+Division, data = data_t)
-summary(model_2)
-```
-
-I think Division is probably a better predictor than Age. We cannot include both due to multicollinearity. 
 
 
-```{r}
-model_3 <- lm(times~ 0+PRCP, data=data_t )
-summary(model_3)
-```
 
-Precipitation is a significant predictor. 
 
 
 
 ```{r}
-model_4 <- lm(times~0+ TMIN, data=data_t )
-summary(model_4)
-```
-
-Minimum temperature is a significant predictor
-
-
-
-```{r}
-model_f <- lm(times~0+Division +  PRCP , data=data_t)
+model_f <- lm(Time~0+Division +  PRCP , data=data_t)
 summary(model_f)
 ```
 
 The addition of TMIN was not significant. 
 
-```{r}
-confint(model_f)
-```
 
 The presence of precipitation lowers run time
 
@@ -283,15 +257,10 @@ The presence of precipitation lowers run time
 #plot_ly(data_t, x = ~Division, y = ~times, z = ~PRCP, type = "scatter3d", mode   = 'markers')
 ```
 
-```{r}
-anova(model_f)
-```
 
 
 
-```{r}
-plot(model_f)
-```
+
 
 
 ```{r}
