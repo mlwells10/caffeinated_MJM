@@ -70,10 +70,10 @@ mdat <- arrange(mdat, Race)
 load("cts_per_yeargender.Rdata")
 
 ct_yrsex <- ct_yrsex[which(ct_yrsex$sex != "NA"), ]
-
-ggplot(ct_yrsex, aes(x = Year, y = n))+
+ct_yrsex %>% filter(Year <= 2019) %>% 
+ggplot(aes(x = Year, y = n))+
   geom_line(aes(color = factor(sex)))+
-  scale_x_discrete(limits = c(1973:2022))+
+  scale_x_discrete(limits = c(1973:2019))+
   guides( color = guide_legend(title = "SEX"))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   ylab("Number of People")+
