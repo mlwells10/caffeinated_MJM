@@ -247,9 +247,7 @@ head(test_data)
 max(test_data$Time)
 ```
 
-```{r}
-test_data %>% filter(str_detect(Time, "59")) 
-```
+
 
 
 
@@ -257,7 +255,7 @@ test_data %>% filter(str_detect(Time, "59"))
 ```{r}
 X <- test_data %>% #starts with 5
   filter(str_detect(Time, "^5")) %>% select(Time)
-
+X
 ```
 
 ```{r}
