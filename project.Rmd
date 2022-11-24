@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(rvest)
+library(stringr)
 library(tidyverse)
 library(lubridate)
 library(dplyr)
@@ -135,7 +136,7 @@ df_cleantown$Hometown <- tolower(df_cleantown$Hometown) #Returns the lowercase s
 
 all_states<-map_data("state")
 
-library(ggplot2)
+
 ggplot() +
   geom_polygon(data = all_states, aes( x = long, y = lat, group = group), fill="white", color="grey") +
   theme_void() +
@@ -193,8 +194,8 @@ plot_usmap(regions = "states", labels = TRUE)+
 
 
 ```{r}
-data = readr::read_csv("3139946.csv") #Loading the weather data and named it as data
-head(data) #seeing the first six rows of the data
+weather = readr::read_csv("3139946.csv") #Loading the weather data and named it as data
+head(weather) #seeing the first six rows of the data
 ```
 
 
@@ -212,76 +213,62 @@ colnames(dates.df) = c('DATE','Race')
 
 ```{r}
 #using left join to add the year of first 10 races to the cherry blossom data frame
-data_join_Race = mdat %>% left_join(dates.df, by = "Race")
+data_join_Race = all_data %>% left_join(dates.df, by = "Race")
 head(data_join_Race)
 ```
 
 ```{r}
 #using right join to add PRCP and TMIN columns from weather data frame to the cherry blossom data frame by the Date.
-data_w <- data %>% select(DATE, PRCP, TMIN) %>% 
+data_w <- weather %>% select(DATE, PRCP, TMIN) %>% 
   right_join(data_join_Race, by = "DATE")
+data_w <- data_w %>%  drop_na() #drop all NAs
 head(data_w)
 ```
 
-
-
-
-
-
-
 ```{r}
-#needed to create a new column of times in integer seconds to run a model
-data_t <- data_w %>% mutate(times = as.numeric(Time))
+library(CCA)
+X <- data_w %>% dplyr::select(Time, Age) 
 ```
 
 
 
-
-
-
-
 ```{r}
-model_f <- lm(Time~0+Division +  PRCP , data=data_w)
-summary(model_f)
-```
+test_data = Wdata[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
+test_data <- test_data %>% filter(Time != "")
+test_data <- test_data %>% filter(Time != "NR")
 
-```{r}
-#lags the shit out of my computer
-#plot_ly(data_t, x = ~Division, y = ~times, z = ~PRCP, type = "scatter3d", mode   = 'markers')
+#test_data$Time = hms(test_data$Time) #convert time to hours, minutes, second
+#test_data$Time = as.numeric(seconds(test_data$Time))/60.0
+head(test_data)
 ```
 
 
-
-
-
-
-
 ```{r}
-new_inputs <- data.frame(Division = c('W2529'), PRCP = c(1.5))
-#evaluate_model(model_f,new_inputs)
-predict(model_f,new_inputs)
+max(test_data$Time)
 ```
 
 ```{r}
-fmodel(model_f, ~ Division + PRCP)
-```
-
-```{r}
-unique(data_w$PRCP) #should probably trim some of these values since 0.0 and 0.01 are functionally the same
+test_data %>% filter(str_detect(Time, "59")) 
 ```
 
 
 
 
 ```{r}
-PRCP <- data_w %>% filter(is.na(PRCP) == F)
-new_inputs <- expand.grid(Division = unique(data_w$Division), PRCP = unique(PRCP$PRCP))
-new_inputs
+X <- test_data %>% #starts with 5
+  filter(str_detect(Time, "^5")) %>% select(Time)
+
 ```
 
 ```{r}
-#Predictions for every pair of division / PRCP
-evaluate_model(model_f,new_inputs)
+X <- substring(X[[1]],1,5)
+X <- ms(X)
+X
 ```
- 
- 
+
+
+```{r}
+
+```
+
+
