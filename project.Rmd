@@ -232,8 +232,6 @@ head(data_w)
 ```{r}
 #needed to create a new column of times in integer seconds to run a model
 data_t <- data_w %>% mutate(times = as.numeric(Time))
-model_1 <- lm(times~0+Age, data=data_t)
-summary(model_1)
 ```
 
 
@@ -243,14 +241,9 @@ summary(model_1)
 
 
 ```{r}
-model_f <- lm(Time~0+Division +  PRCP , data=data_t)
+model_f <- lm(Time~0+Division +  PRCP , data=data_w)
 summary(model_f)
 ```
-
-The addition of TMIN was not significant. 
-
-
-The presence of precipitation lowers run time
 
 ```{r}
 #lags the shit out of my computer
