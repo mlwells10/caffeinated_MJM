@@ -239,34 +239,38 @@ test_data <- test_data %>% filter(Time != "NR")
 
 #test_data$Time = hms(test_data$Time) #convert time to hours, minutes, second
 #test_data$Time = as.numeric(seconds(test_data$Time))/60.0
+test_data <- add_rownames(test_data)
 head(test_data)
 ```
 
 
 ```{r}
-max(test_data$Time)
-```
-
-
-
-
-
-
-```{r}
-X <- test_data %>% #starts with 5
-  filter(str_detect(Time, "^5")) %>% select(Time)
-X
-```
-
-```{r}
-X <- substring(X[[1]],1,5)
-X <- ms(X)
-X
+test_data %>% #remove the ones that start with 3, prob 4
+  filter(str_detect(Time, "^3"))
 ```
 
 
 ```{r}
+Y <- test_data %>% #starts with 5
+  filter(str_detect(Time, "^5")) %>% select(rowname)
+Y$rowname <- as.numeric(Y$rowname)
+Y$rowname
+```
 
+
+```{r}
+for(i in Y$rowname){
+  test_data[i,5] = substring(test_data[i,5],1,5)
+  test_data[i,5] = paste(0,test_data[i,5],sep=":")
+}
+test_data[Y$rowname,]
+```
+
+
+
+```{r}
+test_data$Time <- hms(test_data$Time)
+test_data
 ```
 
 
