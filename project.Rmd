@@ -25,7 +25,6 @@ library(plotly)
 ```{r}
 Wdata <-  read.csv("newdata.csv")
 Mdata <- read.csv("mendataclean.csv")
-
 ```
 
 ```{r}
@@ -99,6 +98,13 @@ Wdat <- left_join(Wdat,test_complete, by="rowname")
 Wdat
 ```
 
+```{r}
+#Change time to minutes
+Wdat$Time.y <- period_to_seconds(Wdat$Time.y)/60
+Wdat
+```
+
+The women's times are cleaned, below we will clean the men's times.
 
 ```{r}
 #Find all the times that are in the format of M:S:00 and change class to Time
@@ -132,6 +138,11 @@ Mdat <- left_join(Mdat,test_complete_M, by="rowname")
 Mdat
 ```
 
+```{r}
+#Change time to minutes
+Mdat$Time.y <- period_to_seconds(Mdat$Time.y)/60
+Mdat
+```
 
 
 
@@ -381,14 +392,6 @@ testing <- test_data %>% #starts with 5
 testing$Time <- testing$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
   ms()
 testing
-```
-
-
-
-
-```{r}
-#options(max.print=7000)
-max(Mdat$Time)
 ```
 
 
