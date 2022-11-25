@@ -63,8 +63,7 @@ rowname_3s_M <- Mdat %>%
 
 rowname_3s_M <- as.numeric(rowname_3s_M$rowname)
 
-Mdat <- Mdat[!Mdat$rowname%in%rowname_3s_M,]
-
+Mdat <- Mdat[!Mdat$rowname%in%rowname_3s_M,] #For some reason the other method used in Wdat didn't work here. 
 ```
 
 
@@ -99,6 +98,43 @@ test_complete <- rbind(test_complete,starts_5,starts_4)
 Wdat <- left_join(Wdat,test_complete, by="rowname")
 Wdat
 ```
+
+
+```{r}
+#Find all the times that are in the format of M:S:00 and change class to Time
+#This is necessary otherwise they will be recorded as a race time of >50 hours etc
+starts_5_M <- Mdat %>% 
+   filter(str_detect(Time, "^5")) %>% select(Time,rowname) 
+starts_5_M$Time <- starts_5_M$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% ms()
+
+starts_4_M <- Mdat %>% 
+   filter(str_detect(Time, "^4")) %>% select(Time,rowname) 
+starts_4_M$Time <- starts_4_M$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% ms()
+```
+
+```{r}
+#The majority of times are recorded as H M S but are still class Char
+test_1_M <- Mdat %>% #starts with 0
+   filter(str_detect(Time, "^0")) %>% select(Time,rowname) 
+test_2_M <- Mdat %>% #starts with 1
+   filter(str_detect(Time, "^1")) %>% select(Time,rowname) 
+test_3_M <- Mdat %>% #starts with 2
+   filter(str_detect(Time, "^2")) %>% select(Time,rowname) 
+test_complete_M <- rbind(test_1_M,test_2_M,test_3_M)
+test_complete_M$Time <- test_complete_M$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
+  hm()
+test_complete_M <- rbind(test_complete_M,starts_5_M,starts_4_M)
+```
+
+```{r}
+#Join all of these together. Note the new column is Time.y
+Mdat <- left_join(Mdat,test_complete_M, by="rowname")
+Mdat
+```
+
+
+
+
 
 
 
