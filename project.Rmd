@@ -63,12 +63,8 @@ rowname_3s_M <- Mdat %>%
 
 rowname_3s_M <- as.numeric(rowname_3s_M$rowname)
 
-rowname_3s_M
+Mdat <- Mdat[!Mdat$rowname%in%rowname_3s_M,]
 
-Mdat <- Mdat[-c(rowname_3s_M),]
-
-Mdat %>% filter(str_detect(Time, "^3"))
-#rowname_3s_M
 ```
 
 
