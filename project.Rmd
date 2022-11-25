@@ -332,9 +332,6 @@ testing
 
 
 
-```{r}
-
-```
 
 
 
@@ -342,10 +339,5 @@ testing
 
 
 
-```{r}
-test_data <- add_rownames(Wdata)
-test_data
-test_data %>% filter(rowname == 834)
-Wdat$Time.y
-```
+
 
