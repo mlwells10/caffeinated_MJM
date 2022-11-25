@@ -154,8 +154,8 @@ wdat <- Wdat %>%
   filter(!is.na(Wdat$Age) & Race <= 2019)
 wdat
 
-mdat <- mdat %>% 
-  filter(!is.na(mdat$Age) & Race <= 2019)
+mdat <- Mdat %>% 
+  filter(!is.na(Mdat$Age) & Race <= 2019)
 ```
 
 
