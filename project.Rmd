@@ -51,7 +51,16 @@ Mdat <- add_rownames(Mdat) #necessary for indexing
 starts_5 <- Wdat %>% 
    filter(str_detect(Time, "^5")) %>% select(Time,rowname) 
 starts_5$Time <- starts_5$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% ms()
-starts_5
+
+starts_4 <- Wdat %>% 
+   filter(str_detect(Time, "^4")) %>% select(Time,rowname) 
+starts_4$Time <- starts_4$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% ms()
+
+starts_3 <- Wdat %>% 
+   filter(str_detect(Time, "^3")) %>% select(Time,rowname) 
+starts_3$Time <- starts_3$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% ms()
+
+starts_4
 ```
 
 ```{r}
@@ -65,7 +74,7 @@ test_3 <- Wdat %>% #starts with 2
 test_complete <- rbind(test_1,test_2,test_3)
 test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
   hm()
-test_complete <- rbind(test_complete,starts_5)
+test_complete <- rbind(test_complete,starts_5,starts_4,starts_3)
 test_complete
 ```
 
@@ -77,8 +86,8 @@ Wdat
 
 
 ```{r}
-wdat <- wdat %>% 
-  filter(!is.na(wdat$Age) & Race <= 2019)
+wdat <- Wdat %>% 
+  filter(!is.na(Wdat$Age) & Race <= 2019)
 wdat
 
 mdat <- mdat %>% 
@@ -334,6 +343,9 @@ testing
 
 
 ```{r}
-min(Mdat$Time)
+test_data <- add_rownames(Wdata)
+test_data
+test_data %>% filter(rowname == 834)
+Wdat$Time.y
 ```
 
