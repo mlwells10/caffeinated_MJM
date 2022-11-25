@@ -6,15 +6,19 @@ setwd('~/caffeinated_MJM')
 df = read.csv('mendataclean.csv')
 
 t = df$Time[1]
-
+i=1
 format_time = function(t)
 {
-  if(t == 'NR')
+  if(t == 'NR' || t=='')
     return(-999)
   hours = substr(t,1,2)
   minute_format = T
   if(grepl(':',hours))
+  {
     minute_format =F
+    #print(t)
+  }
+ 
   if(minute_format==F)
   {
     hours = substr(t,1,1)
@@ -24,12 +28,23 @@ format_time = function(t)
   }
   else
   {
+    if(grepl('0.',substr(t,1,2)))
+    {
+      return(-999)
+    }
     hours = 0
     minutes = substr(t,1,2)
     seconds = substr(t,4,5)
+    
     #print(seconds)
   }
   total.time = 3600*as.double(hours) + 60*as.double(minutes) + as.double(seconds)
+  if(t !='' && total.time < 2000)
+  {
+   # print(t)
+  #  print(i)
+  }
+  assign("i",i+1, envir=.GlobalEnv)
   return(total.time)
 }  
 #df = df[!is.na(df$Time),]Time = s
