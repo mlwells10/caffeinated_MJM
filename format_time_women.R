@@ -10,7 +10,7 @@ i=1
 format_time = function(t)
 {
   if(t == 'NR' || t=='')
-    return(-999)
+    return(NA)
   hours = substr(t,1,2)
   minute_format = T
   if(grepl(':',hours))
@@ -31,7 +31,7 @@ format_time = function(t)
     if(grepl('0.',substr(t,1,2)))
     {
       print(t)
-      return(-999)
+      return(NA)
     }
     print(t)
     hours = 0
