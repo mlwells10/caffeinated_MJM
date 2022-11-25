@@ -42,15 +42,39 @@ Mdat <- Mdat %>% filter(Time != "NR") #removing NR
 Mdat <- add_rownames(Mdat) #necessary for indexing
 
 #Mdat %>% filter(Time == "0.069664352") rows 5024  6987   108377 have crazy decimals
-Mdat <- Mdat[-c(5024,6987,108377),]
+Mdat <- Mdat[-c(5024,6987,108377),] 
 ```
 
 
+```{r}
+#Need to remove all the times starting with a 3 because they are either recorded in error
+#i.e. time of 36:47:00 or beyond the limit of 2h20m
+rowname_3s_W <- Wdat %>% 
+   filter(str_detect(Time, "^3")) %>% select(rowname)
+rowname_3s_W <- as.numeric(rowname_3s_W$rowname)
+Wdat <- Wdat[-c(rowname_3s_W),]
+```
+
+```{r}
+#Need to remove all the times starting with a 3 because they are either recorded in error
+#i.e. time of 36:47:00 or beyond the limit of 2h20m
+rowname_3s_M <- Mdat %>% 
+   filter(str_detect(Time, "^3")) %>% select(rowname)
+
+rowname_3s_M <- as.numeric(rowname_3s_M$rowname)
+
+rowname_3s_M
+
+Mdat <- Mdat[-c(rowname_3s_M),]
+
+Mdat %>% filter(str_detect(Time, "^3"))
+#rowname_3s_M
+```
 
 
 ```{r}
 #Find all the times that are in the format of M:S:00 and change class to Time
-#This is necessary otherwise they will be recorded as a race time of >50 hours
+#This is necessary otherwise they will be recorded as a race time of >50 hours etc
 starts_5 <- Wdat %>% 
    filter(str_detect(Time, "^5")) %>% select(Time,rowname) 
 starts_5$Time <- starts_5$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% ms()
@@ -58,12 +82,6 @@ starts_5$Time <- starts_5$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% m
 starts_4 <- Wdat %>% 
    filter(str_detect(Time, "^4")) %>% select(Time,rowname) 
 starts_4$Time <- starts_4$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% ms()
-
-starts_3 <- Wdat %>% 
-   filter(str_detect(Time, "^3")) %>% select(Time,rowname) 
-starts_3$Time <- starts_3$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>% ms()
-
-starts_4
 ```
 
 ```{r}
@@ -77,11 +95,11 @@ test_3 <- Wdat %>% #starts with 2
 test_complete <- rbind(test_1,test_2,test_3)
 test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
   hm()
-test_complete <- rbind(test_complete,starts_5,starts_4,starts_3)
-test_complete
+test_complete <- rbind(test_complete,starts_5,starts_4)
 ```
 
 ```{r}
+#Join all of these together. Note the new column is Time.y
 Wdat <- left_join(Wdat,test_complete, by="rowname")
 Wdat
 ```
