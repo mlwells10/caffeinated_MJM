@@ -173,9 +173,16 @@ Mdat <- Mdat[Mdat$Age >= 12,]
 
 
 ```{r}
+#creating a df with both sets of data (Male and Female)
 Wdat <- arrange(Wdat, Race)
 Mdat <- arrange(Mdat, Race)
 
+#Add column indicating sex to make it clearer in all_data
+Wdat <- Wdat %>% mutate(sex = "W")
+Mdat <- Mdat %>% mutate(sex = "M")
+
+all_data <- rbind(Wdat,Mdat)
+all_data <- arrange(all_data,Race)
 ```
 
 ```{r}
@@ -324,7 +331,7 @@ colnames(dates.df) = c('DATE','Race')
 
 
 ```{r}
-#using left join to add the year of first 10 races to the cherry blossom data frame
+#using left join to add the year of races to the cherry blossom data frame
 data_join_Race = all_data %>% left_join(dates.df, by = "Race")
 head(data_join_Race)
 ```
@@ -346,18 +353,10 @@ head(data_w)
 Everything below here is just experimental stuff
 
 ```{r}
-test_data = Mdat
-test_data <- add_rownames(test_data)
-head(test_data)
+test_data = all_data
 ```
 
-```{r}
-unique(Wdat$Division)
-```
 
-```{r}
-Mdat %>% filter(Time.y > 140)
-```
 
 
 
