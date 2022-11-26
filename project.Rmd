@@ -147,12 +147,18 @@ Mdat
 ```
 
 
+```{r}
+#Client said max time was 2h20m although some were recorded as being more than that, so to keep
+#things consistent I will remove all of those times not less than 2h20m
+Wdat <- Wdat[Wdat$Time.y < 140,]
+Mdat <- Mdat[Mdat$Time.y < 140,]
+```
 
 
 
 
 ```{r}
-
+#Cleaning up the ages
 Wdat <- Wdat %>% 
   filter(!is.na(Wdat$Age) & Race <= 2019) #client wants races from before 2020
 Wdat$Age <- as.numeric(Wdat$Age)
@@ -346,9 +352,12 @@ head(test_data)
 ```
 
 ```{r}
-sort(unique(Mdat$Age))
+unique(Wdat$Division)
 ```
 
+```{r}
+Mdat %>% filter(Time.y > 140)
+```
 
 
 
