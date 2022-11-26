@@ -183,6 +183,9 @@ Mdat <- Mdat %>% mutate(sex = "M")
 
 all_data <- rbind(Wdat,Mdat)
 all_data <- arrange(all_data,Race)
+
+all_data$Race <- as.factor(all_data$Race) #this is a factor not a number
+all_data <- all_data[,-c(5,6,9)] #Remove unwanted columns
 ```
 
 ```{r}
@@ -350,19 +353,61 @@ head(data_w)
 #X <- data_w %>% dplyr::select(Time, Age) 
 ```
 
-Everything below here is just experimental stuff
+
 
 ```{r}
-test_data = all_data
+test_data = data_w
+
 ```
 
 
+```{r}
+model_1 <- lm(Time.y~0+Age,data = test_data)
+summary(model_1)
+```
+
+Age is a significant predictor of race time. 
+
+
+```{r}
+model_2 <- lm(Time.y~0+sex,data = test_data)
+summary(model_2)
+```
+
+
+sex is a significant predictor of race time.
+
+
+```{r}
+model_3 <- lm(Time.y~0+PRCP,data = test_data)
+summary(model_3)
+```
+
+PRCP is significant predictor but the Adj R-sq is low, as would be predicted. 
 
 
 
 
+```{r}
+model_4 <- lm(Time.y~0+Division,data = test_data)
+summary(model_4)
+```
+
+All of the divisions are significant predictors of race time. 
 
 
 
+```{r}
+model_5 <- lm(Time.y~0+TMIN,data = test_data)
+summary(model_5)
+```
 
+TMIN is a significant predictor of race times. 
+
+
+
+```{r}
+model_6 <- lm(Time.y~0+Age,data = test_data)
+summary(model_6)
+```
 
