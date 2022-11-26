@@ -188,6 +188,36 @@ all_data$Race <- as.factor(all_data$Race) #this is a factor not a number
 all_data <- all_data[,-c(5,6,9)] #Remove unwanted columns
 ```
 
+
+```{r}
+icdf <- function(x, alpha)
+{
+############################################################################
+# This is the quantile function or inverse cumulative distribution function# 
+# x     : vector of scores                  #
+# alpha : a value between 0 and 1                                          #
+# The function will return                                                 #
+#  a score value x[int{alpha*(n+1)}] if alpha does not exceed 0.50         #
+# a score value x[(n+1) - int{(1-alpha)*(n+1)}] if alpha exceeds 0.50      #
+# where n is the length of the vector x                                    #
+############################################################################
+   
+
+x <- sort(x)
+n <- length(x)
+if(alpha <= .50){
+  return(x[floor(alpha*(n+1))])
+} else{
+  return(x[(n+1) - floor((1-alpha)*(n+1))])
+}
+
+}
+```
+
+
+
+
+
 ```{r}
 load("cts_per_yeargender.Rdata")
 
