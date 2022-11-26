@@ -167,13 +167,8 @@ Mdat <- Mdat[Mdat$Age >= 12,]
 
 
 ```{r}
-glimpse(wdat)
-```
-
-
-```{r}
-wdat <- arrange(wdat, Race)
-mdat <- arrange(mdat, Race)
+Wdat <- arrange(Wdat, Race)
+Mdat <- arrange(Mdat, Race)
 
 ```
 
