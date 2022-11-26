@@ -152,12 +152,17 @@ Mdat
 
 
 ```{r}
+
 wdat <- Wdat %>% 
-  filter(!is.na(Wdat$Age) & Race <= 2019)
-wdat
+  filter(!is.na(Wdat$Age) & Race <= 2019) #client wants races from before 2020
+wdat$Age <- as.numeric(wdat$Age)
+wdat <- wdat[wdat$Age >= 12,] #To protect against some ages being obviously entered in error (i.e. age 2) I'm going to remove ages below 12 from both sets of data
 
 mdat <- Mdat %>% 
   filter(!is.na(Mdat$Age) & Race <= 2019)
+mdat$Age <- as.numeric(mdat$Age)
+mdat <- mdat[mdat$Age >= 12,]
+
 ```
 
 
@@ -346,24 +351,8 @@ head(test_data)
 ```
 
 ```{r}
-sort(unique(Mdat$Age))
+sort(unique(wdat$Age))
 ```
-
-
-```{r}
-Mdat %>% filter(Age == "2")
-```
-
-
-
-```{r}
-unique(test_1_M$Time)
-```
-
-
-
-
-
 
 
 
