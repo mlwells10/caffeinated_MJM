@@ -30,18 +30,20 @@ Mdata <- read.csv("mendataclean.csv")
 ```{r}
 Wdat = Wdata[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
 Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
-Wdat <- Wdat %>% filter(Time != "NR") #removing NR
+Wdat <- Wdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Wdat <- add_rownames(Wdat) #necessary for indexing
 ```
 
 ```{r}
 Mdat = Mdata[(!is.na(Mdata$Age))&(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
 Mdat <- Mdat %>% filter(Time != "") #removing unrecorded values
-Mdat <- Mdat %>% filter(Time != "NR") #removing NR
+Mdat <- Mdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Mdat <- add_rownames(Mdat) #necessary for indexing
 
-#Mdat %>% filter(Time == "0.069664352") rows 5024  6987   108377 have crazy decimals
-Mdat <- Mdat[-c(5024,6987,108377),] 
+#Mdat %>% filter(Time == "0.069664352")
+#rows 4733 6623 105561  have crazy decimals
+#times of "0.044872685"   "0.047581019"   "0.069664352"
+Mdat <- Mdat[-c(4733,6623,105561),] 
 ```
 
 
@@ -343,56 +345,27 @@ test_data <- add_rownames(test_data)
 head(test_data)
 ```
 
-
 ```{r}
-test_data %>% #all times that start with a 5- these are recorded in wrong format
-  filter(str_detect(Time, "^0."))
+sort(unique(Mdat$Age))
 ```
 
 
 ```{r}
-Y <- test_data %>% #starts with 5
-  filter(str_detect(Time, "^5")) %>% select(rowname)
-Y$rowname <- as.numeric(Y$rowname)
-Y$rowname
+Mdat %>% filter(Age == "2")
 ```
-
-
-```{r}
-for(i in Y$rowname){
-  test_data[i,5] = substring(test_data[i,5],1,5)
-  test_data[i,5] = paste(0,test_data[i,5],sep=":")
-}
-test_data[Y$rowname,]
-```
-
-
 
 
 
 ```{r}
-#experimenting
-timevar <- paste(round(runif(10,10,59)),round(runif(10,10,59)),"00",sep=":")
-timevar #sample data
-```
-
-```{r} 
-#experimenting
-timevar %>% #changes it to time M S
-  str_extract(pattern = "^\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
-  ms()
+unique(test_1_M$Time)
 ```
 
 
 
 
-```{r}
-testing <- test_data %>% #starts with 5
-   filter(str_detect(Time, "^5")) %>% select(Time,rowname) 
-testing$Time <- testing$Time %>% str_extract(pattern = "^\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
-  ms()
-testing
-```
+
+
+
 
 
 
