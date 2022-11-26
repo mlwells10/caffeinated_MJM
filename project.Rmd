@@ -153,15 +153,15 @@ Mdat
 
 ```{r}
 
-wdat <- Wdat %>% 
+Wdat <- Wdat %>% 
   filter(!is.na(Wdat$Age) & Race <= 2019) #client wants races from before 2020
-wdat$Age <- as.numeric(wdat$Age)
-wdat <- wdat[wdat$Age >= 12,] #To protect against some ages being obviously entered in error (i.e. age 2) I'm going to remove ages below 12 from both sets of data
+Wdat$Age <- as.numeric(Wdat$Age)
+Wdat <- Wdat[Wdat$Age >= 12,] #To protect against some ages being obviously entered in error (i.e. age 2) I'm going to remove ages below 12 from both sets of data
 
-mdat <- Mdat %>% 
+Mdat <- Mdat %>% 
   filter(!is.na(Mdat$Age) & Race <= 2019)
-mdat$Age <- as.numeric(mdat$Age)
-mdat <- mdat[mdat$Age >= 12,]
+Mdat$Age <- as.numeric(Mdat$Age)
+Mdat <- Mdat[Mdat$Age >= 12,]
 
 ```
 
@@ -351,7 +351,7 @@ head(test_data)
 ```
 
 ```{r}
-sort(unique(wdat$Age))
+sort(unique(Mdat$Age))
 ```
 
 
