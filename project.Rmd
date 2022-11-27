@@ -436,11 +436,11 @@ sex is a significant predictor of race time.
 
 
 ```{r}
-model_3 <- lm(Time.y~0+PRCP,data = test_data)
+model_3 <- lm(Time.y~PRCP,data = test_data)
 summary(model_3)
 ```
 
-PRCP is significant predictor but the Adj R-sq is low, as would be predicted. 
+PRCP is significant predictor but the Adj R-sq is low, as would be expected
 
 
 
@@ -455,7 +455,7 @@ All of the divisions are significant predictors of race time.
 
 
 ```{r}
-model_5 <- lm(Time.y~0+TMIN,data = test_data)
+model_5 <- lm(Time.y~TMIN,data = test_data)
 summary(model_5)
 ```
 
@@ -472,8 +472,65 @@ Race year is a shockingly good predictor of race times. I don't know why.
 
 
 ```{r}
-Wdat %>% arrange(Time.y) %>% filter(Race == 2015)
+model_7 <- lm(Time.y~0+Age+sex,data = data_w)
+summary(model_7)
 ```
+
+
+
+
+```{r}
+library(MASS)
+boxcoxResult = boxcox(Time.y ~ Age+sex, data =all_data, lambda = seq(-2,5,1.5))
+```
+
+```{r}
+lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
+all_data$yboxcox = (all_data$Time.y^lambda-1)/lambda
+model.boxcox = lm(yboxcox ~ 0+Age+sex,data = all_data)
+
+summary(model.boxcox)
+```
+
+```{r}
+plot(model.boxcox)
+```
+
+
+
+
+
+
+
+
+```{r}
+#just men's data
+boxcoxResult_M = boxcox(Time.y ~ Age, data =Mdat, lambda = seq(-2,5,1.5))
+lambda_M = boxcoxResult_M$x[which.max(boxcoxResult_M$y)]
+Mdat$yboxcox = (Mdat$Time.y^lambda_M-1)/lambda_M
+model.boxcox_M = lm(yboxcox ~ 0+Age,data = Mdat)
+
+summary(model.boxcox_M)
+```
+
+
+
+
+```{r}
+#plot predicted vs. actual values
+plot(x=predict(model.boxcox_M), y=Mdat$Time.y,
+     xlab='Predicted Values',
+     ylab='Actual Values',
+     main='Predicted vs. Actual Values')
+
+#add diagonal line for estimated regression line
+abline(a=0, b=1)
+```
+
+
+
+
+
 
 
 
