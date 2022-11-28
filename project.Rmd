@@ -44,6 +44,7 @@ Mdat <- add_rownames(Mdat) #necessary for indexing
 #rows 4733 6623 105561  have crazy decimals
 #times of "0.044872685"   "0.047581019"   "0.069664352"
 Mdat <- Mdat[-c(4733,6623,105561),] 
+
 ```
 
 
@@ -237,6 +238,24 @@ all_data$Race <- as.factor(all_data$Race) #this is a factor not a number
 all_data <- all_data[,-c(5,6,9)] #Remove unwanted columns
 ```
 
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -257,6 +276,7 @@ ggplot(aes(x = Year, y = n))+
   ylab("Number of People")+
   labs(title = "Number of People in Each Year")
 ```
+
 ```{r}
 age_group = case_when(wdat$Age <= 10 ~ "Age<=10", wdat$Age > 10 & wdat$Age <=20 ~ "10 < Age <= 20", wdat$Age > 20 & wdat$Age <=30 ~ "20 < Age <= 30", wdat$Age > 30 & wdat$Age <=40 ~ "30 < Age <= 40", wdat$Age > 40 & wdat$Age<=50 ~ "40 < Age <= 50", wdat$Age > 50 & wdat$Age <= 60 ~ "50 < Age <= 60",wdat$Age > 60 & wdat$Age <= 70 ~ "60 < Age <= 70",wdat$Age > 70 & wdat$Age <=80 ~ "70 < Age <= 80", wdat$Age > 80 ~ "Age > 80")
 
@@ -271,6 +291,7 @@ ggplot(wdat, aes(x = Race, fill = age_group))+
   ylab("Count")+
   labs(title = "Range of Age in each Year for all Women")
 ```
+
 ```{r}
 age_group = case_when(mdat$Age <= 10 ~ "Age<=10", mdat$Age > 10 & mdat$Age <=20 ~ "10 < Age <= 20", mdat$Age > 20 & mdat$Age <=30 ~ "20 < Age <= 30", mdat$Age > 30 & mdat$Age <=40 ~ "30 < Age <= 40", mdat$Age > 40 & mdat$Age<=50 ~ "40 < Age <= 50", mdat$Age > 50 & mdat$Age <= 60 ~ "50 < Age <= 60",mdat$Age > 60 & mdat$Age <= 70 ~ "60 < Age <= 70",mdat$Age > 70 & mdat$Age <=80 ~ "70 < Age <= 80", mdat$Age > 80 ~ "Age > 80")
 
@@ -285,9 +306,11 @@ ggplot(mdat, aes(x = Race, fill = age_group))+
   ylab("Count")+
   labs(title = "Range of Age in each Year for all Men")
 ```
+
 ```{r}
 all_data <- rbind(wdat,mdat)
 ```
+
 ```{r}
 all_data <- all_data %>% mutate(sex = (
 strsplit(all_data$Division,"") %>% sapply( "[", 1 )))
@@ -333,16 +356,6 @@ ggplot() +
   theme_void() +
   coord_map()
 ```
-
-
-
-
-
-
-
-
-
-
 
 
 
