@@ -333,9 +333,7 @@ ggplot(mdat, aes(x = Race, fill = age_group))+
   labs(title = "Range of Age in each Year for all Men")
 ```
 
-```{r}
-all_data <- rbind(wdat,mdat)
-```
+
 
 
 
