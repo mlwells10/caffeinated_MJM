@@ -89,8 +89,8 @@ test_2 <- Wdat %>% #starts with 1
 test_3 <- Wdat %>% #starts with 2
    filter(str_detect(Time, "^2")) %>% select(Time,rowname) 
 test_complete <- rbind(test_1,test_2,test_3)
-test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
-  hm()
+test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}::\\d{2}") %>%  #\d match any char with cat. number decimal digit
+  hms()
 test_complete <- rbind(test_complete,starts_5,starts_4)
 ```
 
@@ -129,8 +129,8 @@ test_2_M <- Mdat %>% #starts with 1
 test_3_M <- Mdat %>% #starts with 2
    filter(str_detect(Time, "^2")) %>% select(Time,rowname) 
 test_complete_M <- rbind(test_1_M,test_2_M,test_3_M)
-test_complete_M$Time <- test_complete_M$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
-  hm()
+test_complete_M$Time <- test_complete_M$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
+  hms()
 test_complete_M <- rbind(test_complete_M,starts_5_M,starts_4_M)
 ```
 
@@ -170,6 +170,33 @@ Mdat$Age <- as.numeric(Mdat$Age)
 Mdat <- Mdat[Mdat$Age >= 12,]
 
 ```
+
+```{r}
+#creating a df with both sets of data (Male and Female)
+Wdat <- arrange(Wdat, Race)
+Mdat <- arrange(Mdat, Race)
+
+#Add column indicating sex to make it clearer in all_data
+Wdat <- Wdat %>% mutate(sex = "W")
+Mdat <- Mdat %>% mutate(sex = "M")
+
+Wdat <- Wdat[,-c(5,6,9)] #Remove unwanted columns
+Mdat <- Mdat[,-c(5,6,9)]
+
+Wdat$Race <- as.factor(Wdat$Race) #this is a factor not a number
+Mdat$Race <- as.factor(Mdat$Race) #this is a factor not a number
+```
+
+
+```{r}
+Mdat %>% filter(Race == "2015") %>% arrange(Time.y) %>% select(Time.y)
+Wdat %>% filter(Race == "2015") %>% arrange(Time.y)
+```
+
+
+
+
+
 
 
 
@@ -222,19 +249,8 @@ Mdat <- Mdat[Mdat$Time.y > Y,]
 ```
 
 ```{r}
-#creating a df with both sets of data (Male and Female)
-Wdat <- arrange(Wdat, Race)
-Mdat <- arrange(Mdat, Race)
-
-#Add column indicating sex to make it clearer in all_data
-Wdat <- Wdat %>% mutate(sex = "W")
-Mdat <- Mdat %>% mutate(sex = "M")
-
 all_data <- rbind(Wdat,Mdat)
 all_data <- arrange(all_data,Race)
-
-all_data$Race <- as.factor(all_data$Race) #this is a factor not a number
-all_data <- all_data[,-c(5,6,9)] #Remove unwanted columns
 ```
 
 
@@ -382,9 +398,6 @@ ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
 ```
 
 
-```{r}
-sort(unique(data_w$PRCP))
-```
 
 
 ```{r}
