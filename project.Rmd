@@ -189,64 +189,21 @@ Mdat$Race <- as.factor(Mdat$Race) #this is a factor not a number
 
 
 ```{r}
-Mdat %>% filter(Race == "2015") %>% arrange(Time.y) %>% select(Time.y)
-Wdat %>% filter(Race == "2015") %>% arrange(Time.y)
+#2015 Serena Burla was the top female racer but 5 women are listed as running faster
+to_remove_W <- c(779,780,781,782,783)
+Wdat = Wdat[!Wdat$rowname%in%to_remove_W,]
 ```
-
-
-
-
-
-
 
 
 ```{r}
-icdf <- function(x, alpha)
-{
-############################################################################
-# This is the quantile function or inverse cumulative distribution function# 
-# x     : vector of scores                  #
-# alpha : a value between 0 and 1                                          #
-# The function will return                                                 #
-#  a score value x[int{alpha*(n+1)}] if alpha does not exceed 0.50         #
-# a score value x[(n+1) - int{(1-alpha)*(n+1)}] if alpha exceeds 0.50      #
-# where n is the length of the vector x                                    #
-############################################################################
-   
-
-x <- sort(x)
-n <- length(x)
-if(alpha <= .50){
-  return(x[floor(alpha*(n+1))])
-} else{
-  return(x[(n+1) - floor((1-alpha)*(n+1))])
-}
-
-}
+Mdat %>% filter(Race == "2019") %>% arrange(Time.y) %>% select(Time.y)
+Wdat %>% filter(Race == "2019") %>% arrange(Time.y) %>% select(Time.y)
 ```
 
 
 
 
-```{r}
-#The top end of the data is already trimmed because we have a hard cap of 2H20M
-#We need to trim the bottom (fastest) portion of the data because this contains a lot of
-#errors, such as supposedly world-record breaking times. I will trim 10% off the bottom
-Y <- Wdat %>% select(Time.y)
-Y <- icdf(Y$Time.y,0.10)
-Wdat <- Wdat[Wdat$Time.y > Y,]
-Wdat
-Y
-```
 
-```{r}
-#The top end of the data is already trimmed because we have a hard cap of 2H20M
-#We need to trim the bottom (fastest) portion of the data because this contains a lot of
-#errors, such as supposedly world-record breaking times. I will trim 10% off the bottom
-Y <- Mdat %>% select(Time.y)
-Y <- icdf(Y$Time.y,0.10)
-Mdat <- Mdat[Mdat$Time.y > Y,]
-```
 
 ```{r}
 all_data <- rbind(Wdat,Mdat)
