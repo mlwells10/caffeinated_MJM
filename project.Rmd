@@ -183,7 +183,6 @@ Mdat <- Mdat[Mdat$Age >= 12,]
 ```
 
 ```{r}
-#creating a df with both sets of data (Male and Female)
 Wdat <- arrange(Wdat, Race)
 Mdat <- arrange(Mdat, Race)
 
@@ -193,20 +192,21 @@ Mdat <- Mdat %>% mutate(sex = "M")
 
 Wdat <- Wdat[,-c(5,6,9)] #Remove unwanted columns
 Mdat <- Mdat[,-c(5,6,9)]
-
-Wdat <- arrange(Wdat,Race)
-Mdat <- arrange(Mdat,Race)
 ```
 
 
 
-
 ```{r}
+#creating a df with both sets of data (Male and Female)
 all_data <- rbind(Wdat,Mdat)
 all_data <- arrange(all_data,Race)
 
 all_data$Race <- as.factor(all_data$Race)
 ```
+
+
+
+
 
 ```{r}
 all_data %>% ggplot(aes(fill = sex, colour = sex, group = sex))+
@@ -245,7 +245,7 @@ df_cleantown <- df_cleantown[(df_cleantown$Hometown%in%all_states$abb),]
 all_states <- all_states[,-c(4,5,6)] #Remove unwanted columns
 
 comb_all_states <- all_states %>%
-  rbind(df_cleantown, by=c("abb" ="Hometown"))
+  right_join(df_cleantown, by=c("abb" ="Hometown"))
 
 #all_states <- arrange(all_states, Race)
 
