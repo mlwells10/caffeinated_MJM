@@ -190,21 +190,6 @@ Mdat <- arrange(Mdat,Race)
 ```
 
 
-```{r}
-#2015 Serena Burla was the top female racer but 5 women are listed as running faster
-to_remove_W <- c(779,780,781,782,783)
-Wdat = Wdat[!Wdat$rowname%in%to_remove_W,]
-```
-
-
-```{r}
-Mdat %>% filter(Race == "1974") %>% arrange(Time.y) %>% select(Time.y)
-Wdat %>% filter(Race == "2019") %>% arrange(Time.y) %>% select(Time.y)
-```
-
-
-
-
 
 
 ```{r}
@@ -213,6 +198,7 @@ all_data <- arrange(all_data,Race)
 
 all_data$Race <- as.factor(all_data$Race)
 ```
+
 
 
 
