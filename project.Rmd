@@ -206,7 +206,7 @@ if(alpha <= .50){
 #We need to trim the bottom (fastest) portion of the data because this contains a lot of
 #errors, such as supposedly world-record breaking times. I will trim 10% off the bottom
 Y <- Wdat %>% select(Time.y)
-Y <- icdf(Y$Time.y,0.1)
+Y <- icdf(Y$Time.y,0.10)
 Wdat <- Wdat[Wdat$Time.y > Y,]
 Wdat
 Y
@@ -217,7 +217,7 @@ Y
 #We need to trim the bottom (fastest) portion of the data because this contains a lot of
 #errors, such as supposedly world-record breaking times. I will trim 10% off the bottom
 Y <- Mdat %>% select(Time.y)
-Y <- icdf(Y$Time.y,0.1)
+Y <- icdf(Y$Time.y,0.10)
 Mdat <- Mdat[Mdat$Time.y > Y,]
 ```
 
@@ -367,8 +367,24 @@ plot_usmap(regions = "states", labels = TRUE)+
 #  geom_polygon(df_cleantown$Hometown)
 ```
 
+```{r}
+by_year_sex<- data_w %>%
+  group_by(sex, DATE) %>%
+  summarize(mediantime = median(Time.y))
+
+# Plot the change in medianGdpPercap in each continent over time
+ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
+  geom_line() +
+  expand_limits(y = 0)+
+  xlab("Dates of races")+
+  ylab("Median Race Time (Minutes)")+
+  ggtitle("Median race times over the years")
+```
 
 
+```{r}
+sort(unique(data_w$PRCP))
+```
 
 
 ```{r}
@@ -404,11 +420,6 @@ data_w <- data_w %>%  drop_na() #drop all NAs
 head(data_w)
 ```
 
-```{r}
-# work in progress
-#library(CCA)
-#X <- data_w %>% dplyr::select(Time, Age) 
-```
 
 
 
@@ -476,18 +487,46 @@ model_7 <- lm(Time.y~0+Age+sex,data = data_w)
 summary(model_7)
 ```
 
+```{r}
+test_data_1 <- test_data %>% filter(Race != "1974" &Race != "1975")
+```
+
+
+
+
+
+
+```{r}
+boxcoxResult = boxcox(Time.y ~ 0+Age+sex+Race, data =test_data_1, lambda = seq(-2,5,1.5))
+lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
+test_data_1$yboxcox = (test_data_1$Time.y^lambda-1)/lambda
+model.boxcox = lm(yboxcox ~ 0+Age+sex+Race,data = test_data_1)
+```
+
+```{r}
+summary(model.boxcox)
+```
+```{r}
+plot(model.boxcox)
+```
+
+
+```{r}
+broom::glance(model.boxcox)
+```
 
 
 
 ```{r}
 library(MASS)
-boxcoxResult = boxcox(Time.y ~ Age+sex, data =all_data, lambda = seq(-2,5,1.5))
+
+boxcoxResult = boxcox(Time.y ~ 0+Age+sex, data =data_w, lambda = seq(-2,5,1.5))
 ```
 
 ```{r}
 lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
-all_data$yboxcox = (all_data$Time.y^lambda-1)/lambda
-model.boxcox = lm(yboxcox ~ 0+Age+sex,data = all_data)
+data_w$yboxcox = (data_w$Time.y^lambda-1)/lambda
+model.boxcox = lm(yboxcox ~ 0+Age+sex,data = data_w)
 
 summary(model.boxcox)
 ```
@@ -496,7 +535,23 @@ summary(model.boxcox)
 plot(model.boxcox)
 ```
 
+```{r}
+broom::glance(model.boxcox)
+```
 
+
+
+
+
+
+```{r}
+library(car)
+confidenceEllipse(model.boxcox)
+```
+
+```{r}
+ols_plot_resid_stud(model.boxcox)
+```
 
 
 
