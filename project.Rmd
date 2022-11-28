@@ -239,11 +239,68 @@ all_data <- all_data[,-c(5,6,9)] #Remove unwanted columns
 ```
 
 ```{r}
+all_data %>% ggplot(aes(fill = sex, colour = sex, group = sex))+
+  geom_point(aes(x = Age, y = Time.y ),size= 0.2)+
+  geom_smooth(aes(x = Age, y = Time.y))+
+  ggtitle("Age vs Time")+
+  ylab("Time in Minute")
+```
+
+```{r}
+df_cleantown <- all_data[which(all_data$Hometown != "NR"), ]
+
+df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 2 )
+df_cleantown <- df_cleantown %>% 
+  filter(!is.na(df_cleantown$Hometown))
+
+df_cleantown$Hometown <- toupper(df_cleantown$Hometown) #Returns the lowercase string.
+
+df_cleantown$Hometown[(df_cleantown$Hometown == "D.C")] = "DC" 
+df_cleantown$Hometown[(df_cleantown$Hometown == "D.C.")] = "DC" 
+df_cleantown$Hometown[(df_cleantown$Hometown == "DISTRICT OF COLUMBI")] = "DC" 
+df_cleantown$Hometown[(df_cleantown$Hometown == "NEW YORK")] = "NY" 
+df_cleantown$Hometown[(df_cleantown$Hometown == "VIRGINIA")] = "VA" 
+df_cleantown$Hometown[(df_cleantown$Hometown == " VA  22033")] = "VA" 
 
 
+
+all_states<-map_data("state")
+all_states$abb <- state.abb[match(all_states$region,tolower(state.name))]
+all_states[is.na(all_states$abb),] = "DC"
+state.dataframe <- unique(all_states$abb)
+
+
+df_cleantown <- df_cleantown[(df_cleantown$Hometown%in%all_states$abb),] 
+
+all_states <- all_states[,-c(4,5,6)] #Remove unwanted columns
+
+comb_all_states <- all_states %>%
+  rbind(df_cleantown, by=c("abb" ="Hometown"))
+
+#all_states <- arrange(all_states, Race)
+
+all_states <- all_states %>% 
+  filter(!is.na(all_states$long))
+all_states
+
+all_states$abb <- state.abb[match(all_states$region,tolower(state.name))]
+unique(all_states$abb)
 ```
 
 
+```{r}
+all_states %>% group_by(region) %>% 
+  summarise(count = n())
+```
+
+
+```{r}
+df_cleantown %>% group_by(Hometown) %>% 
+  summarise(count = n())
+```
+```{r}
+unique(df_cleantown$Hometown)
+```
 
 
 
@@ -311,26 +368,7 @@ ggplot(mdat, aes(x = Race, fill = age_group))+
 all_data <- rbind(wdat,mdat)
 ```
 
-```{r}
-all_data <- all_data %>% mutate(sex = (
-strsplit(all_data$Division,"") %>% sapply( "[", 1 )))
-all_data %>% filter(Time <2000) %>% 
-ggplot(aes(fill = sex, colour = sex, group = sex))+
-  geom_point(aes(x = Age, y = Time))+
-  geom_smooth(aes(x = Age, y = Time))
 
-```
-
-
-```{r}
-df_cleantown <- wdat[which(wdat$Hometown != "NR"), ]
-
-df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 1 )
-df_cleantown <- df_cleantown %>% 
-  filter(!is.na(df_cleantown$Hometown))
-
-df_cleantown
-```
 
 ```{r}
 df_cleantown$Hometown <- tolower(df_cleantown$Hometown) #Returns the lowercase string.
