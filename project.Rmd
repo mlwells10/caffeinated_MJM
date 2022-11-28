@@ -378,7 +378,7 @@ ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
   expand_limits(y = 0)+
   xlab("Dates of races")+
   ylab("Median Race Time (Minutes)")+
-  ggtitle("Median race times over the years")
+  ggtitle(label="Median race times over the years",subtitle = "In 2015 the course was only 9.39 miles")
 ```
 
 
@@ -487,33 +487,7 @@ model_7 <- lm(Time.y~0+Age+sex,data = data_w)
 summary(model_7)
 ```
 
-```{r}
-test_data_1 <- test_data %>% filter(Race != "1974" &Race != "1975")
-```
 
-
-
-
-
-
-```{r}
-boxcoxResult = boxcox(Time.y ~ 0+Age+sex+Race, data =test_data_1, lambda = seq(-2,5,1.5))
-lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
-test_data_1$yboxcox = (test_data_1$Time.y^lambda-1)/lambda
-model.boxcox = lm(yboxcox ~ 0+Age+sex+Race,data = test_data_1)
-```
-
-```{r}
-summary(model.boxcox)
-```
-```{r}
-plot(model.boxcox)
-```
-
-
-```{r}
-broom::glance(model.boxcox)
-```
 
 
 
