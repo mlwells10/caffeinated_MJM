@@ -185,8 +185,8 @@ Mdat <- Mdat %>% mutate(sex = "M")
 Wdat <- Wdat[,-c(5,6,9)] #Remove unwanted columns
 Mdat <- Mdat[,-c(5,6,9)]
 
-Wdat$Race <- as.factor(Wdat$Race) #this is a factor not a number
-Mdat$Race <- as.factor(Mdat$Race) #this is a factor not a number
+Wdat <- arrange(Wdat,Race)
+Mdat <- arrange(Mdat,Race)
 ```
 
 
@@ -211,6 +211,7 @@ Wdat %>% filter(Race == "2019") %>% arrange(Time.y) %>% select(Time.y)
 all_data <- rbind(Wdat,Mdat)
 all_data <- arrange(all_data,Race)
 
+all_data$Race <- as.factor(all_data$Race)
 ```
 
 
