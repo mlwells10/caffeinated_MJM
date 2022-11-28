@@ -89,9 +89,11 @@ test_2 <- Wdat %>% #starts with 1
 test_3 <- Wdat %>% #starts with 2
    filter(str_detect(Time, "^2")) %>% select(Time,rowname) 
 test_complete <- rbind(test_1,test_2,test_3)
-test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}::\\d{2}") %>%  #\d match any char with cat. number decimal digit
+test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
   hms()
 test_complete <- rbind(test_complete,starts_5,starts_4)
+
+test_complete
 ```
 
 ```{r}
@@ -196,7 +198,7 @@ Wdat = Wdat[!Wdat$rowname%in%to_remove_W,]
 
 
 ```{r}
-Mdat %>% filter(Race == "2019") %>% arrange(Time.y) %>% select(Time.y)
+Mdat %>% filter(Race == "1974") %>% arrange(Time.y) %>% select(Time.y)
 Wdat %>% filter(Race == "2019") %>% arrange(Time.y) %>% select(Time.y)
 ```
 
@@ -208,6 +210,7 @@ Wdat %>% filter(Race == "2019") %>% arrange(Time.y) %>% select(Time.y)
 ```{r}
 all_data <- rbind(Wdat,Mdat)
 all_data <- arrange(all_data,Race)
+
 ```
 
 
@@ -340,19 +343,7 @@ plot_usmap(regions = "states", labels = TRUE)+
 #  geom_polygon(df_cleantown$Hometown)
 ```
 
-```{r}
-by_year_sex<- data_w %>%
-  group_by(sex, DATE) %>%
-  summarize(mediantime = median(Time.y))
 
-# Plot the change in medianGdpPercap in each continent over time
-ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
-  geom_line() +
-  expand_limits(y = 0)+
-  xlab("Dates of races")+
-  ylab("Median Race Time (Minutes)")+
-  ggtitle(label="Median race times over the years",subtitle = "In 2015 the course was only 9.39 miles")
-```
 
 
 
@@ -390,7 +381,19 @@ data_w <- data_w %>%  drop_na() #drop all NAs
 head(data_w)
 ```
 
+```{r}
+by_year_sex<- data_w %>%
+  group_by(sex, DATE) %>%
+  summarize(mediantime = median(Time.y))
 
+# Plot the change in medianGdpPercap in each continent over time
+ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
+  geom_line() +
+  expand_limits(y = 0)+
+  xlab("Dates of races")+
+  ylab("Median Race Time (Minutes)")+
+  ggtitle(label="Median race times over the years",subtitle = "In 2015 the course was only 9.39 miles")
+```
 
 
 ```{r}
