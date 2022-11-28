@@ -20,6 +20,7 @@ library(statisticalModeling)
 library(olsrr)
 library(scatterplot3d)
 library(plotly)
+library(MASS)
 ```
 
 ```{r}
@@ -438,77 +439,10 @@ ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
 ```
 
 
-```{r}
-test_data = data_w
-
-```
-
-
-```{r}
-model_1 <- lm(Time.y~0+Age,data = test_data)
-summary(model_1)
-```
-
-Age is a significant predictor of race time. 
-
-
-```{r}
-model_2 <- lm(Time.y~0+sex,data = test_data)
-summary(model_2)
-```
-
-
-sex is a significant predictor of race time.
-
-
-```{r}
-model_3 <- lm(Time.y~PRCP,data = test_data)
-summary(model_3)
-```
-
-PRCP is significant predictor but the Adj R-sq is low, as would be expected
-
 
 
 
 ```{r}
-model_4 <- lm(Time.y~0+Division,data = test_data)
-summary(model_4)
-```
-
-All of the divisions are significant predictors of race time. 
-
-
-
-```{r}
-model_5 <- lm(Time.y~TMIN,data = test_data)
-summary(model_5)
-```
-
-TMIN is a significant predictor of race times. 
-
-
-
-```{r}
-model_6 <- lm(Time.y~0+Race,data = test_data)
-summary(model_6)
-```
-
-Race year is a shockingly good predictor of race times. I don't know why. 
-
-
-```{r}
-model_7 <- lm(Time.y~0+Age+sex,data = data_w)
-summary(model_7)
-```
-
-
-
-
-
-```{r}
-library(MASS)
-
 boxcoxResult = boxcox(Time.y ~ 0+Age+sex, data =data_w, lambda = seq(-2,5,1.5))
 ```
 
