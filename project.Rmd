@@ -28,14 +28,22 @@ Mdata <- read.csv("mendataclean.csv")
 ```
 
 ```{r}
-Wdat = Wdata[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
+#Removing the year 2015 since the race was only 9.39 miles that year
+Wdat = Wdata %>% filter(Race != 2015)
+Mdat = Mdata %>% filter(Race != 2015)
+```
+
+
+
+```{r}
+Wdat = Wdat[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
 Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
 Wdat <- Wdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Wdat <- add_rownames(Wdat) #necessary for indexing
 ```
 
 ```{r}
-Mdat = Mdata[(!is.na(Mdata$Age))&(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
+Mdat = Mdat[(!is.na(Mdata$Age))&(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
 Mdat <- Mdat %>% filter(Time != "") #removing unrecorded values
 Mdat <- Mdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Mdat <- add_rownames(Mdat) #necessary for indexing
@@ -90,9 +98,11 @@ test_2 <- Wdat %>% #starts with 1
 test_3 <- Wdat %>% #starts with 2
    filter(str_detect(Time, "^2")) %>% select(Time,rowname) 
 test_complete <- rbind(test_1,test_2,test_3)
-test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
-  hm()
+test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
+  hms()
 test_complete <- rbind(test_complete,starts_5,starts_4)
+
+test_complete
 ```
 
 ```{r}
@@ -130,8 +140,8 @@ test_2_M <- Mdat %>% #starts with 1
 test_3_M <- Mdat %>% #starts with 2
    filter(str_detect(Time, "^2")) %>% select(Time,rowname) 
 test_complete_M <- rbind(test_1_M,test_2_M,test_3_M)
-test_complete_M$Time <- test_complete_M$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
-  hm()
+test_complete_M$Time <- test_complete_M$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
+  hms()
 test_complete_M <- rbind(test_complete_M,starts_5_M,starts_4_M)
 ```
 
@@ -172,56 +182,6 @@ Mdat <- Mdat[Mdat$Age >= 12,]
 
 ```
 
-
-
-```{r}
-icdf <- function(x, alpha)
-{
-############################################################################
-# This is the quantile function or inverse cumulative distribution function# 
-# x     : vector of scores                  #
-# alpha : a value between 0 and 1                                          #
-# The function will return                                                 #
-#  a score value x[int{alpha*(n+1)}] if alpha does not exceed 0.50         #
-# a score value x[(n+1) - int{(1-alpha)*(n+1)}] if alpha exceeds 0.50      #
-# where n is the length of the vector x                                    #
-############################################################################
-   
-
-x <- sort(x)
-n <- length(x)
-if(alpha <= .50){
-  return(x[floor(alpha*(n+1))])
-} else{
-  return(x[(n+1) - floor((1-alpha)*(n+1))])
-}
-
-}
-```
-
-
-
-
-```{r}
-#The top end of the data is already trimmed because we have a hard cap of 2H20M
-#We need to trim the bottom (fastest) portion of the data because this contains a lot of
-#errors, such as supposedly world-record breaking times. I will trim 10% off the bottom
-Y <- Wdat %>% select(Time.y)
-Y <- icdf(Y$Time.y,0.1)
-Wdat <- Wdat[Wdat$Time.y > Y,]
-Wdat
-Y
-```
-
-```{r}
-#The top end of the data is already trimmed because we have a hard cap of 2H20M
-#We need to trim the bottom (fastest) portion of the data because this contains a lot of
-#errors, such as supposedly world-record breaking times. I will trim 10% off the bottom
-Y <- Mdat %>% select(Time.y)
-Y <- icdf(Y$Time.y,0.1)
-Mdat <- Mdat[Mdat$Time.y > Y,]
-```
-
 ```{r}
 #creating a df with both sets of data (Male and Female)
 Wdat <- arrange(Wdat, Race)
@@ -231,11 +191,21 @@ Mdat <- arrange(Mdat, Race)
 Wdat <- Wdat %>% mutate(sex = "W")
 Mdat <- Mdat %>% mutate(sex = "M")
 
+Wdat <- Wdat[,-c(5,6,9)] #Remove unwanted columns
+Mdat <- Mdat[,-c(5,6,9)]
+
+Wdat <- arrange(Wdat,Race)
+Mdat <- arrange(Mdat,Race)
+```
+
+
+
+
+```{r}
 all_data <- rbind(Wdat,Mdat)
 all_data <- arrange(all_data,Race)
 
-all_data$Race <- as.factor(all_data$Race) #this is a factor not a number
-all_data <- all_data[,-c(5,6,9)] #Remove unwanted columns
+all_data$Race <- as.factor(all_data$Race)
 ```
 
 ```{r}
@@ -301,7 +271,6 @@ df_cleantown %>% group_by(Hometown) %>%
 ```{r}
 unique(df_cleantown$Hometown)
 ```
-
 
 
 
@@ -422,6 +391,7 @@ plot_usmap(regions = "states", labels = TRUE)+
 
 
 
+
 ```{r}
 weather = readr::read_csv("3139946.csv") #Loading the weather data and named it as data
 head(weather) #seeing the first six rows of the data
@@ -456,11 +426,18 @@ head(data_w)
 ```
 
 ```{r}
-# work in progress
-#library(CCA)
-#X <- data_w %>% dplyr::select(Time, Age) 
-```
+by_year_sex<- data_w %>%
+  group_by(sex, DATE) %>%
+  summarize(mediantime = median(Time.y))
 
+# Plot the change in medianGdpPercap in each continent over time
+ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
+  geom_line() +
+  expand_limits(y = 0)+
+  xlab("Dates of races")+
+  ylab("Median Race Time (Minutes)")+
+  ggtitle(label="Median race times over the years")
+```
 
 
 ```{r}
@@ -530,15 +507,17 @@ summary(model_7)
 
 
 
+
 ```{r}
 library(MASS)
-boxcoxResult = boxcox(Time.y ~ Age+sex, data =all_data, lambda = seq(-2,5,1.5))
+
+boxcoxResult = boxcox(Time.y ~ 0+Age+sex, data =data_w, lambda = seq(-2,5,1.5))
 ```
 
 ```{r}
 lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
-all_data$yboxcox = (all_data$Time.y^lambda-1)/lambda
-model.boxcox = lm(yboxcox ~ 0+Age+sex,data = all_data)
+data_w$yboxcox = (data_w$Time.y^lambda-1)/lambda
+model.boxcox = lm(yboxcox ~ 0+Age+sex,data = data_w)
 
 summary(model.boxcox)
 ```
@@ -547,7 +526,23 @@ summary(model.boxcox)
 plot(model.boxcox)
 ```
 
+```{r}
+broom::glance(model.boxcox)
+```
 
+
+
+
+
+
+```{r}
+library(car)
+confidenceEllipse(model.boxcox)
+```
+
+```{r}
+ols_plot_resid_stud(model.boxcox)
+```
 
 
 
