@@ -28,14 +28,22 @@ Mdata <- read.csv("mendataclean.csv")
 ```
 
 ```{r}
-Wdat = Wdata[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
+#Removing the year 2015 since the race was only 9.39 miles that year
+Wdat = Wdata %>% filter(Race != 2015)
+Mdat = Mdata %>% filter(Race != 2015)
+```
+
+
+
+```{r}
+Wdat = Wdat[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
 Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
 Wdat <- Wdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Wdat <- add_rownames(Wdat) #necessary for indexing
 ```
 
 ```{r}
-Mdat = Mdata[(!is.na(Mdata$Age))&(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
+Mdat = Mdat[(!is.na(Mdata$Age))&(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
 Mdat <- Mdat %>% filter(Time != "") #removing unrecorded values
 Mdat <- Mdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Mdat <- add_rownames(Mdat) #necessary for indexing
@@ -198,8 +206,6 @@ all_data <- arrange(all_data,Race)
 
 all_data$Race <- as.factor(all_data$Race)
 ```
-
-
 
 
 
@@ -379,7 +385,7 @@ ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
   expand_limits(y = 0)+
   xlab("Dates of races")+
   ylab("Median Race Time (Minutes)")+
-  ggtitle(label="Median race times over the years",subtitle = "In 2015 the course was only 9.39 miles")
+  ggtitle(label="Median race times over the years")
 ```
 
 
