@@ -30,31 +30,31 @@ Mdata <- read.csv("mendataclean.csv")
 ```{r}
 #Removing the year 2015 since the race was only 9.39 miles that year
 #Only 2 values for 1973 that were not NA Age
-Wdat = Wdata %>% filter(Race != 2015 & Race != 1973)
-Mdat = Mdata %>% filter(Race != 2015 & Race != 1973)
+Wdat = Wdata %>% filter(Race != 2015 & Race <= 2019)
+Mdat = Mdata %>% filter(Race != 2015 & Race <= 2019)
 ```
 
 
 
 
 ```{r}
-Wdat = Wdat[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
+Wdat = Wdat[(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
 Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
 Wdat <- Wdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Wdat <- add_rownames(Wdat) #necessary for indexing
 ```
 
 ```{r}
-Mdat = Mdat[(!is.na(Mdata$Age))&(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
+Mdat = Mdat[(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
 Mdat <- Mdat %>% filter(Time != "") #removing unrecorded values
 Mdat <- Mdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Mdat <- add_rownames(Mdat) #necessary for indexing
 
-#Mdat %>% filter(Time == "0.069664352")
-#rows 4733 6623 105561  have crazy decimals
+#Mdat %>% filter(Time == "0.044872685")
+#rows 4625,6428,102353  have crazy decimals
 #times of "0.044872685"   "0.047581019"   "0.069664352"
-Mdat <- Mdat[-c(4733,6623,105561),] 
-
+rowname_bad_times <- c(4625,6428,102353)
+Mdat <- Mdat[!Mdat$rowname%in%rowname_bad_times,]
 ```
 
 
@@ -103,8 +103,6 @@ test_complete <- rbind(test_1,test_2,test_3)
 test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
   hms()
 test_complete <- rbind(test_complete,starts_5,starts_4)
-
-test_complete
 ```
 
 ```{r}
@@ -145,6 +143,7 @@ test_complete_M <- rbind(test_1_M,test_2_M,test_3_M)
 test_complete_M$Time <- test_complete_M$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
   hms()
 test_complete_M <- rbind(test_complete_M,starts_5_M,starts_4_M)
+test_1_M %>% filter(Time == "0.047581019")
 ```
 
 ```{r}
@@ -167,30 +166,60 @@ Wdat <- Wdat[Wdat$Time.y < 140,]
 Mdat <- Mdat[Mdat$Time.y < 140,]
 ```
 
+At this point the times are cleaned for both sexes.
+
+```{r}
+#Add column indicating sex to make it clearer in all_data
+Wdat <- Wdat %>% mutate(sex = "W")
+Mdat <- Mdat %>% mutate(sex = "M")
+#creating a df with both sets of data (Male and Female)
+all_data <- rbind(Wdat,Mdat)
+all_data <- arrange(all_data,Race)
+```
+
+
+
+
+
+```{r}
+by_year_sex<- all_data %>%
+  group_by(sex, Race) %>%
+  summarize(mediantime = median(Time.y))
+
+# Plot the change in medianGdpPercap in each continent over time
+ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
+  geom_line() +
+  expand_limits(y = 0)+
+  xlab("Dates of races")+
+  ylab("Median Race Time (Minutes)")+
+  ggtitle(label="Median race times over the years")
+```
+
+```{r}
+all_data %>% filter(Race == 1978) %>% select(Time.y,sex) %>% arrange(Time.y)
+```
+
+
 
 
 
 ```{r}
 #Cleaning up the ages
 Wdat <- Wdat %>% 
-  filter(!is.na(Wdat$Age) & Race <= 2019) #client wants races from before 2020
+  filter(!is.na(Wdat$Age))
 Wdat$Age <- as.numeric(Wdat$Age)
 Wdat <- Wdat[Wdat$Age >= 9,] #To protect against some ages being obviously entered in error (i.e. age 2) I'm going to remove ages below 12 from both sets of data
 
 Mdat <- Mdat %>% 
-  filter(!is.na(Mdat$Age) & Race <= 2019)
+  filter(!is.na(Mdat$Age))
 Mdat$Age <- as.numeric(Mdat$Age)
 Mdat <- Mdat[Mdat$Age >= 9,]
-
 ```
 
 ```{r}
 Wdat <- arrange(Wdat, Race)
 Mdat <- arrange(Mdat, Race)
 
-#Add column indicating sex to make it clearer in all_data
-Wdat <- Wdat %>% mutate(sex = "W")
-Mdat <- Mdat %>% mutate(sex = "M")
 
 Wdat <- Wdat[,-c(5,6,9)] #Remove unwanted columns
 Mdat <- Mdat[,-c(5,6,9)]
