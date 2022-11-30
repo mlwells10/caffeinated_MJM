@@ -3,7 +3,7 @@
 rm(list = ls())
 setwd('~/caffeinated_MJM')
 
-df = read.csv('mendataclean.csv')
+df = read.csv('data/combined_data_with_ID.csv')
 
 t = df$Time[1]
 i=1
@@ -50,4 +50,4 @@ format_time = function(t)
 #df = df[!is.na(df$Time),]Time = s
 Time = sapply(df$Time,format_time)
 df$Time = Time
-write.csv(df,'data/men_time_formatted.csv',row.names=F)
+write.csv(df,'data/all_data_formatted_ID.csv',row.names=F)
