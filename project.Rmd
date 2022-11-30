@@ -20,7 +20,6 @@ library(statisticalModeling)
 library(olsrr)
 library(scatterplot3d)
 library(plotly)
-library(MASS)
 ```
 
 ```{r}
@@ -30,9 +29,11 @@ Mdata <- read.csv("mendataclean.csv")
 
 ```{r}
 #Removing the year 2015 since the race was only 9.39 miles that year
-Wdat = Wdata %>% filter(Race != 2015)
-Mdat = Mdata %>% filter(Race != 2015)
+#Only 2 values for 1973 that were not NA Age
+Wdat = Wdata %>% filter(Race != 2015 & Race != 1973)
+Mdat = Mdata %>% filter(Race != 2015 & Race != 1973)
 ```
+
 
 
 
@@ -61,7 +62,7 @@ Mdat <- Mdat[-c(4733,6623,105561),]
 #Need to remove all the times starting with a 3 because they are either recorded in error
 #i.e. time of 36:47:00 or beyond the limit of 2h20m
 rowname_3s_W <- Wdat %>% 
-   filter(str_detect(Time, "^3")) %>% select(rowname)
+   filter(str_detect(Time, "^3")) %>% dplyr::select(rowname)
 rowname_3s_W <- as.numeric(rowname_3s_W$rowname)
 Wdat <- Wdat[-c(rowname_3s_W),]
 ```
@@ -70,7 +71,7 @@ Wdat <- Wdat[-c(rowname_3s_W),]
 #Need to remove all the times starting with a 3 because they are either recorded in error
 #i.e. time of 36:47:00 or beyond the limit of 2h20m
 rowname_3s_M <- Mdat %>% 
-   filter(str_detect(Time, "^3")) %>% select(rowname)
+   filter(str_detect(Time, "^3")) %>% dplyr::select(rowname)
 
 rowname_3s_M <- as.numeric(rowname_3s_M$rowname)
 
@@ -174,12 +175,12 @@ Mdat <- Mdat[Mdat$Time.y < 140,]
 Wdat <- Wdat %>% 
   filter(!is.na(Wdat$Age) & Race <= 2019) #client wants races from before 2020
 Wdat$Age <- as.numeric(Wdat$Age)
-Wdat <- Wdat[Wdat$Age >= 12,] #To protect against some ages being obviously entered in error (i.e. age 2) I'm going to remove ages below 12 from both sets of data
+Wdat <- Wdat[Wdat$Age >= 9,] #To protect against some ages being obviously entered in error (i.e. age 2) I'm going to remove ages below 12 from both sets of data
 
 Mdat <- Mdat %>% 
   filter(!is.na(Mdat$Age) & Race <= 2019)
 Mdat$Age <- as.numeric(Mdat$Age)
-Mdat <- Mdat[Mdat$Age >= 12,]
+Mdat <- Mdat[Mdat$Age >= 9,]
 
 ```
 
@@ -439,17 +440,20 @@ ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
 ```
 
 
+```{r}
+library(MASS)
+```
 
 
 
 ```{r}
-boxcoxResult = boxcox(Time.y ~ 0+Age+sex, data =data_w, lambda = seq(-2,5,1.5))
+boxcoxResult = boxcox(Time.y ~ Division, data =data_w, lambda = seq(-2,5,1.5))
 ```
 
 ```{r}
 lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
 data_w$yboxcox = (data_w$Time.y^lambda-1)/lambda
-model.boxcox = lm(yboxcox ~ 0+Age+sex,data = data_w)
+model.boxcox = lm(yboxcox ~ Division,data = data_w)
 
 summary(model.boxcox)
 ```
@@ -463,7 +467,14 @@ broom::glance(model.boxcox)
 ```
 
 
+```{r}
+test_model <- lm(Time.y~Division,data=all_data)
+summary(test_model)
+```
 
+```{r}
+broom::glance(test_model)
+```
 
 
 
@@ -510,8 +521,47 @@ abline(a=0, b=1)
 
 
 
+```{r}
+sample_test <- sample(1:nrow(data_w),300,replace=T)
+sample_data <- data_w[sample_test,]
+library(CCA)
+```
 
 
+```{r}
+X = sample_data %>%  
+  dplyr::select(PRCP,TMIN) %>% 
+  scale()
+
+Y = sample_data %>% 
+  dplyr::select(Age) %>% 
+  scale()
+
+
+cc_results <- cancor(X,Y)
+
+CC1_X = as.matrix(X) %*% cc_results$xcoef[, 1]
+CC1_Y = as.matrix(Y) %*% cc_results$ycoef[, 1]
+
+CC2_X =as.matrix(X) %*% cc_results$xcoef[, 2]
+
+cca_df = sample_data %>%  
+  mutate(CC1_X=CC1_X,
+         CC1_Y=CC1_Y,
+         CC2_X=CC2_X)
+
+cca_df %>% 
+  ggplot(aes(x=CC1_X,y=CC1_Y))+
+  geom_point()
+```
+
+
+```{r}
+cca_df %>%  
+  ggplot(aes(x=sex,y=CC1_Y, color=sex))+
+  geom_boxplot(width=0.5)+
+  geom_jitter(width=0.15)
+```
 
 
 
