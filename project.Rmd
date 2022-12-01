@@ -195,15 +195,12 @@ ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
   ggtitle(label="Median race times over the years")
 ```
 
-```{r}
-all_data %>% filter(Race == 1978) %>% select(Time.y,sex) %>% arrange(Time.y)
-```
-
-
 
 
 
 ```{r}
+Wdat = Wdat %>% filter(Race != 1973)
+Mdat = Mdat %>% filter(Race != 1973) #too few observations with Age records
 #Cleaning up the ages
 Wdat <- Wdat %>% 
   filter(!is.na(Wdat$Age))
