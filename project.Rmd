@@ -29,7 +29,7 @@ Mdata <- read.csv("mendataclean.csv")
 
 ```{r}
 #Removing the year 2015 since the race was only 9.39 miles that year
-#Only 2 values for 1973 that were not NA Age
+#Pandemic years are also not included as per request from client.
 Wdat = Wdata %>% filter(Race != 2015 & Race <= 2019)
 Mdat = Mdata %>% filter(Race != 2015 & Race <= 2019)
 ```
@@ -38,14 +38,14 @@ Mdat = Mdata %>% filter(Race != 2015 & Race <= 2019)
 
 
 ```{r}
-Wdat = Wdat[(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
+Wdat = Wdat[(!is.na(Wdata$Time)),] #removing NA in Time observation
 Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
 Wdat <- Wdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Wdat <- add_rownames(Wdat) #necessary for indexing
 ```
 
 ```{r}
-Mdat = Mdat[(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
+Mdat = Mdat[(!is.na(Mdata$Time)),] #removing NA in Time observation
 Mdat <- Mdat %>% filter(Time != "") #removing unrecorded values
 Mdat <- Mdat %>% filter(Time != "NR" & Age !="NR") #removing NR
 Mdat <- add_rownames(Mdat) #necessary for indexing
@@ -182,6 +182,7 @@ all_data <- arrange(all_data,Race)
 
 
 ```{r}
+#Putting this plot here to see times including year 1973 which we remove later on for only having 2 data values with Age, but Age was not a part of this plot.
 by_year_sex<- all_data %>%
   group_by(sex, Race) %>%
   summarize(mediantime = median(Time.y))
