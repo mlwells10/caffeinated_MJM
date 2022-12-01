@@ -186,7 +186,6 @@ by_year_sex<- all_data %>%
   group_by(sex, Race) %>%
   summarize(mediantime = median(Time.y))
 
-Races <- unique(all_data$Race)
 
 # Plot the change in medianGdpPercap in each continent over time
 ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
@@ -194,9 +193,12 @@ ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
   expand_limits(y = 0)+
   xlab("Dates of races")+
   ylab("Median Race Time (Minutes)")+
-  ggtitle(label="Median race times over the years")
+  ggtitle(label="Median race times over the years", subtitle= "Very few run times for women in 1978")
+  
 
 ```
+
+
 
 
 
