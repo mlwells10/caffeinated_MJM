@@ -40,17 +40,17 @@ Mdat = Mdata %>% filter(Race != 2015 & Race <= 2019)
 ```{r}
 Wdat = Wdat[(!is.na(Wdata$Time)),] #removing NA in Time observation
 Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
-Wdat <- Wdat %>% filter(Time != "NR" & Age !="NR") #removing NR
+Wdat <- Wdat %>% filter(Time != "NR") #removing NR
 Wdat <- add_rownames(Wdat) #necessary for indexing
 ```
 
 ```{r}
 Mdat = Mdat[(!is.na(Mdata$Time)),] #removing NA in Time observation
 Mdat <- Mdat %>% filter(Time != "") #removing unrecorded values
-Mdat <- Mdat %>% filter(Time != "NR" & Age !="NR") #removing NR
+Mdat <- Mdat %>% filter(Time != "NR") #removing NR
 Mdat <- add_rownames(Mdat) #necessary for indexing
 
-#Mdat %>% filter(Time == "0.044872685")
+#Mdat %>% filter(Time == "0.069664352")
 #rows 4625,6428,102353  have crazy decimals
 #times of "0.044872685"   "0.047581019"   "0.069664352"
 rowname_bad_times <- c(4625,6428,102353)
@@ -64,7 +64,7 @@ Mdat <- Mdat[!Mdat$rowname%in%rowname_bad_times,]
 rowname_3s_W <- Wdat %>% 
    filter(str_detect(Time, "^3")) %>% dplyr::select(rowname)
 rowname_3s_W <- as.numeric(rowname_3s_W$rowname)
-Wdat <- Wdat[-c(rowname_3s_W),]
+Wdat <- Wdat[!Wdat$rowname%in%rowname_3s_W,]
 ```
 
 ```{r}
@@ -75,7 +75,7 @@ rowname_3s_M <- Mdat %>%
 
 rowname_3s_M <- as.numeric(rowname_3s_M$rowname)
 
-Mdat <- Mdat[!Mdat$rowname%in%rowname_3s_M,] #For some reason the other method used in Wdat didn't work here. 
+Mdat <- Mdat[!Mdat$rowname%in%rowname_3s_M,]
 ```
 
 
@@ -143,7 +143,6 @@ test_complete_M <- rbind(test_1_M,test_2_M,test_3_M)
 test_complete_M$Time <- test_complete_M$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
   hms()
 test_complete_M <- rbind(test_complete_M,starts_5_M,starts_4_M)
-test_1_M %>% filter(Time == "0.047581019")
 ```
 
 ```{r}
@@ -187,6 +186,8 @@ by_year_sex<- all_data %>%
   group_by(sex, Race) %>%
   summarize(mediantime = median(Time.y))
 
+Races <- unique(all_data$Race)
+
 # Plot the change in medianGdpPercap in each continent over time
 ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
   geom_line() +
@@ -194,6 +195,7 @@ ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
   xlab("Dates of races")+
   ylab("Median Race Time (Minutes)")+
   ggtitle(label="Median race times over the years")
+
 ```
 
 
@@ -474,13 +476,13 @@ library(MASS)
 
 
 ```{r}
-boxcoxResult = boxcox(Time.y ~ Division, data =data_w, lambda = seq(-2,5,1.5))
+boxcoxResult = boxcox(Time.y~poly(Age,3)*sex, data = data_w_new, lambda = seq(-2,5,1.5))
 ```
 
 ```{r}
 lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
-data_w$yboxcox = (data_w$Time.y^lambda-1)/lambda
-model.boxcox = lm(yboxcox ~ Division,data = data_w)
+data_w_new$yboxcox = (data_w_new$Time.y^lambda-1)/lambda
+model.boxcox = lm(yboxcox~poly(Age,3)*sex, data = data_w_new)
 
 summary(model.boxcox)
 ```
@@ -490,7 +492,7 @@ plot(model.boxcox)
 ```
 
 ```{r}
-broom::glance(model.boxcox)
+broom::glance(model.boxcox,)
 ```
 
 
@@ -519,15 +521,6 @@ ols_plot_resid_stud(model.boxcox)
 
 
 
-```{r}
-#just men's data
-boxcoxResult_M = boxcox(Time.y ~ Age, data =Mdat, lambda = seq(-2,5,1.5))
-lambda_M = boxcoxResult_M$x[which.max(boxcoxResult_M$y)]
-Mdat$yboxcox = (Mdat$Time.y^lambda_M-1)/lambda_M
-model.boxcox_M = lm(yboxcox ~ 0+Age,data = Mdat)
-
-summary(model.boxcox_M)
-```
 
 
 
@@ -589,6 +582,47 @@ cca_df %>%
   geom_boxplot(width=0.5)+
   geom_jitter(width=0.15)
 ```
+
+
+
+```{r}
+library(fastDummies)
+```
+
+```{r}
+data_w_new <- cbind(data_w, dummy_cols(data_w$Division))
+col_names <- names(data_w_new)
+data_w_new[,-c(1:13)] <- lapply(data_w_new[,-c(1:13)] , factor)
+col_names
+```
+
+
+
+
+```{r}
+ols_model <- lm(yboxcox ~poly(Age,3)*sex+PRCP+TMIN+.data_M2024+.data_M2529+.data_M3034+.data_M3539+.data_M4044+.data_M4549+.data_M5054+.data_M5559+.data_M6064+.data_M6569+.data_M7074+.data_M7579+.data_W0119+.data_W2024+.data_W2529+.data_W3034+.data_W3539+.data_W4044+.data_W4549+.data_W5054+.data_W5559+.data_W6064, data = data_w_new)
+```
+
+
+
+
+
+
+```{r}
+ols_step_forward_aic(ols_model,progress = T)
+```
+
+
+
+
+
+
+```{r}
+ols_step_backward_aic(ols_model,progress = T)
+```
+
+
+
 
 
 
