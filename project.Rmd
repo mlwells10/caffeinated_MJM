@@ -177,23 +177,23 @@ all_data <- arrange(all_data,Race)
 ```
 
 
-
-
-
 ```{r}
 #Putting this plot here to see times including year 1973 which we remove later on for only having 2 data values with Age, but Age was not a part of this plot.
 by_year_sex<- all_data %>%
   group_by(sex, Race) %>%
   summarize(mediantime = median(Time.y))
+```
 
 
+
+```{r}
 # Plot the change in medianGdpPercap in each continent over time
 ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
   geom_line() +
   expand_limits(y = 0)+
   xlab("Date of race")+
   ylab("Median Race Time (Minutes)")+
-  ggtitle(label="Median race times over the years", subtitle= "Very few run times for women pre-1979")
+  ggtitle(label="Median race times over the years", subtitle= "Very few run times for women pre-1979 causing instability in the graph for those years")
 ```
 
 
@@ -247,7 +247,7 @@ all_data %>% ggplot(aes(fill = sex, colour = sex, group = sex))+
   geom_point(aes(x = Age, y = Time.y ),size= 0.2)+
   geom_smooth(aes(x = Age, y = Time.y))+
   ggtitle("Age vs Time")+
-  ylab("Time in Minute")
+  ylab("Time in Minutes")
 ```
 
 ```{r}
@@ -457,7 +457,36 @@ data_w <- data_w %>%  drop_na() #drop all NAs
 head(data_w)
 ```
 
+```{r}
+lin_model_2 <- lm(Time.y~poly(Age,2)*sex+PRCP+TMIN, data = data_w)
+summary(lin_model_2)
+```
 
+
+```{r}
+fmodel(lin_model_2, ~ Age + sex + TMIN)
+```
+
+
+
+
+
+
+```{r}
+lin_model <- lm(Time.y~poly(Age,3)*sex+PRCP+TMIN, data = data_w)
+summary(lin_model)
+```
+
+```{r}
+broom::glance(lin_model_2,)
+```
+
+
+
+
+```{r}
+plot(lin_model_2)
+```
 
 
 ```{r}
@@ -467,13 +496,13 @@ library(MASS)
 
 
 ```{r}
-boxcoxResult = boxcox(Time.y~poly(Age,3)*sex, data = data_w_new, lambda = seq(-2,5,1.5))
+boxcoxResult = boxcox(Time.y~poly(Age,3)*sex, data = data_w, lambda = seq(-2,5,1.5))
 ```
 
 ```{r}
 lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
-data_w_new$yboxcox = (data_w_new$Time.y^lambda-1)/lambda
-model.boxcox = lm(yboxcox~poly(Age,3)*sex, data = data_w_new)
+data_w$yboxcox = (data_w$Time.y^lambda-1)/lambda
+model.boxcox = lm(yboxcox~poly(Age,3)*sex, data = data_w)
 
 summary(model.boxcox)
 ```
@@ -591,7 +620,7 @@ col_names
 
 
 ```{r}
-ols_model <- lm(yboxcox ~poly(Age,3)*sex+PRCP+TMIN+.data_M2024+.data_M2529+.data_M3034+.data_M3539+.data_M4044+.data_M4549+.data_M5054+.data_M5559+.data_M6064+.data_M6569+.data_M7074+.data_M7579+.data_W0119+.data_W2024+.data_W2529+.data_W3034+.data_W3539+.data_W4044+.data_W4549+.data_W5054+.data_W5559+.data_W6064, data = data_w_new)
+ols_model <- lm(Time.y ~poly(Age,3)*sex+PRCP+TMIN, data = data_w_new)
 ```
 
 
@@ -600,7 +629,7 @@ ols_model <- lm(yboxcox ~poly(Age,3)*sex+PRCP+TMIN+.data_M2024+.data_M2529+.data
 
 
 ```{r}
-ols_step_forward_aic(ols_model,progress = T)
+ols_step_both_aic(ols_model,progress = T)
 ```
 
 
