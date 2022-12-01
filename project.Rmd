@@ -206,14 +206,15 @@ ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
 ```{r}
 Wdat = Wdat %>% filter(Race != 1973)
 Mdat = Mdat %>% filter(Race != 1973) #too few observations with Age records
+
 #Cleaning up the ages
 Wdat <- Wdat %>% 
-  filter(!is.na(Wdat$Age))
+  filter(!is.na(Wdat$Age) & Age != "NR")
 Wdat$Age <- as.numeric(Wdat$Age)
 Wdat <- Wdat[Wdat$Age >= 9,] #To protect against some ages being obviously entered in error (i.e. age 2) I'm going to remove ages below 12 from both sets of data
 
 Mdat <- Mdat %>% 
-  filter(!is.na(Mdat$Age))
+  filter(!is.na(Mdat$Age) & Age != "NR")
 Mdat$Age <- as.numeric(Mdat$Age)
 Mdat <- Mdat[Mdat$Age >= 9,]
 ```
