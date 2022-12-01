@@ -191,12 +191,12 @@ by_year_sex<- all_data %>%
 ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
   geom_line() +
   expand_limits(y = 0)+
-  xlab("Dates of races")+
+  xlab("Date of race")+
   ylab("Median Race Time (Minutes)")+
-  ggtitle(label="Median race times over the years", subtitle= "Very few run times for women in 1978")
-  
-
+  ggtitle(label="Median race times over the years", subtitle= "Very few run times for women pre-1979")
 ```
+
+
 
 
 
@@ -349,7 +349,7 @@ ggplot(wdat, aes(x = Race, fill = age_group))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Year")+
   ylab("Count")+
-  labs(title = "Range of Age in each Year for all Women")
+  labs(title = "Range of Ages in each Year for all Women")
 ```
 
 ```{r}
@@ -364,7 +364,7 @@ ggplot(mdat, aes(x = Race, fill = age_group))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Year")+
   ylab("Count")+
-  labs(title = "Range of Age in each Year for all Men")
+  labs(title = "Range of Ages in each Year for all Men")
 ```
 
 
@@ -457,19 +457,7 @@ data_w <- data_w %>%  drop_na() #drop all NAs
 head(data_w)
 ```
 
-```{r}
-by_year_sex<- data_w %>%
-  group_by(sex, DATE) %>%
-  summarize(mediantime = median(Time.y))
 
-# Plot the change in medianGdpPercap in each continent over time
-ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
-  geom_line() +
-  expand_limits(y = 0)+
-  xlab("Dates of races")+
-  ylab("Median Race Time (Minutes)")+
-  ggtitle(label="Median race times over the years")
-```
 
 
 ```{r}
