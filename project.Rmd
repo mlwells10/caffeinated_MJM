@@ -518,6 +518,24 @@ library(factoextra) # clustering visualization
 library(dendextend) # for comparing two dendrograms
 ```
 
+```{r}
+#head(df_cleantown)
+
+df_cluster_2 <- df_cleantown %>% select(Hometown, Age, Time.y)
+column_to_rownames(df_cluster)
+column_to_rownames(df_cluster, 'Hometown')
+
+
+df_cluster_2$Age <- scale(df_cluster$Age)
+df_cluster_2$Time.y <- scale(df_cluster$Time.y)
+df_cluster_2
+```
+
+
+
+
+
+
 
 ```{r}
 #head(df_cleantown)
