@@ -610,7 +610,3 @@ ols_step_both_aic(ols_model,progress = T)
 ols_step_backward_aic(ols_model,progress = T)
 ```
 
-
-
-
-
