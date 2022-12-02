@@ -25,6 +25,38 @@ dg = dg[dg$gender=='M',]
 model = lme(Time ~ Age, data=dg,random=~1 + Age | ID)
 print(summary(model))
 print(r.squaredGLMM(model))
+xstar = seq(from = 20, to = 65, by = 1)
+
+
+beta = model$coefficients$fixed
+plot(xstar,beta[2]*xstar + beta[1],type='l',ylim=c(40,120),xlab='Age',ylab='Time')
+ID.1 = 2319
+ID.2 = 43
+ID.3 = 699
+ID.4 = 5215
+ID.5 = 5537
+y1 = dg[dg$ID==ID.1,c('Age','Time')]
+y2 = dg[dg$ID==ID.2,c('Age','Time')]
+y3 = dg[dg$ID==ID.3,c('Age','Time')]
+y4 = dg[dg$ID==ID.4,c('Age','Time')]
+y5 = dg[dg$ID==ID.5,c('Age','Time')]
+
+
+points(y1[,1],y1[,2],col=1,pch=16)
+points(y2[,1],y2[,2],col=2,pch=16)
+points(y3[,1],y3[,2],col=3,pch=16)
+points(y4[,1],y4[,2],col=4,pch=16)
+points(y5[,1],y5[,2],col=5,pch=16)
+alpha.2 = model$coefficients$random$ID[which(sort(ID)==ID.2),]
+alpha.1 = model$coefficients$random$ID[which(sort(ID)==ID.1),]
+alpha.3 = model$coefficients$random$ID[which(sort(ID)==ID.3),]
+alpha.4 = model$coefficients$random$ID[which(sort(ID)==ID.4),]
+alpha.5 = model$coefficients$random$ID[which(sort(ID)==ID.5),]
+lines(y1[,1],(beta[2]+alpha.1[2])*y1[,1]+beta[1]+alpha.1[1],col=1)
+lines(y2[,1],(beta[2]+alpha.2[2])*y2[,1]+beta[1]+alpha.2[1],col=2)
+lines(y3[,1],(beta[2]+alpha.3[2])*y3[,1]+beta[1]+alpha.3[1],col=3)
+lines(y4[,1],(beta[2]+alpha.4[2])*y4[,1]+beta[1]+alpha.4[1],col=4)
+lines(y5[,1],(beta[2]+alpha.5[2])*y5[,1]+beta[1]+alpha.5[1],col=5)
 stop()
 K = function(x,y)
 {
