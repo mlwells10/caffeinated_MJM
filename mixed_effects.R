@@ -27,7 +27,7 @@ print(summary(model))
 print(r.squaredGLMM(model))
 xstar = seq(from = 20, to = 65, by = 1)
 
-
+ID = unique(dg$ID)
 beta = model$coefficients$fixed
 plot(xstar,beta[2]*xstar + beta[1],type='l',ylim=c(40,120),xlab='Age',ylab='Time')
 ID.1 = 2319
@@ -57,6 +57,8 @@ lines(y2[,1],(beta[2]+alpha.2[2])*y2[,1]+beta[1]+alpha.2[1],col=2)
 lines(y3[,1],(beta[2]+alpha.3[2])*y3[,1]+beta[1]+alpha.3[1],col=3)
 lines(y4[,1],(beta[2]+alpha.4[2])*y4[,1]+beta[1]+alpha.4[1],col=4)
 lines(y5[,1],(beta[2]+alpha.5[2])*y5[,1]+beta[1]+alpha.5[1],col=5)
+slopes = beta[2] + model$coefficients$random$ID[,2]
+wilcox.test(slopes,mu=0,paired=F,alternative='greater',conf.int=T)
 stop()
 K = function(x,y)
 {
