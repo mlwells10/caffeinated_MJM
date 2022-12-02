@@ -230,61 +230,84 @@ df_cleantown$Hometown[(df_cleantown$Hometown == "D.C.")] = "DC"
 df_cleantown$Hometown[(df_cleantown$Hometown == "DISTRICT OF COLUMBI")] = "DC" 
 df_cleantown$Hometown[(df_cleantown$Hometown == "NEW YORK")] = "NY" 
 df_cleantown$Hometown[(df_cleantown$Hometown == "VIRGINIA")] = "VA" 
-df_cleantown$Hometown[(df_cleantown$Hometown == " VA  22033")] = "VA" 
+df_cleantown$Hometown[(df_cleantown$Hometown == " VA  22033")] = "VA"
+```
 
 
-
+```{r}
 all_states<-map_data("state")
+
 all_states$abb <- state.abb[match(all_states$region,tolower(state.name))]
-all_states[is.na(all_states$abb),] = "DC"
-state.dataframe <- unique(all_states$abb)
+all_states$abb[is.na(all_states$abb)] = "DC"
+
+all_states$long = as.numeric(all_states$long)
+all_states$lat = as.numeric(all_states$lat)
+all_states <- all_states[,-c(4,5,6)] #Remove unwanted columns
+```
 
 
+```{r}
 df_cleantown <- df_cleantown[(df_cleantown$Hometown%in%all_states$abb),] 
 
-all_states <- all_states[,-c(4,5,6)] #Remove unwanted columns
-
-comb_all_states <- all_states %>%
-  rbind(df_cleantown, by=c("abb" ="Hometown"))
-
-#all_states <- arrange(all_states, Race)
-
-all_states <- all_states %>% 
-  filter(!is.na(all_states$long))
-all_states
-
-all_states$abb <- state.abb[match(all_states$region,tolower(state.name))]
-unique(all_states$abb)
-```
-
-
-```{r}
-all_states %>% group_by(region) %>% 
+i <- df_cleantown %>% group_by(Hometown) %>% 
   summarise(count = n())
 ```
 
+```{r}
+all_states <- i %>%
+  full_join(all_states,by=c("Hometown" ="abb"))
 
-```{r}
-df_cleantown %>% group_by(Hometown) %>% 
-  summarise(count = n())
-```
-```{r}
-unique(df_cleantown$Hometown)
 ```
 
 
+```{r}
+p<- ggplot(all_states, aes(long, lat, group = group, fill=count, colour= count)) + geom_polygon(color="grey")+
+   scale_fill_gradientn(colours = cm.colors(4),name='count',trans ="log",
+            breaks=c(20,50,100,200,1000,5000,10000,100000), na.value = "grey50") 
+```
+
+```{r}
+centroids <- data.frame(region=tolower(state.name), long=state.center$x, lat=state.center$y)
+
+centroids$Hometown<-state.abb[match(centroids$region,tolower(state.name))]
+
+p +  with(centroids, 
+       annotate(geom="text", x = long, y=lat, label = Hometown, 
+                size = 4,color="Black",family="Times")
+      )+
+  theme(plot.background = element_rect(fill = "grey"))
+```
+
+```{r}
+ggplot()+
+ geom_polygon( data = all_states, aes(x = long, y=lat, group = group, fill=cont_scale), color="white", size = 0.2)+
+  scale_fill_gradientn(colours = cm.colors(4),trans='log',name='count',
+            breaks=c(0.00020,0.0004,0.001,0.005,0.01,0.05,0.1,0.3,0.6, 0.9), na.value = "grey50") 
+
+
+```
+
+
+```{r}
+b <- df_cleantown %>% group_by(Hometown) %>% 
+  summarise(meanTime = mean(Time.y))
+
+all_states02 <- b %>%
+  full_join(all_states,by=("Hometown"))
+
+plot<- ggplot(all_states02, aes(long, lat, group = group, fill=meanTime, colour= meanTime)) + geom_polygon(color="grey")+
+   scale_fill_gradientn(colours = cm.colors(4),name='mean Timet',trans ="log", na.value = "grey50") +
+with(centroids, 
+       annotate(geom="text", x = long, y=lat, label = Hometown, 
+                size = 4,color="Black",family="Times")
+      )+
+  theme(plot.background = element_rect(fill = "grey"))
+```
 
 
 
 
-
-
-
-
-
-
-
-
+the plot change with decade 
 
 
 
@@ -304,11 +327,11 @@ ggplot(aes(x = Year, y = n))+
 ```
 
 ```{r}
-age_group = case_when(wdat$Age <= 10 ~ "Age<=10", wdat$Age > 10 & wdat$Age <=20 ~ "10 < Age <= 20", wdat$Age > 20 & wdat$Age <=30 ~ "20 < Age <= 30", wdat$Age > 30 & wdat$Age <=40 ~ "30 < Age <= 40", wdat$Age > 40 & wdat$Age<=50 ~ "40 < Age <= 50", wdat$Age > 50 & wdat$Age <= 60 ~ "50 < Age <= 60",wdat$Age > 60 & wdat$Age <= 70 ~ "60 < Age <= 70",wdat$Age > 70 & wdat$Age <=80 ~ "70 < Age <= 80", wdat$Age > 80 ~ "Age > 80")
+age_group = case_when(Wdat$Age <= 10 ~ "Age<=10", Wdat$Age > 10 & Wdat$Age <=20 ~ "10 < Age <= 20", Wdat$Age > 20 & Wdat$Age <=30 ~ "20 < Age <= 30", Wdat$Age > 30 & Wdat$Age <=40 ~ "30 < Age <= 40", Wdat$Age > 40 & Wdat$Age<=50 ~ "40 < Age <= 50", Wdat$Age > 50 & Wdat$Age <= 60 ~ "50 < Age <= 60",Wdat$Age > 60 & Wdat$Age <= 70 ~ "60 < Age <= 70",Wdat$Age > 70 & Wdat$Age <=80 ~ "70 < Age <= 80", Wdat$Age > 80 ~ "Age > 80")
 
-wdat  = wdat %>% mutate(age_group)
+Wdat02  = Wdat %>% mutate(age_group)
 
-ggplot(wdat, aes(x = Race, fill = age_group))+
+ggplot(Wdat02, aes(x = Race, fill = age_group))+
   geom_bar(position = "dodge")+ 
   scale_x_discrete(limits = c(1974:2019))+
   scale_fill_discrete(name = "Age Group")+
@@ -331,10 +354,6 @@ ggplot(mdat, aes(x = Race, fill = age_group))+
   xlab("Year")+
   ylab("Count")+
   labs(title = "Range of Age in each Year for all Men")
-```
-
-```{r}
-all_data <- rbind(wdat,mdat)
 ```
 
 
