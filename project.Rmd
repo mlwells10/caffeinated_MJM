@@ -29,30 +29,30 @@ Mdata <- read.csv("mendataclean.csv")
 
 ```{r}
 #Removing the year 2015 since the race was only 9.39 miles that year
-Wdat = Wdata %>% filter(Race != 2015)
-Mdat = Mdata %>% filter(Race != 2015)
+#Pandemic years are also not included as per request from client.
+Wdat = Wdata %>% filter(Race != 2015 & Race <= 2019)
+Mdat = Mdata %>% filter(Race != 2015 & Race <= 2019)
 ```
 
 
-
 ```{r}
-Wdat = Wdat[(!is.na(Wdata$Age))&(!is.na(Wdata$Time)),] #removing NA in Age and Time observation
+Wdat = Wdat[(!is.na(Wdata$Time)),] #removing NA in Time observation
 Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
-Wdat <- Wdat %>% filter(Time != "NR" & Age !="NR") #removing NR
+Wdat <- Wdat %>% filter(Time != "NR") #removing NR
 Wdat <- add_rownames(Wdat) #necessary for indexing
 ```
 
 ```{r}
-Mdat = Mdat[(!is.na(Mdata$Age))&(!is.na(Mdata$Time)),] #removing NA in Age and Time observation
+Mdat = Mdat[(!is.na(Mdata$Time)),] #removing NA in Time observation
 Mdat <- Mdat %>% filter(Time != "") #removing unrecorded values
-Mdat <- Mdat %>% filter(Time != "NR" & Age !="NR") #removing NR
+Mdat <- Mdat %>% filter(Time != "NR") #removing NR
 Mdat <- add_rownames(Mdat) #necessary for indexing
 
 #Mdat %>% filter(Time == "0.069664352")
-#rows 4733 6623 105561  have crazy decimals
+#rows 4625,6428,102353  have crazy decimals
 #times of "0.044872685"   "0.047581019"   "0.069664352"
-Mdat <- Mdat[-c(4733,6623,105561),] 
-
+rowname_bad_times <- c(4625,6428,102353)
+Mdat <- Mdat[!Mdat$rowname%in%rowname_bad_times,]
 ```
 
 
@@ -60,20 +60,20 @@ Mdat <- Mdat[-c(4733,6623,105561),]
 #Need to remove all the times starting with a 3 because they are either recorded in error
 #i.e. time of 36:47:00 or beyond the limit of 2h20m
 rowname_3s_W <- Wdat %>% 
-   filter(str_detect(Time, "^3")) %>% select(rowname)
+   filter(str_detect(Time, "^3")) %>% dplyr::select(rowname)
 rowname_3s_W <- as.numeric(rowname_3s_W$rowname)
-Wdat <- Wdat[-c(rowname_3s_W),]
+Wdat <- Wdat[!Wdat$rowname%in%rowname_3s_W,]
 ```
 
 ```{r}
 #Need to remove all the times starting with a 3 because they are either recorded in error
 #i.e. time of 36:47:00 or beyond the limit of 2h20m
 rowname_3s_M <- Mdat %>% 
-   filter(str_detect(Time, "^3")) %>% select(rowname)
+   filter(str_detect(Time, "^3")) %>% dplyr::select(rowname)
 
 rowname_3s_M <- as.numeric(rowname_3s_M$rowname)
 
-Mdat <- Mdat[!Mdat$rowname%in%rowname_3s_M,] #For some reason the other method used in Wdat didn't work here. 
+Mdat <- Mdat[!Mdat$rowname%in%rowname_3s_M,]
 ```
 
 
@@ -101,8 +101,6 @@ test_complete <- rbind(test_1,test_2,test_3)
 test_complete$Time <- test_complete$Time %>% str_extract(pattern = "^\\d{1}:\\d{2}:\\d{2}") %>%  #\d match any char with cat. number decimal digit
   hms()
 test_complete <- rbind(test_complete,starts_5,starts_4)
-
-test_complete
 ```
 
 ```{r}
@@ -165,56 +163,91 @@ Wdat <- Wdat[Wdat$Time.y < 140,]
 Mdat <- Mdat[Mdat$Time.y < 140,]
 ```
 
-
-
-
-```{r}
-#Cleaning up the ages
-Wdat <- Wdat %>% 
-  filter(!is.na(Wdat$Age) & Race <= 2019) #client wants races from before 2020
-Wdat$Age <- as.numeric(Wdat$Age)
-Wdat <- Wdat[Wdat$Age >= 12,] #To protect against some ages being obviously entered in error (i.e. age 2) I'm going to remove ages below 12 from both sets of data
-
-Mdat <- Mdat %>% 
-  filter(!is.na(Mdat$Age) & Race <= 2019)
-Mdat$Age <- as.numeric(Mdat$Age)
-Mdat <- Mdat[Mdat$Age >= 12,]
-
-```
+At this point the times are cleaned for both sexes.
 
 ```{r}
-#creating a df with both sets of data (Male and Female)
-Wdat <- arrange(Wdat, Race)
-Mdat <- arrange(Mdat, Race)
-
 #Add column indicating sex to make it clearer in all_data
 Wdat <- Wdat %>% mutate(sex = "W")
 Mdat <- Mdat %>% mutate(sex = "M")
+#creating a df with both sets of data (Male and Female)
+all_data <- rbind(Wdat,Mdat)
+all_data <- arrange(all_data,Race)
+```
 
-Wdat <- Wdat[,-c(5,6,9)] #Remove unwanted columns
-Mdat <- Mdat[,-c(5,6,9)]
 
-Wdat <- arrange(Wdat,Race)
-Mdat <- arrange(Mdat,Race)
+```{r}
+#Putting this plot here to see times including year 1973 which we remove later on for only having 2 data values with Age, but Age was not a part of this plot.
+by_year_sex<- all_data %>%
+  group_by(sex, Race) %>%
+  summarize(mediantime = median(Time.y))
 ```
 
 
 
+```{r}
+# Plot the change in medianGdpPercap in each continent over time
+ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
+  geom_line() +
+  expand_limits(y = 0)+
+  xlab("Date of race")+
+  ylab("Median Race Time (Minutes)")+
+  ggtitle(label="Median race times over the years", subtitle= "Very few run times for women pre-1979 causing instability in the graph for those years")
+```
+
+
 
 ```{r}
+Wdat = Wdat %>% filter(Race != 1973)
+Mdat = Mdat %>% filter(Race != 1973) #too few observations with Age records
+
+#Cleaning up the ages
+Wdat <- Wdat %>% 
+  filter(!is.na(Wdat$Age) & Age != "NR")
+Wdat$Age <- as.numeric(Wdat$Age)
+Wdat <- Wdat[Wdat$Age >= 9,] #To protect against some ages being obviously entered in error (i.e. age 2) I'm going to remove ages below 12 from both sets of data
+
+Mdat <- Mdat %>% 
+  filter(!is.na(Mdat$Age) & Age != "NR")
+Mdat$Age <- as.numeric(Mdat$Age)
+Mdat <- Mdat[Mdat$Age >= 9,]
+```
+
+```{r}
+Wdat <- arrange(Wdat, Race)
+Mdat <- arrange(Mdat, Race)
+
+
+Wdat <- Wdat[,-c(5,6,9)] #Remove unwanted columns
+Mdat <- Mdat[,-c(5,6,9)]
+```
+
+
+
+```{r}
+#creating a df with both sets of data (Male and Female)
 all_data <- rbind(Wdat,Mdat)
 all_data <- arrange(all_data,Race)
 
 all_data$Race <- as.factor(all_data$Race)
 ```
 
+
+
 ```{r}
 all_data %>% ggplot(aes(fill = sex, colour = sex, group = sex))+
   geom_point(aes(x = Age, y = Time.y ),size= 0.2)+
   geom_smooth(aes(x = Age, y = Time.y))+
   ggtitle("Age vs Time")+
-  ylab("Time in Minute")
+  ylab("Time in Minutes")+
+  theme(axis.title.x = element_text(size=30, face="bold", color = "black"),
+        axis.title.y = element_text(size=30, face="bold", color = "black"),
+        axis.text.x = element_text(size=20,  color = "black"),
+        axis.text.y = element_text(size=20, color = "black"), 
+        legend.text=element_text(size=30),
+        legend.title =element_text(size=30),
+        plot.title = element_text(size = 30, face = "bold"))
 ```
+
 
 ```{r}
 df_cleantown <- all_data[which(all_data$Hometown != "NR"), ]
@@ -262,8 +295,8 @@ all_states <- i %>%
 
 ```{r}
 p<- ggplot(all_states, aes(long, lat, group = group, fill=count, colour= count)) + geom_polygon(color="grey")+
-   scale_fill_gradientn(colours = cm.colors(4),name='count',trans ="log",
-            breaks=c(20,50,100,200,1000,5000,10000,100000), na.value = "grey50") 
+  scale_fill_gradientn(colours = cm.colors(4),name='count',trans ="log",
+                       breaks=c(20,50,100,200,1000,5000,10000,100000), na.value = "grey50") 
 ```
 
 ```{r}
@@ -272,19 +305,26 @@ centroids <- data.frame(region=tolower(state.name), long=state.center$x, lat=sta
 centroids$Hometown<-state.abb[match(centroids$region,tolower(state.name))]
 
 p +  with(centroids, 
-       annotate(geom="text", x = long, y=lat, label = Hometown, 
-                size = 4,color="Black",family="Times")
-      )+
-  theme(plot.background = element_rect(fill = "grey"))
-```
-
-```{r}
-ggplot()+
- geom_polygon( data = all_states, aes(x = long, y=lat, group = group, fill=cont_scale), color="white", size = 0.2)+
-  scale_fill_gradientn(colours = cm.colors(4),trans='log',name='count',
-            breaks=c(0.00020,0.0004,0.001,0.005,0.01,0.05,0.1,0.3,0.6, 0.9), na.value = "grey50") 
-
-
+          annotate(geom="text", x = long, y=lat, label = Hometown, 
+                   size = 4,color="Black")
+)+
+  labs(fill = "Count")+
+  ggtitle("Number of Runers From Each State")+
+  scale_y_continuous(breaks=c())+ 
+  scale_x_continuous(breaks=c())+
+  theme(plot.background = element_rect(fill = "white"),
+        panel.background = element_rect(fill = "white"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks = element_blank(),
+        panel.border =  element_blank(),
+        plot.title = element_text(
+          size = 15, hjust = 0.5,colour = "black"),
+        legend.title= element_text(
+          hjust = 0.4 ,vjust=0.3, size=10),
+        legend.text = element_text(
+          hjust = 0.4 ,vjust=2, size=8)
+        )
 ```
 
 
@@ -295,24 +335,32 @@ b <- df_cleantown %>% group_by(Hometown) %>%
 all_states02 <- b %>%
   full_join(all_states,by=("Hometown"))
 
-plot<- ggplot(all_states02, aes(long, lat, group = group, fill=meanTime, colour= meanTime)) + geom_polygon(color="grey")+
-   scale_fill_gradientn(colours = cm.colors(4),name='mean Timet',trans ="log", na.value = "grey50") +
-with(centroids, 
+ggplot(all_states02, aes(long, lat, group = group, fill=meanTime, colour= meanTime)) + geom_polygon(color="grey")+
+  scale_fill_gradientn(colours = cm.colors(4),name='Average Time',trans ="log", na.value = "grey50") +
+  with(centroids, 
        annotate(geom="text", x = long, y=lat, label = Hometown, 
-                size = 4,color="Black",family="Times")
-      )+
-  theme(plot.background = element_rect(fill = "grey"))
+                size = 4,color="Black")
+  )+
+  ggtitle("Average Time Of Runers For Each State")+
+  scale_y_continuous(breaks=c())+ 
+  scale_x_continuous(breaks=c())+
+  theme(plot.background = element_rect(fill = "white"),
+        panel.background = element_rect(fill = "white"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks = element_blank(),
+        panel.border =  element_blank(),
+        plot.title = element_text(
+          size = 15, hjust = 0.5,colour = "black"),
+        legend.title= element_text(
+          hjust = 0.4 ,vjust=0.3, size=10),
+        legend.text = element_text(
+          hjust = 0.4 ,vjust=2, size=8)
+        )
 ```
 
 
-
-
-the plot change with decade 
-
-
-
-
-```{r}
+```{r warning=F}
 load("cts_per_yeargender.Rdata")
 
 ct_yrsex <- ct_yrsex[which(ct_yrsex$sex != "NA"), ]
@@ -321,9 +369,14 @@ ggplot(aes(x = Year, y = n))+
   geom_line(aes(color = factor(sex)))+
   scale_x_discrete(limits = c(1973:2019))+
   guides( color = guide_legend(title = "SEX"))+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   ylab("Number of People")+
-  labs(title = "Number of People in Each Year")
+  labs(title = "Number of People in Each Year")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        axis.title.x = element_text(size=10, face="bold", color = "black"),
+        axis.title.y = element_text(size=10, face="bold", color = "black"),
+        legend.text=element_text(size=10),
+        legend.title =element_text(size=10),
+        plot.title = element_text(size = 10, face = "bold"))
 ```
 
 ```{r}
@@ -338,7 +391,7 @@ ggplot(Wdat02, aes(x = Race, fill = age_group))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Year")+
   ylab("Count")+
-  labs(title = "Range of Age in each Year for all Women")
+  labs(title = "Range of Ages in each Year for all Women")
 ```
 
 ```{r}
@@ -353,61 +406,8 @@ ggplot(mdat, aes(x = Race, fill = age_group))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("Year")+
   ylab("Count")+
-  labs(title = "Range of Age in each Year for all Men")
+  labs(title = "Range of Ages in each Year for all Men")
 ```
-
-
-
-```{r}
-df_cleantown$Hometown <- tolower(df_cleantown$Hometown) #Returns the lowercase string.
-
-all_states<-map_data("state")
-
-
-ggplot() +
-  geom_polygon(data = all_states, aes( x = long, y = lat, group = group), fill="white", color="grey") +
-  theme_void() +
-  coord_map()
-
-all_states = all_states %>%
-  right_join(. , df_cleantown, by=c("region" ="Hometown"))
-all_states <- arrange(all_states, Race)
-
-all_states <- all_states %>% 
-  filter(!is.na(all_states$long))
-all_states
-
-ggplot() +
-  geom_polygon(data = all_states, aes( x = long, y = lat, group = group)) +
-  theme_void() +
-  coord_map()
-```
-
-
-
-
-
-```{r}
-library(usmap)
-states <- data.frame(df_cleantown$Hometown)
-
-plot_usmap(regions = "states", labels = TRUE)+
-  labs(title = "U.S. States",
-       subtitle = "This is a blank map of the United States.") + 
-  theme(panel.background=element_blank()) 
-  
-```
-
-```{r}
-#library(broom)
-#spdf_fortified <- tidy(df_cleantown$Hometown)
-
-#ggplot()+
-#  geom_polygon(df_cleantown$Hometown)
-```
-
-
-
 
 
 
@@ -445,98 +445,47 @@ head(data_w)
 ```
 
 ```{r}
-by_year_sex<- data_w %>%
-  group_by(sex, DATE) %>%
-  summarize(mediantime = median(Time.y))
-
-# Plot the change in medianGdpPercap in each continent over time
-ggplot(by_year_sex, aes(x = DATE, y = mediantime, color = sex)) +
-  geom_line() +
-  expand_limits(y = 0)+
-  xlab("Dates of races")+
-  ylab("Median Race Time (Minutes)")+
-  ggtitle(label="Median race times over the years")
+lin_model_2 <- lm(Time.y~poly(Age,2)*sex+PRCP+TMIN, data = data_w)
+summary(lin_model_2)
 ```
 
 
 ```{r}
-test_data = data_w
-
+fmodel(lin_model_2, ~ Age + sex + TMIN)
 ```
-
-
-```{r}
-model_1 <- lm(Time.y~0+Age,data = test_data)
-summary(model_1)
-```
-
-Age is a significant predictor of race time. 
-
-
-```{r}
-model_2 <- lm(Time.y~0+sex,data = test_data)
-summary(model_2)
-```
-
-
-sex is a significant predictor of race time.
-
-
-```{r}
-model_3 <- lm(Time.y~PRCP,data = test_data)
-summary(model_3)
-```
-
-PRCP is significant predictor but the Adj R-sq is low, as would be expected
-
 
 
 
 ```{r}
-model_4 <- lm(Time.y~0+Division,data = test_data)
-summary(model_4)
+lin_model <- lm(Time.y~poly(Age,3)*sex+PRCP+TMIN, data = data_w)
+summary(lin_model)
 ```
 
-All of the divisions are significant predictors of race time. 
+```{r}
+broom::glance(lin_model_2,)
+```
 
 
 
 ```{r}
-model_5 <- lm(Time.y~TMIN,data = test_data)
-summary(model_5)
+plot(lin_model_2)
 ```
-
-TMIN is a significant predictor of race times. 
-
-
-
-```{r}
-model_6 <- lm(Time.y~0+Race,data = test_data)
-summary(model_6)
-```
-
-Race year is a shockingly good predictor of race times. I don't know why. 
-
-
-```{r}
-model_7 <- lm(Time.y~0+Age+sex,data = data_w)
-summary(model_7)
-```
-
-
-
 
 
 ```{r}
 library(MASS)
+```
 
-boxcoxResult = boxcox(Time.y ~ 0+Age+sex, data =data_w, lambda = seq(-2,5,1.5))
+
+
+```{r}
+boxcoxResult = boxcox(Time.y~poly(Age,3)*sex, data = data_w, lambda = seq(-2,5,1.5))
 ```
 
 ```{r}
 lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
 data_w$yboxcox = (data_w$Time.y^lambda-1)/lambda
-model.boxcox = lm(yboxcox ~ 0+Age+sex,data = data_w)
+model.boxcox = lm(yboxcox~poly(Age,3)*sex, data = data_w)
 
 summary(model.boxcox)
 ```
@@ -546,11 +495,18 @@ plot(model.boxcox)
 ```
 
 ```{r}
-broom::glance(model.boxcox)
+broom::glance(model.boxcox,)
 ```
 
 
+```{r}
+test_model <- lm(Time.y~Division,data=all_data)
+summary(test_model)
+```
 
+```{r}
+broom::glance(test_model)
+```
 
 
 
@@ -562,22 +518,6 @@ confidenceEllipse(model.boxcox)
 ```{r}
 ols_plot_resid_stud(model.boxcox)
 ```
-
-
-
-
-
-
-```{r}
-#just men's data
-boxcoxResult_M = boxcox(Time.y ~ Age, data =Mdat, lambda = seq(-2,5,1.5))
-lambda_M = boxcoxResult_M$x[which.max(boxcoxResult_M$y)]
-Mdat$yboxcox = (Mdat$Time.y^lambda_M-1)/lambda_M
-model.boxcox_M = lm(yboxcox ~ 0+Age,data = Mdat)
-
-summary(model.boxcox_M)
-```
-
 
 
 
@@ -596,6 +536,86 @@ abline(a=0, b=1)
 
 
 
+
+```{r}
+sample_test <- sample(1:nrow(data_w),300,replace=T)
+sample_data <- data_w[sample_test,]
+library(CCA)
+```
+
+
+```{r}
+X = sample_data %>%  
+  dplyr::select(PRCP,TMIN) %>% 
+  scale()
+
+Y = sample_data %>% 
+  dplyr::select(Age) %>% 
+  scale()
+
+
+cc_results <- cancor(X,Y)
+
+CC1_X = as.matrix(X) %*% cc_results$xcoef[, 1]
+CC1_Y = as.matrix(Y) %*% cc_results$ycoef[, 1]
+
+CC2_X =as.matrix(X) %*% cc_results$xcoef[, 2]
+
+cca_df = sample_data %>%  
+  mutate(CC1_X=CC1_X,
+         CC1_Y=CC1_Y,
+         CC2_X=CC2_X)
+
+cca_df %>% 
+  ggplot(aes(x=CC1_X,y=CC1_Y))+
+  geom_point()
+```
+
+
+```{r}
+cca_df %>%  
+  ggplot(aes(x=sex,y=CC1_Y, color=sex))+
+  geom_boxplot(width=0.5)+
+  geom_jitter(width=0.15)
+```
+
+
+
+```{r}
+library(fastDummies)
+```
+
+```{r}
+data_w_new <- cbind(data_w, dummy_cols(data_w$Division))
+col_names <- names(data_w_new)
+data_w_new[,-c(1:13)] <- lapply(data_w_new[,-c(1:13)] , factor)
+col_names
+```
+
+
+
+
+```{r}
+ols_model <- lm(Time.y ~poly(Age,3)*sex+PRCP+TMIN, data = data_w_new)
+```
+
+
+
+
+
+
+```{r}
+ols_step_both_aic(ols_model,progress = T)
+```
+
+
+
+
+
+
+```{r}
+ols_step_backward_aic(ols_model,progress = T)
+```
 
 
 
