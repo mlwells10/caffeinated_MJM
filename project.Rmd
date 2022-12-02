@@ -108,13 +108,11 @@ test_complete <- rbind(test_complete,starts_5,starts_4)
 ```{r}
 #Join all of these together. Note the new column is Time.y
 Wdat <- left_join(Wdat,test_complete, by="rowname")
-Wdat
 ```
 
 ```{r}
 #Change time to minutes
 Wdat$Time.y <- period_to_seconds(Wdat$Time.y)/60
-Wdat
 ```
 
 The women's times are cleaned, below we will clean the men's times.
@@ -148,13 +146,11 @@ test_complete_M <- rbind(test_complete_M,starts_5_M,starts_4_M)
 ```{r}
 #Join all of these together. Note the new column is Time.y
 Mdat <- left_join(Mdat,test_complete_M, by="rowname")
-Mdat
 ```
 
 ```{r}
 #Change time to minutes
 Mdat$Time.y <- period_to_seconds(Mdat$Time.y)/60
-Mdat
 ```
 
 
@@ -461,10 +457,10 @@ model.log = lm(log(Time.y)~poly(Age,3)*sex+PRCP+TMIN, data = data_w)
 summary(model.log)
 ```
 
-
 ```{r}
 fmodel(model.log, ~ TMIN + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time.y = exp))
 ```
+
 
 
 
@@ -488,10 +484,56 @@ hist(model.log$residuals)
 ```
 
 
+
 ```{r}
 library(car)
 confidenceEllipse(model.log)
 ```
+
+```{r}
+ols_plot_resid_stud(model.boxcox)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+cluster_sample <- df_cluster_2[sample(nrow(df_cluster_2),100),]
+cluster_sample$Age <- scale(cluster_sample$Age)
+cluster_sample$Time.y<- scale(cluster_sample$Time.y)
+
+cluster_sample
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+df_cleantown %>% group_by(Hometown) %>% select(Age, Hometown, Time.y)
+```
+
+
+
+
+
 
 ```{r}
 library(cluster)    # clustering algorithms
@@ -543,6 +585,7 @@ cluster_sample
 #column_to_rownames(cluster_sample)
 #column_to_rownames(df_cluster, 'df_cleantown.Hometown')
 ```
+
 
 
 
