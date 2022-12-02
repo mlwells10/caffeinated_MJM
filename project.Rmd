@@ -35,6 +35,8 @@ Mdat = Mdata %>% filter(Race != 2015 & Race <= 2019)
 ```
 
 
+
+
 ```{r}
 Wdat = Wdat[(!is.na(Wdata$Time)),] #removing NA in Time observation
 Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
@@ -247,7 +249,6 @@ all_data %>% ggplot(aes(fill = sex, colour = sex, group = sex))+
         legend.title =element_text(size=10),
         plot.title = element_text(size = 10, face = "bold"))
 ```
-
 ```{r}
 df_cleantown <- all_data[which(all_data$Hometown != "NR"), ]
 
@@ -378,18 +379,20 @@ ggplot(aes(x = Year, y = n))+
         plot.title = element_text(size = 10, face = "bold"))
 ```
 
+
 ```{r}
 all_data %>% ggplot(aes(x = Time.y, color = sex, fill = sex))+
   geom_histogram(fill = "white", binwidth = 2)+
   ggtitle("Stacked Histogram of Finishing Times(minutes) grouped by Sex")
 ```
 
+
 ```{r}
-age_group = case_when(Wdat$Age <= 10 ~ "Age<=10", Wdat$Age > 10 & Wdat$Age <=20 ~ "10 < Age <= 20", Wdat$Age > 20 & Wdat$Age <=30 ~ "20 < Age <= 30", Wdat$Age > 30 & Wdat$Age <=40 ~ "30 < Age <= 40", Wdat$Age > 40 & Wdat$Age<=50 ~ "40 < Age <= 50", Wdat$Age > 50 & Wdat$Age <= 60 ~ "50 < Age <= 60",Wdat$Age > 60 & Wdat$Age <= 70 ~ "60 < Age <= 70",Wdat$Age > 70 & Wdat$Age <=80 ~ "70 < Age <= 80", Wdat$Age > 80 ~ "Age > 80")
+age_group = case_when(wdat$Age <= 10 ~ "Age<=10", wdat$Age > 10 & wdat$Age <=20 ~ "10 < Age <= 20", wdat$Age > 20 & wdat$Age <=30 ~ "20 < Age <= 30", wdat$Age > 30 & wdat$Age <=40 ~ "30 < Age <= 40", wdat$Age > 40 & wdat$Age<=50 ~ "40 < Age <= 50", wdat$Age > 50 & wdat$Age <= 60 ~ "50 < Age <= 60",wdat$Age > 60 & wdat$Age <= 70 ~ "60 < Age <= 70",wdat$Age > 70 & wdat$Age <=80 ~ "70 < Age <= 80", wdat$Age > 80 ~ "Age > 80")
 
-Wdat02  = Wdat %>% mutate(age_group)
+wdat  = wdat %>% mutate(age_group)
 
-ggplot(Wdat02, aes(x = Race, fill = age_group))+
+ggplot(wdat, aes(x = Race, fill = age_group))+
   geom_bar(position = "dodge")+ 
   scale_x_discrete(limits = c(1974:2019))+
   scale_fill_discrete(name = "Age Group")+
@@ -415,12 +418,10 @@ ggplot(mdat, aes(x = Race, fill = age_group))+
 ```
 
 
-
 ```{r}
 weather = readr::read_csv("3139946.csv") #Loading the weather data and named it as data
 head(weather) #seeing the first six rows of the data
 ```
-
 
 
 ```{r}
@@ -453,23 +454,44 @@ head(data_w)
 
 
 ```{r}
-fmodel(lin_model_2, ~ Age + sex + TMIN)
+
+
+model.log = lm(log(Time.y)~poly(Age,3)*sex+PRCP+TMIN, data = data_w)
+
+summary(model.log)
+```
+
+```{r}
+fmodel(model.log, ~ TMIN + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time.y = exp))
 ```
 
 
 
 
+```{r}
+plot(model.log)
+```
 
 
+```{r}
+fmodel(model.log, ~ Age + sex + PRCP, nlevels = 12, intervals = "prediction")
+```
 
 
+```{r}
+fmodel(lin_model_2, ~ Age + sex + TMIN, nlevels = 3, intervals = "prediction")
+```
 
+
+```{r}
+hist(model.log$residuals)
+```
 
 
 
 ```{r}
 library(car)
-confidenceEllipse(model.boxcox)
+confidenceEllipse(model.log)
 ```
 
 ```{r}
@@ -516,5 +538,89 @@ df_cleantown %>% group_by(Hometown) %>% select(Age, Hometown, Time.y)
 
 
 
+
+```{r}
+library(cluster)    # clustering algorithms
+library(factoextra) # clustering visualization
+library(dendextend) # for comparing two dendrograms
+```
+
+```{r}
+#head(df_cleantown)
+
+df_cluster_2 <- df_cleantown %>% select(Hometown, Age, Time.y)
+#column_to_rownames(df_cluster)
+#column_to_rownames(df_cluster, 'Hometown')
+
+
+df_cluster_2$Age <- scale(df_cluster_2$Age)
+df_cluster_2$Time.y <- scale(df_cluster_2$Time.y)
+df_cluster_2
+```
+
+
+
+```{r}
+ols_model <- lm(Time.y ~poly(Age,3)*sex+PRCP+TMIN, data = data_w_new)
+```
+
+
+```{r}
+#head(df_cleantown)
+
+df_cluster <- data.frame(df_cleantown$Age,df_cleantown$Time.y)
+#standardize
+#column_to_rownames(df_cluster)
+#column_to_rownames(df_cluster, 'Hometown')
+df_cluster$df_cleantown.Age <- scale(df_cluster$df_cleantown.Age)
+df_cluster$df_cleantown.Time.y <- scale(df_cluster$df_cleantown.Time.y)
+df_cluster
+```
+
+
+
+```{r}
+cluster_sample <- df_cluster[sample(nrow(df_cluster),100),]
+cluster_sample$df_cleantown.Age <- scale(cluster_sample$df_cleantown.Age)
+cluster_sample$df_cleantown.Time.y<- scale(cluster_sample$df_cleantown.Time.y)
+cluster_sample
+
+
+#column_to_rownames(cluster_sample)
+#column_to_rownames(df_cluster, 'df_cleantown.Hometown')
+```
+
+
+
+
+```{r}
+# Compute with agnes
+hc2 <- agnes(cluster_sample, method = "complete")
+
+# Agglomerative coefficient
+hc2$ac
+```
+
+```{r}
+# Dissimilarity matrix
+d <- dist(cluster_sample, method = "euclidean")
+# Ward's method
+hc5 <- hclust(d, method = "ward.D2" )
+
+# Cut tree into 4 groups
+sub_grp <- cutree(hc5, k = 4)
+
+# Number of members in each cluster
+table(sub_grp)
+```
+```{r}
+cluster_sample %>%
+  mutate(cluster = sub_grp) %>%
+  head
+```
+
+```{r}
+fviz_cluster(list(data = cluster_sample, cluster = sub_grp))
+```
 
 
