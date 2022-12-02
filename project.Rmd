@@ -518,10 +518,11 @@ library(factoextra) # clustering visualization
 library(dendextend) # for comparing two dendrograms
 ```
 
+
 ```{r}
 #head(df_cleantown)
 
-df_cluster_2 <- df_cleantown %>% select(Hometown, Age, Time.y)
+df_cluster_2 <- df_cleantown %>% select(Age, Time.y, Hometown)
 #column_to_rownames(df_cluster)
 #column_to_rownames(df_cluster, 'Hometown')
 
@@ -557,10 +558,13 @@ df_cluster
 
 
 ```{r}
-cluster_sample <- df_cluster[sample(nrow(df_cluster),100),]
-cluster_sample$df_cleantown.Age <- scale(cluster_sample$df_cleantown.Age)
-cluster_sample$df_cleantown.Time.y<- scale(cluster_sample$df_cleantown.Time.y)
+cluster_sample <- df_cluster_2[sample(nrow(df_cluster_2),100),]
+cluster_sample$Age <- scale(cluster_sample$Age)
+cluster_sample$Time.y<- scale(cluster_sample$Time.y)
+
 cluster_sample
+#rownames(cluster_sample) = cluster_sample$Hometown
+
 
 
 #column_to_rownames(cluster_sample)
@@ -596,8 +600,27 @@ cluster_sample %>%
 ```
 
 ```{r}
-fviz_cluster(list(data = cluster_sample, cluster = sub_grp))
+rownames(cluster_sample) <- cluster_sample$Hometown
 ```
+
+
+
+```{r}
+Q <- fviz_cluster(list(data = cluster_sample[,1:2], cluster = sub_grp))
+Q
+```
+
+
+
+```{r}
+df_cleantown %>% group_by(Hometown) %>% select(Age, Hometown, Time.y)
+```
+
+
+
+
+
+
 
 
 
