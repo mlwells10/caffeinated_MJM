@@ -536,7 +536,6 @@ abline(a=0, b=1)
 
 
 
-
 ```{r}
 sample_test <- sample(1:nrow(data_w),300,replace=T)
 sample_data <- data_w[sample_test,]
