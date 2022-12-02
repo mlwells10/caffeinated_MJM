@@ -35,6 +35,8 @@ Mdat = Mdata %>% filter(Race != 2015 & Race <= 2019)
 ```
 
 
+
+
 ```{r}
 Wdat = Wdat[(!is.na(Wdata$Time)),] #removing NA in Time observation
 Wdat <- Wdat %>% filter(Time != "") #removing unrecorded values
@@ -196,6 +198,11 @@ ggplot(by_year_sex, aes(x = Race, y = mediantime, color = sex)) +
 
 
 
+
+
+
+
+
 ```{r}
 Wdat = Wdat %>% filter(Race != 1973)
 Mdat = Mdat %>% filter(Race != 1973) #too few observations with Age records
@@ -233,19 +240,14 @@ all_data$Race <- as.factor(all_data$Race)
 
 
 
+
+
 ```{r}
 all_data %>% ggplot(aes(fill = sex, colour = sex, group = sex))+
   geom_point(aes(x = Age, y = Time.y ),size= 0.2)+
   geom_smooth(aes(x = Age, y = Time.y))+
   ggtitle("Age vs Time")+
-  ylab("Time in Minutes")+
-  theme(axis.title.x = element_text(size=10, face="bold", color = "black"),
-        axis.title.y = element_text(size=10, face="bold", color = "black"),
-        axis.text.x = element_text(size=5,  color = "black"),
-        axis.text.y = element_text(size=5, color = "black"), 
-        legend.text=element_text(size=10),
-        legend.title =element_text(size=10),
-        plot.title = element_text(size = 10, face = "bold"))
+  ylab("Time in Minutes")
 ```
 
 ```{r}
@@ -262,104 +264,66 @@ df_cleantown$Hometown[(df_cleantown$Hometown == "D.C.")] = "DC"
 df_cleantown$Hometown[(df_cleantown$Hometown == "DISTRICT OF COLUMBI")] = "DC" 
 df_cleantown$Hometown[(df_cleantown$Hometown == "NEW YORK")] = "NY" 
 df_cleantown$Hometown[(df_cleantown$Hometown == "VIRGINIA")] = "VA" 
-df_cleantown$Hometown[(df_cleantown$Hometown == " VA  22033")] = "VA"
-```
+df_cleantown$Hometown[(df_cleantown$Hometown == " VA  22033")] = "VA" 
 
 
-```{r}
+
 all_states<-map_data("state")
-
 all_states$abb <- state.abb[match(all_states$region,tolower(state.name))]
-all_states$abb[is.na(all_states$abb)] = "DC"
-
-all_states$long = as.numeric(all_states$long)
-all_states$lat = as.numeric(all_states$lat)
-all_states <- all_states[,-c(4,5,6)] #Remove unwanted columns
-```
+all_states[is.na(all_states$abb),] = "DC"
+state.dataframe <- unique(all_states$abb)
 
 
-```{r}
 df_cleantown <- df_cleantown[(df_cleantown$Hometown%in%all_states$abb),] 
 
-i <- df_cleantown %>% group_by(Hometown) %>% 
+all_states <- all_states[,-c(4,5,6)] #Remove unwanted columns
+
+comb_all_states <- all_states %>%
+  right_join(df_cleantown, by=c("abb" ="Hometown"))
+
+#all_states <- arrange(all_states, Race)
+
+all_states <- all_states %>% 
+  filter(!is.na(all_states$long))
+all_states
+
+all_states$abb <- state.abb[match(all_states$region,tolower(state.name))]
+unique(all_states$abb)
+```
+
+
+```{r}
+all_states %>% group_by(region) %>% 
   summarise(count = n())
 ```
 
-```{r}
-all_states <- i %>%
-  full_join(all_states,by=c("Hometown" ="abb"))
 
+```{r}
+df_cleantown %>% group_by(Hometown) %>% 
+  summarise(count = n())
+```
+```{r}
+unique(df_cleantown$Hometown)
 ```
 
 
-```{r}
-p<- ggplot(all_states, aes(long, lat, group = group, fill=count, colour= count)) + geom_polygon(color="grey")+
-  scale_fill_gradientn(colours = cm.colors(4),name='count',trans ="log",
-                       breaks=c(20,50,100,200,1000,5000,10000,100000), na.value = "grey50") 
-```
 
-```{r}
-centroids <- data.frame(region=tolower(state.name), long=state.center$x, lat=state.center$y)
 
-centroids$Hometown<-state.abb[match(centroids$region,tolower(state.name))]
 
-p +  with(centroids, 
-          annotate(geom="text", x = long, y=lat, label = Hometown, 
-                   size = 4,color="Black")
-)+
-  labs(fill = "Count")+
-  ggtitle("Number of Runers From Each State")+
-  scale_y_continuous(breaks=c())+ 
-  scale_x_continuous(breaks=c())+
-  theme(plot.background = element_rect(fill = "white"),
-        panel.background = element_rect(fill = "white"),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        axis.ticks = element_blank(),
-        panel.border =  element_blank(),
-        plot.title = element_text(
-          size = 15, hjust = 0.5,colour = "black"),
-        legend.title= element_text(
-          hjust = 0.4 ,vjust=0.3, size=10),
-        legend.text = element_text(
-          hjust = 0.4 ,vjust=2, size=8)
-        )
-```
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r}
-b <- df_cleantown %>% group_by(Hometown) %>% 
-  summarise(meanTime = mean(Time.y))
-
-all_states02 <- b %>%
-  full_join(all_states,by=("Hometown"))
-
-ggplot(all_states02, aes(long, lat, group = group, fill=meanTime, colour= meanTime)) + geom_polygon(color="grey")+
-  scale_fill_gradientn(colours = cm.colors(4),name='Average Time',trans ="log", na.value = "grey50") +
-  with(centroids, 
-       annotate(geom="text", x = long, y=lat, label = Hometown, 
-                size = 4,color="Black")
-  )+
-  ggtitle("Average Time Of Runers For Each State")+
-  scale_y_continuous(breaks=c())+ 
-  scale_x_continuous(breaks=c())+
-  theme(plot.background = element_rect(fill = "white"),
-        panel.background = element_rect(fill = "white"),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        axis.ticks = element_blank(),
-        panel.border =  element_blank(),
-        plot.title = element_text(
-          size = 15, hjust = 0.5,colour = "black"),
-        legend.title= element_text(
-          hjust = 0.4 ,vjust=0.3, size=10),
-        legend.text = element_text(
-          hjust = 0.4 ,vjust=2, size=8)
-        )
-```
-
-
-```{r warning=F}
 load("cts_per_yeargender.Rdata")
 
 ct_yrsex <- ct_yrsex[which(ct_yrsex$sex != "NA"), ]
@@ -368,28 +332,26 @@ ggplot(aes(x = Year, y = n))+
   geom_line(aes(color = factor(sex)))+
   scale_x_discrete(limits = c(1973:2019))+
   guides( color = guide_legend(title = "SEX"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   ylab("Number of People")+
-  labs(title = "Number of People in Each Year")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1),
-        axis.title.x = element_text(size=10, face="bold", color = "black"),
-        axis.title.y = element_text(size=10, face="bold", color = "black"),
-        legend.text=element_text(size=10),
-        legend.title =element_text(size=10),
-        plot.title = element_text(size = 10, face = "bold"))
+  labs(title = "Number of People in Each Year")
 ```
 
+<<<<<<< HEAD
 ```{r}
 all_data %>% ggplot(aes(x = Time.y, color = sex, fill = sex))+
   geom_histogram(fill = "white", binwidth = 2)+
   ggtitle("Stacked Histogram of Finishing Times(minutes) grouped by Sex")
 ```
 
+=======
+>>>>>>> f6a087552778b9fbf223e9cde2068d389008237c
 ```{r}
-age_group = case_when(Wdat$Age <= 10 ~ "Age<=10", Wdat$Age > 10 & Wdat$Age <=20 ~ "10 < Age <= 20", Wdat$Age > 20 & Wdat$Age <=30 ~ "20 < Age <= 30", Wdat$Age > 30 & Wdat$Age <=40 ~ "30 < Age <= 40", Wdat$Age > 40 & Wdat$Age<=50 ~ "40 < Age <= 50", Wdat$Age > 50 & Wdat$Age <= 60 ~ "50 < Age <= 60",Wdat$Age > 60 & Wdat$Age <= 70 ~ "60 < Age <= 70",Wdat$Age > 70 & Wdat$Age <=80 ~ "70 < Age <= 80", Wdat$Age > 80 ~ "Age > 80")
+age_group = case_when(wdat$Age <= 10 ~ "Age<=10", wdat$Age > 10 & wdat$Age <=20 ~ "10 < Age <= 20", wdat$Age > 20 & wdat$Age <=30 ~ "20 < Age <= 30", wdat$Age > 30 & wdat$Age <=40 ~ "30 < Age <= 40", wdat$Age > 40 & wdat$Age<=50 ~ "40 < Age <= 50", wdat$Age > 50 & wdat$Age <= 60 ~ "50 < Age <= 60",wdat$Age > 60 & wdat$Age <= 70 ~ "60 < Age <= 70",wdat$Age > 70 & wdat$Age <=80 ~ "70 < Age <= 80", wdat$Age > 80 ~ "Age > 80")
 
-Wdat02  = Wdat %>% mutate(age_group)
+wdat  = wdat %>% mutate(age_group)
 
-ggplot(Wdat02, aes(x = Race, fill = age_group))+
+ggplot(wdat, aes(x = Race, fill = age_group))+
   geom_bar(position = "dodge")+ 
   scale_x_discrete(limits = c(1974:2019))+
   scale_fill_discrete(name = "Age Group")+
@@ -413,6 +375,61 @@ ggplot(mdat, aes(x = Race, fill = age_group))+
   ylab("Count")+
   labs(title = "Range of Ages in each Year for all Men")
 ```
+
+
+
+
+
+```{r}
+df_cleantown$Hometown <- tolower(df_cleantown$Hometown) #Returns the lowercase string.
+
+all_states<-map_data("state")
+
+
+ggplot() +
+  geom_polygon(data = all_states, aes( x = long, y = lat, group = group), fill="white", color="grey") +
+  theme_void() +
+  coord_map()
+
+all_states = all_states %>%
+  right_join(. , df_cleantown, by=c("region" ="Hometown"))
+all_states <- arrange(all_states, Race)
+
+all_states <- all_states %>% 
+  filter(!is.na(all_states$long))
+all_states
+
+ggplot() +
+  geom_polygon(data = all_states, aes( x = long, y = lat, group = group)) +
+  theme_void() +
+  coord_map()
+```
+
+
+
+
+
+```{r}
+library(usmap)
+states <- data.frame(df_cleantown$Hometown)
+
+plot_usmap(regions = "states", labels = TRUE)+
+  labs(title = "U.S. States",
+       subtitle = "This is a blank map of the United States.") + 
+  theme(panel.background=element_blank()) 
+  
+```
+
+```{r}
+#library(broom)
+#spdf_fortified <- tidy(df_cleantown$Hometown)
+
+#ggplot()+
+#  geom_polygon(df_cleantown$Hometown)
+```
+
+
+
 
 
 
@@ -449,164 +466,161 @@ data_w <- data_w %>%  drop_na() #drop all NAs
 head(data_w)
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```{r}
-lin_model_2 <- lm(Time.y~poly(Age,2)*sex+PRCP+TMIN, data = data_w)
-summary(lin_model_2)
+
+
+model.log = lm(log(Time.y)~poly(Age,3)*sex+PRCP+TMIN, data = data_w)
+
+summary(model.log)
 ```
 
 
 ```{r}
-fmodel(lin_model_2, ~ Age + sex + TMIN)
-```
-
-
-
-```{r}
-lin_model <- lm(Time.y~poly(Age,3)*sex+PRCP+TMIN, data = data_w)
-summary(lin_model)
-```
-
-```{r}
-broom::glance(lin_model_2,)
-```
-
-
-
-```{r}
-plot(lin_model_2)
-```
-
-
-```{r}
-library(MASS)
+fmodel(model.log, ~ TMIN + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time.y = exp))
 ```
 
 
 
 ```{r}
-boxcoxResult = boxcox(Time.y~poly(Age,3)*sex, data = data_w, lambda = seq(-2,5,1.5))
-```
-
-```{r}
-lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
-data_w$yboxcox = (data_w$Time.y^lambda-1)/lambda
-model.boxcox = lm(yboxcox~poly(Age,3)*sex, data = data_w)
-
-summary(model.boxcox)
-```
-
-```{r}
-plot(model.boxcox)
-```
-
-```{r}
-broom::glance(model.boxcox,)
+plot(model.log)
 ```
 
 
 ```{r}
-test_model <- lm(Time.y~Division,data=all_data)
-summary(test_model)
+fmodel(model.log, ~ Age + sex + PRCP, nlevels = 12, intervals = "prediction")
 ```
+
 
 ```{r}
-broom::glance(test_model)
+fmodel(lin_model_2, ~ Age + sex + TMIN, nlevels = 3, intervals = "prediction")
 ```
 
+
+```{r}
+hist(model.log$residuals)
+```
 
 
 ```{r}
 library(car)
-confidenceEllipse(model.boxcox)
+confidenceEllipse(model.log)
 ```
 
 ```{r}
-ols_plot_resid_stud(model.boxcox)
-```
-
-
-
-```{r}
-#plot predicted vs. actual values
-plot(x=predict(model.boxcox_M), y=Mdat$Time.y,
-     xlab='Predicted Values',
-     ylab='Actual Values',
-     main='Predicted vs. Actual Values')
-
-#add diagonal line for estimated regression line
-abline(a=0, b=1)
-```
-
-
-
-
-
-```{r}
-sample_test <- sample(1:nrow(data_w),300,replace=T)
-sample_data <- data_w[sample_test,]
-library(CCA)
-```
-
-
-```{r}
-X = sample_data %>%  
-  dplyr::select(PRCP,TMIN) %>% 
-  scale()
-
-Y = sample_data %>% 
-  dplyr::select(Age) %>% 
-  scale()
-
-
-cc_results <- cancor(X,Y)
-
-CC1_X = as.matrix(X) %*% cc_results$xcoef[, 1]
-CC1_Y = as.matrix(Y) %*% cc_results$ycoef[, 1]
-
-CC2_X =as.matrix(X) %*% cc_results$xcoef[, 2]
-
-cca_df = sample_data %>%  
-  mutate(CC1_X=CC1_X,
-         CC1_Y=CC1_Y,
-         CC2_X=CC2_X)
-
-cca_df %>% 
-  ggplot(aes(x=CC1_X,y=CC1_Y))+
-  geom_point()
-```
-
-
-```{r}
-cca_df %>%  
-  ggplot(aes(x=sex,y=CC1_Y, color=sex))+
-  geom_boxplot(width=0.5)+
-  geom_jitter(width=0.15)
-```
-
-
-
-```{r}
-library(fastDummies)
+library(cluster)    # clustering algorithms
+library(factoextra) # clustering visualization
+library(dendextend) # for comparing two dendrograms
 ```
 
 ```{r}
-data_w_new <- cbind(data_w, dummy_cols(data_w$Division))
-col_names <- names(data_w_new)
-data_w_new[,-c(1:13)] <- lapply(data_w_new[,-c(1:13)] , factor)
-col_names
+#head(df_cleantown)
+
+df_cluster_2 <- df_cleantown %>% select(Hometown, Age, Time.y)
+#column_to_rownames(df_cluster)
+#column_to_rownames(df_cluster, 'Hometown')
+
+
+df_cluster_2$Age <- scale(df_cluster_2$Age)
+df_cluster_2$Time.y <- scale(df_cluster_2$Time.y)
+df_cluster_2
 ```
 
 
+<<<<<<< HEAD
 ```{r}
 ols_model <- lm(Time.y ~poly(Age,3)*sex+PRCP+TMIN, data = data_w_new)
 ```
+=======
+
+
+
+
+>>>>>>> f6a087552778b9fbf223e9cde2068d389008237c
 
 ```{r}
-ols_step_both_aic(ols_model,progress = T)
+#head(df_cleantown)
+
+df_cluster <- data.frame(df_cleantown$Age,df_cleantown$Time.y)
+#standardize
+#column_to_rownames(df_cluster)
+#column_to_rownames(df_cluster, 'Hometown')
+df_cluster$df_cleantown.Age <- scale(df_cluster$df_cleantown.Age)
+df_cluster$df_cleantown.Time.y <- scale(df_cluster$df_cleantown.Time.y)
+df_cluster
 ```
 
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+>>>>>>> f6a087552778b9fbf223e9cde2068d389008237c
 ```{r}
-ols_step_backward_aic(ols_model,progress = T)
+cluster_sample <- df_cluster[sample(nrow(df_cluster),100),]
+cluster_sample$df_cleantown.Age <- scale(cluster_sample$df_cleantown.Age)
+cluster_sample$df_cleantown.Time.y<- scale(cluster_sample$df_cleantown.Time.y)
+cluster_sample
+
+
+#column_to_rownames(cluster_sample)
+#column_to_rownames(df_cluster, 'df_cleantown.Hometown')
 ```
 
+
+
+```{r}
+# Compute with agnes
+hc2 <- agnes(cluster_sample, method = "complete")
+
+# Agglomerative coefficient
+hc2$ac
+```
+
+```{r}
+# Dissimilarity matrix
+d <- dist(cluster_sample, method = "euclidean")
+# Ward's method
+hc5 <- hclust(d, method = "ward.D2" )
+
+# Cut tree into 4 groups
+sub_grp <- cutree(hc5, k = 4)
+
+# Number of members in each cluster
+table(sub_grp)
+```
+```{r}
+cluster_sample %>%
+  mutate(cluster = sub_grp) %>%
+  head
+```
+
+```{r}
+fviz_cluster(list(data = cluster_sample, cluster = sub_grp))
+```
+
+<<<<<<< HEAD
+=======
+
+
+
+
+>>>>>>> f6a087552778b9fbf223e9cde2068d389008237c
