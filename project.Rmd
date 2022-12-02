@@ -108,13 +108,11 @@ test_complete <- rbind(test_complete,starts_5,starts_4)
 ```{r}
 #Join all of these together. Note the new column is Time.y
 Wdat <- left_join(Wdat,test_complete, by="rowname")
-Wdat
 ```
 
 ```{r}
 #Change time to minutes
 Wdat$Time.y <- period_to_seconds(Wdat$Time.y)/60
-Wdat
 ```
 
 The women's times are cleaned, below we will clean the men's times.
@@ -148,13 +146,11 @@ test_complete_M <- rbind(test_complete_M,starts_5_M,starts_4_M)
 ```{r}
 #Join all of these together. Note the new column is Time.y
 Mdat <- left_join(Mdat,test_complete_M, by="rowname")
-Mdat
 ```
 
 ```{r}
 #Change time to minutes
 Mdat$Time.y <- period_to_seconds(Mdat$Time.y)/60
-Mdat
 ```
 
 
