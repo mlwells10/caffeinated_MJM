@@ -25,6 +25,7 @@ library(plotly)
 ```{r}
 Wdata <-  read.csv("newdata.csv")
 Mdata <- read.csv("mendataclean.csv")
+Wdata
 ```
 
 ```{r}
@@ -229,6 +230,9 @@ all_data <- arrange(all_data,Race)
 all_data$Race <- as.factor(all_data$Race)
 ```
 
+```{r}
+write.csv(all_data,"all_data.csv")
+```
 
 
 ```{r}
@@ -527,7 +531,12 @@ cluster_sample
 
 
 ```{r}
-df_cleantown %>% group_by(Hometown) %>% select(Age, Hometown, Time.y)
+median_sample <- df_cleantown %>% group_by(Hometown) %>% select(Age, Hometown, Time.y) %>% mutate(median_Age = median(Age), median_Time = median(Time.y))
+
+median_sample <- median_sample %>%  select(Hometown, mean_Age,mean_Time)
+
+unique(median_sample)
+
 ```
 
 
@@ -540,6 +549,14 @@ library(cluster)    # clustering algorithms
 library(factoextra) # clustering visualization
 library(dendextend) # for comparing two dendrograms
 ```
+
+
+
+
+
+
+
+
 
 ```{r}
 #head(df_cleantown)
