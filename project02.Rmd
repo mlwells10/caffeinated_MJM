@@ -449,7 +449,10 @@ data_w <- data_w %>%  drop_na() #drop all NAs
 head(data_w)
 ```
 
-
+```{r}
+lin_model_2 <- lm(Time.y~poly(Age,2)*sex+PRCP+TMIN, data = data_w)
+summary(lin_model_2)
+```
 
 
 ```{r}
@@ -458,12 +461,57 @@ fmodel(lin_model_2, ~ Age + sex + TMIN)
 
 
 
+```{r}
+lin_model <- lm(Time.y~poly(Age,3)*sex+PRCP+TMIN, data = data_w)
+summary(lin_model)
+```
+
+```{r}
+broom::glance(lin_model_2,)
+```
 
 
 
+```{r}
+plot(lin_model_2)
+```
+
+
+```{r}
+library(MASS)
+```
 
 
 
+```{r}
+boxcoxResult = boxcox(Time.y~poly(Age,3)*sex, data = data_w, lambda = seq(-2,5,1.5))
+```
+
+```{r}
+lambda = boxcoxResult$x[which.max(boxcoxResult$y)]
+data_w$yboxcox = (data_w$Time.y^lambda-1)/lambda
+model.boxcox = lm(yboxcox~poly(Age,3)*sex, data = data_w)
+
+summary(model.boxcox)
+```
+
+```{r}
+plot(model.boxcox)
+```
+
+```{r}
+broom::glance(model.boxcox,)
+```
+
+
+```{r}
+test_model <- lm(Time.y~Division,data=all_data)
+summary(test_model)
+```
+
+```{r}
+broom::glance(test_model)
+```
 
 
 
@@ -478,43 +526,87 @@ ols_plot_resid_stud(model.boxcox)
 
 
 
-
-
-
-
-
-
-
-
-
-
 ```{r}
-cluster_sample <- df_cluster_2[sample(nrow(df_cluster_2),100),]
-cluster_sample$Age <- scale(cluster_sample$Age)
-cluster_sample$Time.y<- scale(cluster_sample$Time.y)
+#plot predicted vs. actual values
+plot(x=predict(model.boxcox_M), y=Mdat$Time.y,
+     xlab='Predicted Values',
+     ylab='Actual Values',
+     main='Predicted vs. Actual Values')
 
-cluster_sample
+#add diagonal line for estimated regression line
+abline(a=0, b=1)
 ```
 
 
 
 
 
-
-
-
-
-
-
+```{r}
+sample_test <- sample(1:nrow(data_w),300,replace=T)
+sample_data <- data_w[sample_test,]
+library(CCA)
+```
 
 
 ```{r}
-df_cleantown %>% group_by(Hometown) %>% select(Age, Hometown, Time.y)
+X = sample_data %>%  
+  dplyr::select(PRCP,TMIN) %>% 
+  scale()
+
+Y = sample_data %>% 
+  dplyr::select(Age) %>% 
+  scale()
+
+
+cc_results <- cancor(X,Y)
+
+CC1_X = as.matrix(X) %*% cc_results$xcoef[, 1]
+CC1_Y = as.matrix(Y) %*% cc_results$ycoef[, 1]
+
+CC2_X =as.matrix(X) %*% cc_results$xcoef[, 2]
+
+cca_df = sample_data %>%  
+  mutate(CC1_X=CC1_X,
+         CC1_Y=CC1_Y,
+         CC2_X=CC2_X)
+
+cca_df %>% 
+  ggplot(aes(x=CC1_X,y=CC1_Y))+
+  geom_point()
+```
+
+
+```{r}
+cca_df %>%  
+  ggplot(aes(x=sex,y=CC1_Y, color=sex))+
+  geom_boxplot(width=0.5)+
+  geom_jitter(width=0.15)
 ```
 
 
 
+```{r}
+library(fastDummies)
+```
+
+```{r}
+data_w_new <- cbind(data_w, dummy_cols(data_w$Division))
+col_names <- names(data_w_new)
+data_w_new[,-c(1:13)] <- lapply(data_w_new[,-c(1:13)] , factor)
+col_names
+```
 
 
+```{r}
+ols_model <- lm(Time.y ~poly(Age,3)*sex+PRCP+TMIN, data = data_w_new)
+```
 
+```{r}
+ols_step_both_aic(ols_model,progress = T)
+```
+
+
+```{r}
+ols_step_backward_aic(ols_model,progress = T)
+```
 
