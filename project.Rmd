@@ -239,13 +239,13 @@ all_data %>% ggplot(aes(fill = sex, colour = sex, group = sex))+
   geom_smooth(aes(x = Age, y = Time.y))+
   ggtitle("Age vs Time")+
   ylab("Time in Minutes")+
-  theme(axis.title.x = element_text(size=30, face="bold", color = "black"),
-        axis.title.y = element_text(size=30, face="bold", color = "black"),
-        axis.text.x = element_text(size=20,  color = "black"),
-        axis.text.y = element_text(size=20, color = "black"), 
-        legend.text=element_text(size=30),
-        legend.title =element_text(size=30),
-        plot.title = element_text(size = 30, face = "bold"))
+  theme(axis.title.x = element_text(size=10, face="bold", color = "black"),
+        axis.title.y = element_text(size=10, face="bold", color = "black"),
+        axis.text.x = element_text(size=5,  color = "black"),
+        axis.text.y = element_text(size=5, color = "black"), 
+        legend.text=element_text(size=10),
+        legend.title =element_text(size=10),
+        plot.title = element_text(size = 10, face = "bold"))
 ```
 
 
