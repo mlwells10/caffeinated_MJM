@@ -377,6 +377,13 @@ ggplot(aes(x = Year, y = n))+
         legend.title =element_text(size=10),
         plot.title = element_text(size = 10, face = "bold"))
 ```
+
+```{r}
+all_data %>% ggplot(aes(x = Time.y, color = sex, fill = sex))+
+  geom_histogram(fill = "white", binwidth = 2)+
+  ggtitle("Stacked Histogram of Finishing Times(minutes) grouped by Sex")
+```
+
 ```{r}
 age_group = case_when(Wdat$Age <= 10 ~ "Age<=10", Wdat$Age > 10 & Wdat$Age <=20 ~ "10 < Age <= 20", Wdat$Age > 20 & Wdat$Age <=30 ~ "20 < Age <= 30", Wdat$Age > 30 & Wdat$Age <=40 ~ "30 < Age <= 40", Wdat$Age > 40 & Wdat$Age<=50 ~ "40 < Age <= 50", Wdat$Age > 50 & Wdat$Age <= 60 ~ "50 < Age <= 60",Wdat$Age > 60 & Wdat$Age <= 70 ~ "60 < Age <= 70",Wdat$Age > 70 & Wdat$Age <=80 ~ "70 < Age <= 80", Wdat$Age > 80 ~ "Age > 80")
 
@@ -590,30 +597,18 @@ col_names
 ```
 
 
-
-
 ```{r}
 ols_model <- lm(Time.y ~poly(Age,3)*sex+PRCP+TMIN, data = data_w_new)
 ```
-
-
-
-
-
 
 ```{r}
 ols_step_both_aic(ols_model,progress = T)
 ```
 
 
-
-
-
-
 ```{r}
 ols_step_backward_aic(ols_model,progress = T)
 ```
-
 
 
 
