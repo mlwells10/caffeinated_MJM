@@ -24,6 +24,7 @@ dg = dg[dg$gender=='M',]
 
 model = lme(Time ~ Age, data=dg,random=~1 + Age | ID)
 print(summary(model))
+print(r.squaredGLMM(model))
 stop()
 K = function(x,y)
 {
