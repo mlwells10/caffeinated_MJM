@@ -511,37 +511,19 @@ ols_plot_resid_stud(model.boxcox)
 
 
 ```{r}
-cluster_sample <- df_cluster_2[sample(nrow(df_cluster_2),100),]
-cluster_sample$Age <- scale(cluster_sample$Age)
-cluster_sample$Time.y<- scale(cluster_sample$Time.y)
-
-cluster_sample
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
+#Get median time and age for each state
 median_sample <- df_cleantown %>% group_by(Hometown) %>% select(Age, Hometown, Time.y) %>% mutate(median_Age = median(Age), median_Time = median(Time.y))
 
-median_sample <- median_sample %>%  select(Hometown, mean_Age,mean_Time)
+median_sample <- median_sample %>%  select(Hometown, median_Age,median_Time)
 
-unique(median_sample)
+median_sample <- unique(median_sample)
+median_sample <- column_to_rownames(median_sample, 'Hometown')
 
+#standardize values
+median_sample <- scale(median_sample)
+
+median_sample = as.data.frame(median_sample)
 ```
-
-
-
-
 
 
 ```{r}
@@ -552,71 +534,43 @@ library(dendextend) # for comparing two dendrograms
 
 
 
-
-
-
-
-
-
 ```{r}
-#head(df_cleantown)
-
-df_cluster_2 <- df_cleantown %>% select(Hometown, Age, Time.y)
-#column_to_rownames(df_cluster)
-#column_to_rownames(df_cluster, 'Hometown')
-
-
-df_cluster_2$Age <- scale(df_cluster_2$Age)
-df_cluster_2$Time.y <- scale(df_cluster_2$Time.y)
-df_cluster_2
-```
-
-
-
-```{r}
-ols_model <- lm(Time.y ~poly(Age,3)*sex+PRCP+TMIN, data = data_w_new)
-```
-
-
-```{r}
-#head(df_cleantown)
-
-df_cluster <- data.frame(df_cleantown$Age,df_cleantown$Time.y)
-#standardize
-#column_to_rownames(df_cluster)
-#column_to_rownames(df_cluster, 'Hometown')
-df_cluster$df_cleantown.Age <- scale(df_cluster$df_cleantown.Age)
-df_cluster$df_cleantown.Time.y <- scale(df_cluster$df_cleantown.Time.y)
-df_cluster
-```
-
-
-
-```{r}
-cluster_sample <- df_cluster[sample(nrow(df_cluster),100),]
-cluster_sample$df_cleantown.Age <- scale(cluster_sample$df_cleantown.Age)
-cluster_sample$df_cleantown.Time.y<- scale(cluster_sample$df_cleantown.Time.y)
-cluster_sample
-
-
-#column_to_rownames(cluster_sample)
-#column_to_rownames(df_cluster, 'df_cleantown.Hometown')
-```
-
-
-
-
-```{r}
+# Dissimilarity matrix
+d <- dist(median_sample, method = "euclidean")
 # Compute with agnes
-hc2 <- agnes(cluster_sample, method = "complete")
+hc2 <- agnes(median_sample, method = "complete")
 
 # Agglomerative coefficient
 hc2$ac
 ```
 
+
 ```{r}
-# Dissimilarity matrix
-d <- dist(cluster_sample, method = "euclidean")
+# methods to assess
+m <- c( "average", "single", "complete", "ward")
+names(m) <- c( "average", "single", "complete", "ward")
+
+# function to compute coefficient
+ac <- function(x) {
+  agnes(median_sample, method = x)$ac
+}
+
+map_dbl(m, ac)
+```
+
+Ward has the highest value
+
+
+
+
+```{r}
+hc3 <- agnes(median_sample, method = "ward")
+pltree(hc3, cex = 0.6, hang = -1, main = "Dendrogram of agnes") 
+```
+
+
+
+```{r}
 # Ward's method
 hc5 <- hclust(d, method = "ward.D2" )
 
@@ -626,14 +580,24 @@ sub_grp <- cutree(hc5, k = 4)
 # Number of members in each cluster
 table(sub_grp)
 ```
-```{r}
-cluster_sample %>%
-  mutate(cluster = sub_grp) %>%
-  head
-```
+
 
 ```{r}
-fviz_cluster(list(data = cluster_sample, cluster = sub_grp))
+median_sample %>% mutate(cluster = sub_grp) 
 ```
 
+
+
+```{r}
+plot(hc5, cex = 0.6)
+rect.hclust(hc5, k = 4, border = 2:5)
+```
+
+
+
+
+
+```{r}
+fviz_cluster(list(data = median_sample, cluster = sub_grp))
+```
 
