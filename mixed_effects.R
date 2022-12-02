@@ -15,11 +15,17 @@ df = df[!is.na(df$Age)&!is.na(df$Time),]
 #lambda_M = bx_cx$x[which.max(bx_cx$y)]
 #df$yboxcox = (df$Time^lambda_M-1)/lambda_M
 
-dg = df[df$Race %in% c('2000','2001','2002'),]
+dg = df[df$num_obs > 4,]
+
 c=1
 #dg = dg[dg$Time<75,]
-dg = dg[dg$Age<60&dg$Age > 10,]
+dg = dg[dg$Age > 10,]
 dg = dg[dg$gender=='M',]
+
+model = lme(Time ~ Age, data=dg,random=~1 + Age | ID)
+print(summary(model))
+print(r.squaredGLMM(model))
+stop()
 K = function(x,y)
 {
   return(outer(x,y,function(s,t){(s*t+c)^2}))
