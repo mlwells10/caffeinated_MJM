@@ -32,7 +32,7 @@ xstar = seq(from = 20, to = 65, by = 1)
 
 ID = unique(dg$ID)
 beta = model$coefficients$fixed
-plot(xstar,beta[2]*xstar + beta[1],type='l',ylim=c(40,140),xlab='Age',ylab='Time')
+plot(xstar,beta[2]*xstar + beta[1],type='l',ylim=c(40,140),xlab='Age',ylab='Time',main = "Five trajectories")
 ID.1 = 517
 ID.2 = 818
 ID.3 = 4997
