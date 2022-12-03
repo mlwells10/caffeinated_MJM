@@ -25,7 +25,6 @@ library(plotly)
 ```{r}
 Wdata <-  read.csv("newdata.csv")
 Mdata <- read.csv("mendataclean.csv")
-Wdata
 ```
 
 ```{r}
@@ -231,7 +230,7 @@ all_data$Race <- as.factor(all_data$Race)
 ```
 
 ```{r}
-write.csv(all_data,"all_data.csv")
+#write.csv(all_data,"all_data.csv")
 ```
 
 
@@ -474,12 +473,13 @@ plot(model.log)
 
 
 ```{r}
-fmodel(model.log, ~ Age + sex + PRCP, nlevels = 12, intervals = "prediction")
+fmodel(model.log, ~ PRCP + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time.y = exp))
 ```
 
 
+
 ```{r}
-fmodel(lin_model_2, ~ Age + sex + TMIN, nlevels = 3, intervals = "prediction")
+fmodel(model.log, ~ Age + sex, nlevels = 3, intervals = "prediction", post_transform = c(Time.y = exp))
 ```
 
 
