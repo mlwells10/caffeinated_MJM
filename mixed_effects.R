@@ -5,7 +5,7 @@ setwd('~/caffeinated_MJM/')
 library(nlme)
 library(AICcmodavg)
 library(MuMIn)
-df = read.csv('data/all_data_formatted.csv')
+df = read.csv('data/all_data_formatted_2.csv')
 df[df=='NR'] = NA
 df$Age = as.numeric(df$Age)
 df = df[!is.na(df$Age)&!is.na(df$Time),]
@@ -19,27 +19,30 @@ dg = df[df$num_obs > 4,]
 
 c=1
 #dg = dg[dg$Time<75,]
-dg = dg[dg$Age > 10,]
-dg = dg[dg$gender=='M',]
-
-model = lme(Time ~ Age, data=dg,random=~1 + Age | ID)
+dg = dg[dg$Age > 9,]
+dg = dg[dg$sex=='M',]
+#dg$Age = sqrt(dg$Age)
+model = lme(Time.y ~ Age, data=dg,random=~1 + Age | ID)
+plot(model)
+stop()
 print(summary(model))
 print(r.squaredGLMM(model))
+
 xstar = seq(from = 20, to = 65, by = 1)
 
 ID = unique(dg$ID)
 beta = model$coefficients$fixed
-plot(xstar,beta[2]*xstar + beta[1],type='l',ylim=c(40,120),xlab='Age',ylab='Time')
-ID.1 = 2319
-ID.2 = 43
-ID.3 = 699
-ID.4 = 5215
-ID.5 = 5537
-y1 = dg[dg$ID==ID.1,c('Age','Time')]
-y2 = dg[dg$ID==ID.2,c('Age','Time')]
-y3 = dg[dg$ID==ID.3,c('Age','Time')]
-y4 = dg[dg$ID==ID.4,c('Age','Time')]
-y5 = dg[dg$ID==ID.5,c('Age','Time')]
+plot(xstar,beta[2]*xstar + beta[1],type='l',ylim=c(40,140),xlab='Age',ylab='Time',main = "Five trajectories")
+ID.1 = 517
+ID.2 = 818
+ID.3 = 4997
+ID.4 = 5664
+ID.5 = 4529
+y1 = dg[dg$ID==ID.1,c('Age','Time.y')]
+y2 = dg[dg$ID==ID.2,c('Age','Time.y')]
+y3 = dg[dg$ID==ID.3,c('Age','Time.y')]
+y4 = dg[dg$ID==ID.4,c('Age','Time.y')]
+y5 = dg[dg$ID==ID.5,c('Age','Time.y')]
 
 
 points(y1[,1],y1[,2],col=1,pch=16)
@@ -58,6 +61,8 @@ lines(y3[,1],(beta[2]+alpha.3[2])*y3[,1]+beta[1]+alpha.3[1],col=3)
 lines(y4[,1],(beta[2]+alpha.4[2])*y4[,1]+beta[1]+alpha.4[1],col=4)
 lines(y5[,1],(beta[2]+alpha.5[2])*y5[,1]+beta[1]+alpha.5[1],col=5)
 slopes = beta[2] + model$coefficients$random$ID[,2]
+plot(model)
+hist(slopes)
 wilcox.test(slopes,mu=0,paired=F,alternative='greater',conf.int=T)
 stop()
 K = function(x,y)
