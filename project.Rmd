@@ -446,7 +446,18 @@ head(data_join_Race)
 data_w <- weather %>% select(DATE, PRCP, TMIN) %>% 
   right_join(data_join_Race, by = "DATE")
 data_w <- data_w %>%  drop_na() #drop all NAs
+```
+
+
+```{r}
+data_w <- data_w %>% rename(Precipitation = PRCP)
+data_w <- data_w %>% rename(Time = Time.y)
+data_w <- data_w %>% rename(Temperature = TMIN)
 head(data_w)
+```
+
+```{r}
+model.log_2 = lm(log(Time)~poly(Age,3)*sex+Precipitation+Temperature, data = data_w)
 ```
 
 
@@ -455,13 +466,17 @@ head(data_w)
 ```{r}
 
 
-model.log = lm(log(Time.y)~poly(Age,3)*sex+PRCP+TMIN, data = data_w)
+model.log = lm(log(Time)~poly(Age,3)*sex+Precipitation+Temperature+Precipitation*Temperature, data = data_w)
 
 summary(model.log)
 ```
 
+
+
+
+
 ```{r}
-fmodel(model.log, ~ TMIN + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time.y = exp))
+fmodel(model.log, ~ Temperature + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time = exp))
 ```
 
 
@@ -473,13 +488,13 @@ plot(model.log)
 
 
 ```{r}
-fmodel(model.log, ~ PRCP + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time.y = exp))
+fmodel(model.log, ~ Precipitation + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time = exp))
 ```
 
 
 
 ```{r}
-fmodel(model.log, ~ Age + sex, nlevels = 3, intervals = "prediction", post_transform = c(Time.y = exp))
+fmodel(model.log, ~ Age + sex, nlevels = 3, intervals = "prediction", post_transform = c(Time = exp))
 ```
 
 
@@ -494,9 +509,7 @@ library(car)
 confidenceEllipse(model.log)
 ```
 
-```{r}
-ols_plot_resid_stud(model.boxcox)
-```
+
 
 
 
