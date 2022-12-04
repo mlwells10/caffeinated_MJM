@@ -388,26 +388,27 @@ all_data %>% ggplot(aes(x = Time.y, color = sex, fill = sex))+
 
 ```{r}
 womensub = Wdat[Wdat$Time.y>30 & Wdat$Age>15,]
-agecut = cut(Wdat$Age, breaks = c(seq(15,75,10),90))
+agecut = cut(womensub$Age, breaks = c(seq(15,75,10),90))
 table(agecut)
 
-plot(Wdat$Time.y ~ agecut, xlab = "Age (year)", ylab = "Run Time (minutes)",main = "Run Time for Subgroups of Runner With Same Age")
+plot(womensub$Time.y ~ agecut, xlab = "Age (year)", ylab = "Run Time (minutes)",main = "Run Time for Subgroups of Runner With Same Age")
 ```
 
 
 ```{r}
-age_group = case_when(wdat$Age <= 10 ~ "Age<=10", wdat$Age > 10 & wdat$Age <=20 ~ "10 < Age <= 20", wdat$Age > 20 & wdat$Age <=30 ~ "20 < Age <= 30", wdat$Age > 30 & wdat$Age <=40 ~ "30 < Age <= 40", wdat$Age > 40 & wdat$Age<=50 ~ "40 < Age <= 50", wdat$Age > 50 & wdat$Age <= 60 ~ "50 < Age <= 60",wdat$Age > 60 & wdat$Age <= 70 ~ "60 < Age <= 70",wdat$Age > 70 & wdat$Age <=80 ~ "70 < Age <= 80", wdat$Age > 80 ~ "Age > 80")
+agecut02 = cut(Wdat$Age, breaks = c(seq(8,80,12),90))
 
-wdat  = wdat %>% mutate(age_group)
+Race_group02 = case_when( Wdat$Race >= 1973 & Wdat$Race < 2000 ~ "1973-2000", Wdat$Race >= 2000 & Wdat$Race<2005 ~ "2000-2005", Wdat$Race >= 2005 &Wdat$Race<2010 ~ "2005-2010", Wdat$Race>= 2010 & Wdat$Race<2015 ~ "2010-2015", Wdat$Race >= 2015 & Wdat$Race< 2020 ~ "2015-2020",Wdat$Race >= 2020 ~"2020-2022" )
 
-ggplot(wdat, aes(x = Race, fill = age_group))+
+Wdat  = Wdat %>% mutate(Race_group02)
+
+ggplot(Wdat, aes(x = Race_group02, fill = agecut02))+
   geom_bar(position = "dodge")+ 
-  scale_x_discrete(limits = c(1974:2019))+
   scale_fill_discrete(name = "Age Group")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  xlab("Year")+
+  xlab("Time Period")+
   ylab("Count")+
-  labs(title = "Range of Ages in each Year for all Women")
+  labs(title = "Range of Ages in Each Time Period for All Women")+
+  scale_colour_discrete(na.translate = F)
 ```
 
 ```{r}
