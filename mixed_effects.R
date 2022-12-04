@@ -2,9 +2,11 @@ rm(list = ls())
 setwd('~/caffeinated_MJM/')
 
 
-library(nlme)
+#library(nlme)
+library(lme4)
 library(AICcmodavg)
 library(MuMIn)
+library(lattice)
 df = read.csv('data/all_data_formatted_2.csv')
 df[df=='NR'] = NA
 df$Age = as.numeric(df$Age)
@@ -22,7 +24,7 @@ c=1
 dg = dg[dg$Age > 9,]
 dg = dg[dg$sex=='M',]
 #dg$Age = sqrt(dg$Age)
-model = lme(Time.y ~ Age, data=dg,random=~1 + Age | ID)
+model = lmer(Time.y ~ Age + (1+Age | ID), data=dg)
 plot(model)
 stop()
 print(summary(model))
@@ -61,8 +63,10 @@ lines(y3[,1],(beta[2]+alpha.3[2])*y3[,1]+beta[1]+alpha.3[1],col=3)
 lines(y4[,1],(beta[2]+alpha.4[2])*y4[,1]+beta[1]+alpha.4[1],col=4)
 lines(y5[,1],(beta[2]+alpha.5[2])*y5[,1]+beta[1]+alpha.5[1],col=5)
 slopes = beta[2] + model$coefficients$random$ID[,2]
-plot(model)
+#plot(model)
+plot(model, type = c("p", "smooth"))
 hist(slopes)
+#qqmath(model,id=0.05)
 wilcox.test(slopes,mu=0,paired=F,alternative='greater',conf.int=T)
 stop()
 K = function(x,y)
