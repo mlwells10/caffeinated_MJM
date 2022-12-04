@@ -385,18 +385,13 @@ all_data %>% ggplot(aes(x = Time.y, color = sex, fill = sex))+
   geom_histogram(fill = "white", binwidth = 2)+
   ggtitle("Stacked Histogram of Finishing Times(minutes) grouped by Sex")
 ```
+
 ```{r}
 womensub = Wdat[Wdat$Time.y>30 & Wdat$Age>15,]
 agecut = cut(Wdat$Age, breaks = c(seq(15,75,10),90))
 table(agecut)
 
 plot(Wdat$Time.y ~ agecut, xlab = "Age (year)", ylab = "Run Time (minutes)",main = "Run Time for Subgroups of Runner With Same Age")
-
-ggplot(Wdat )+
-  geom_boxplot(aes(x = agecut, y =Time.y))+ 
-  xlab("Age (year)")+
-  ylab("Run Time (minutes)")+
-  labs(title = "Run Time for Subgroups of Runner", subtitle = "With Roughly the Same Age")
 ```
 
 
