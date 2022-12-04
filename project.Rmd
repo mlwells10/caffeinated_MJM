@@ -283,7 +283,6 @@ df_cleantown <- df_cleantown[(df_cleantown$Hometown%in%all_states$abb),]
 
 i <- df_cleantown %>% group_by(Hometown) %>% 
   summarise(count = n())
-max(i$count)
 ```
 
 ```{r}
@@ -412,18 +411,19 @@ ggplot(Wdat, aes(x = Race_group02, fill = agecut02))+
 ```
 
 ```{r}
-age_group = case_when(mdat$Age <= 10 ~ "Age<=10", mdat$Age > 10 & mdat$Age <=20 ~ "10 < Age <= 20", mdat$Age > 20 & mdat$Age <=30 ~ "20 < Age <= 30", mdat$Age > 30 & mdat$Age <=40 ~ "30 < Age <= 40", mdat$Age > 40 & mdat$Age<=50 ~ "40 < Age <= 50", mdat$Age > 50 & mdat$Age <= 60 ~ "50 < Age <= 60",mdat$Age > 60 & mdat$Age <= 70 ~ "60 < Age <= 70",mdat$Age > 70 & mdat$Age <=80 ~ "70 < Age <= 80", mdat$Age > 80 ~ "Age > 80")
+agecut03 = cut(Mdat$Age, breaks = c(seq(8,80,12),90))
 
-mdat  = mdat %>% mutate(age_group)
+Race_group03 = case_when( Mdat$Race >= 1973 & Mdat$Race < 2000 ~ "1973-2000", Mdat$Race >= 2000 & Mdat$Race<2005 ~ "2000-2005", Mdat$Race >= 2005 &Mdat$Race<2010 ~ "2005-2010", Mdat$Race>= 2010 & Mdat$Race<2015 ~ "2010-2015", Mdat$Race >= 2015 & Mdat$Race< 2020 ~ "2015-2020",Mdat$Race >= 2020 ~"2020-2022" )
 
-ggplot(mdat, aes(x = Race, fill = age_group))+
+Mdat  = Mdat %>% mutate(Race_group03)
+
+ggplot(Mdat, aes(x = Race_group03, fill = agecut03))+
   geom_bar(position = "dodge")+ 
-  scale_x_discrete(limits = c(1973:2019))+
   scale_fill_discrete(name = "Age Group")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  xlab("Year")+
+  xlab("Time Period")+
   ylab("Count")+
-  labs(title = "Range of Ages in each Year for all Men")
+  labs(title = "Range of Ages in Each Time Period for All Men")+
+  scale_colour_discrete(na.translate = F)
 ```
 
 
