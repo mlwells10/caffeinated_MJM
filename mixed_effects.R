@@ -24,13 +24,13 @@ c=1
 dg = dg[dg$Age > 9,]
 dg = dg[dg$sex=='M',]
 #dg$Age = sqrt(dg$Age)
-model = lmer(Time.y ~ Age + (1+Age | ID), data=dg)
+model = lme(Time.y ~ Age, data=dg,random=~1+Age | ID)
 plot(model)
 stop()
 print(summary(model))
 print(r.squaredGLMM(model))
 
-xstar = seq(from = 20, to = 65, by = 1)
+xstar = sqrt(seq(from = 20, to = 65, by = 1))
 
 ID = unique(dg$ID)
 beta = model$coefficients$fixed
@@ -66,7 +66,7 @@ slopes = beta[2] + model$coefficients$random$ID[,2]
 #plot(model)
 plot(model, type = c("p", "smooth"))
 hist(slopes)
-#qqmath(model,id=0.05)
+qqmath(model)
 wilcox.test(slopes,mu=0,paired=F,alternative='greater',conf.int=T)
 stop()
 K = function(x,y)
