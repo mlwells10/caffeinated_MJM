@@ -108,13 +108,11 @@ test_complete <- rbind(test_complete,starts_5,starts_4)
 ```{r}
 #Join all of these together. Note the new column is Time.y
 Wdat <- left_join(Wdat,test_complete, by="rowname")
-Wdat
 ```
 
 ```{r}
 #Change time to minutes
 Wdat$Time.y <- period_to_seconds(Wdat$Time.y)/60
-Wdat
 ```
 
 The women's times are cleaned, below we will clean the men's times.
@@ -148,13 +146,11 @@ test_complete_M <- rbind(test_complete_M,starts_5_M,starts_4_M)
 ```{r}
 #Join all of these together. Note the new column is Time.y
 Mdat <- left_join(Mdat,test_complete_M, by="rowname")
-Mdat
 ```
 
 ```{r}
 #Change time to minutes
 Mdat$Time.y <- period_to_seconds(Mdat$Time.y)/60
-Mdat
 ```
 
 
@@ -233,6 +229,9 @@ all_data <- arrange(all_data,Race)
 all_data$Race <- as.factor(all_data$Race)
 ```
 
+```{r}
+#write.csv(all_data,"all_data.csv")
+```
 
 
 ```{r}
@@ -461,7 +460,18 @@ head(data_join_Race)
 data_w <- weather %>% select(DATE, PRCP, TMIN) %>% 
   right_join(data_join_Race, by = "DATE")
 data_w <- data_w %>%  drop_na() #drop all NAs
+```
+
+
+```{r}
+data_w <- data_w %>% rename(Precipitation = PRCP)
+data_w <- data_w %>% rename(Time = Time.y)
+data_w <- data_w %>% rename(Temperature = TMIN)
 head(data_w)
+```
+
+```{r}
+model.log_2 = lm(log(Time)~poly(Age,3)*sex+Precipitation+Temperature, data = data_w)
 ```
 
 
@@ -470,15 +480,19 @@ head(data_w)
 ```{r}
 
 
-model.log = lm(log(Time.y)~poly(Age,3)*sex+PRCP+TMIN, data = data_w)
+model.log = lm(log(Time)~poly(Age,3)*sex+Precipitation+Temperature+Precipitation*Temperature, data = data_w)
 
 summary(model.log)
 ```
 
 
+
+
+
 ```{r}
-fmodel(model.log, ~ TMIN + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time.y = exp))
+fmodel(model.log, ~ Temperature + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time = exp))
 ```
+
 
 
 
@@ -488,12 +502,13 @@ plot(model.log)
 
 
 ```{r}
-fmodel(model.log, ~ Age + sex + PRCP, nlevels = 12, intervals = "prediction")
+fmodel(model.log, ~ Precipitation + sex + Age, nlevels = 3, intervals = "prediction", post_transform = c(Time = exp))
 ```
 
 
+
 ```{r}
-fmodel(lin_model_2, ~ Age + sex + TMIN, nlevels = 3, intervals = "prediction")
+fmodel(model.log, ~ Age + sex, nlevels = 3, intervals = "prediction", post_transform = c(Time = exp))
 ```
 
 
@@ -502,10 +517,41 @@ hist(model.log$residuals)
 ```
 
 
+
 ```{r}
 library(car)
 confidenceEllipse(model.log)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#Get median time and age for each state
+median_sample <- df_cleantown %>% group_by(Hometown) %>% select(Age, Hometown, Time.y) %>% mutate(median_Age = median(Age), median_Time = median(Time.y))
+
+median_sample <- median_sample %>%  select(Hometown, median_Age,median_Time)
+
+median_sample <- unique(median_sample)
+median_sample <- column_to_rownames(median_sample, 'Hometown')
+
+#standardize values
+median_sample <- scale(median_sample)
+
+median_sample = as.data.frame(median_sample)
+```
+
 
 ```{r}
 library(cluster)    # clustering algorithms
@@ -513,64 +559,45 @@ library(factoextra) # clustering visualization
 library(dendextend) # for comparing two dendrograms
 ```
 
-```{r}
-#head(df_cleantown)
-
-df_cluster_2 <- df_cleantown %>% select(Hometown, Age, Time.y)
-#column_to_rownames(df_cluster)
-#column_to_rownames(df_cluster, 'Hometown')
-
-
-df_cluster_2$Age <- scale(df_cluster_2$Age)
-df_cluster_2$Time.y <- scale(df_cluster_2$Time.y)
-df_cluster_2
-```
-
 
 
 ```{r}
-ols_model <- lm(Time.y ~poly(Age,3)*sex+PRCP+TMIN, data = data_w_new)
-```
-
-
-```{r}
-#head(df_cleantown)
-
-df_cluster <- data.frame(df_cleantown$Age,df_cleantown$Time.y)
-#standardize
-#column_to_rownames(df_cluster)
-#column_to_rownames(df_cluster, 'Hometown')
-df_cluster$df_cleantown.Age <- scale(df_cluster$df_cleantown.Age)
-df_cluster$df_cleantown.Time.y <- scale(df_cluster$df_cleantown.Time.y)
-df_cluster
-```
-
-
-
-```{r}
-cluster_sample <- df_cluster[sample(nrow(df_cluster),100),]
-cluster_sample$df_cleantown.Age <- scale(cluster_sample$df_cleantown.Age)
-cluster_sample$df_cleantown.Time.y<- scale(cluster_sample$df_cleantown.Time.y)
-cluster_sample
-
-
-#column_to_rownames(cluster_sample)
-#column_to_rownames(df_cluster, 'df_cleantown.Hometown')
-```
-
-
-
-```{r}
+# Dissimilarity matrix
+d <- dist(median_sample, method = "euclidean")
 # Compute with agnes
-hc2 <- agnes(cluster_sample, method = "complete")
+hc2 <- agnes(median_sample, method = "complete")
 
 # Agglomerative coefficient
 hc2$ac
 ```
 
+
 ```{r}
-# Dissimilarity matrix
-d <- dist(cluster_sample, method = "euclidean")
+# methods to assess
+m <- c( "average", "single", "complete", "ward")
+names(m) <- c( "average", "single", "complete", "ward")
+
+# function to compute coefficient
+ac <- function(x) {
+  agnes(median_sample, method = x)$ac
+}
+
+map_dbl(m, ac)
+```
+
+Ward has the highest value
+
+
+
+
+```{r}
+hc3 <- agnes(median_sample, method = "ward")
+pltree(hc3, cex = 0.6, hang = -1, main = "Dendrogram of agnes") 
+```
+
+
+
+```{r}
 # Ward's method
 hc5 <- hclust(d, method = "ward.D2" )
 
@@ -580,14 +607,24 @@ sub_grp <- cutree(hc5, k = 4)
 # Number of members in each cluster
 table(sub_grp)
 ```
-```{r}
-cluster_sample %>%
-  mutate(cluster = sub_grp) %>%
-  head
-```
+
 
 ```{r}
-fviz_cluster(list(data = cluster_sample, cluster = sub_grp))
+median_sample %>% mutate(cluster = sub_grp) 
 ```
 
+
+
+```{r}
+plot(hc5, cex = 0.6)
+rect.hclust(hc5, k = 4, border = 2:5)
+```
+
+
+
+
+
+```{r}
+fviz_cluster(list(data = median_sample, cluster = sub_grp))
+```
 
