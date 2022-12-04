@@ -284,6 +284,7 @@ df_cleantown <- df_cleantown[(df_cleantown$Hometown%in%all_states$abb),]
 
 i <- df_cleantown %>% group_by(Hometown) %>% 
   summarise(count = n())
+max(i$count)
 ```
 
 ```{r}
@@ -309,7 +310,7 @@ p +  with(centroids,
                    size = 4,color="Black")
 )+
   labs(fill = "Count")+
-  ggtitle("Number of Runers From Each State")+
+  ggtitle("Number of Runners From Each State")+
   scale_y_continuous(breaks=c())+ 
   scale_x_continuous(breaks=c())+
   theme(plot.background = element_rect(fill = "white"),
@@ -341,7 +342,7 @@ ggplot(all_states02, aes(long, lat, group = group, fill=meanTime, colour= meanTi
        annotate(geom="text", x = long, y=lat, label = Hometown, 
                 size = 4,color="Black")
   )+
-  ggtitle("Average Time Of Runers For Each State")+
+  ggtitle("Average Time Of Runners For Each State")+
   scale_y_continuous(breaks=c())+ 
   scale_x_continuous(breaks=c())+
   theme(plot.background = element_rect(fill = "white"),
@@ -384,6 +385,19 @@ ggplot(aes(x = Year, y = n))+
 all_data %>% ggplot(aes(x = Time.y, color = sex, fill = sex))+
   geom_histogram(fill = "white", binwidth = 2)+
   ggtitle("Stacked Histogram of Finishing Times(minutes) grouped by Sex")
+```
+```{r}
+womensub = Wdat[Wdat$Time.y>30 & Wdat$Age>15,]
+agecut = cut(Wdat$Age, breaks = c(seq(15,75,10),90))
+table(agecut)
+
+plot(Wdat$Time.y ~ agecut, xlab = "Age (year)", ylab = "Run Time (minutes)",main = "Run Time for Subgroups of Runner With Same Age")
+
+ggplot(Wdat )+
+  geom_boxplot(aes(x = agecut, y =Time.y))+ 
+  xlab("Age (year)")+
+  ylab("Run Time (minutes)")+
+  labs(title = "Run Time for Subgroups of Runner", subtitle = "With Roughly the Same Age")
 ```
 
 
