@@ -235,6 +235,7 @@ all_data$Race <- as.factor(all_data$Race)
 
 
 ```{r}
+#plot Age v.s Time so how time for finishing the race will increase as age increase
 all_data %>% ggplot(aes(fill = sex, colour = sex, group = sex))+
   geom_point(aes(x = Age, y = Time.y ),size= 0.2)+
   geom_smooth(aes(x = Age, y = Time.y))+
@@ -249,14 +250,14 @@ all_data %>% ggplot(aes(fill = sex, colour = sex, group = sex))+
         plot.title = element_text(size = 10, face = "bold"))
 ```
 ```{r}
-df_cleantown <- all_data[which(all_data$Hometown != "NR"), ]
+df_cleantown <- all_data[which(all_data$Hometown != "NR"), ] #remove rows without Hometown value
 
-df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 2 )
+df_cleantown$Hometown <- df_cleantown$Hometown %>% strsplit( ", " ) %>% sapply( "[", 2 ) #split the Hometown to 2 part and keep the second part which is state
 df_cleantown <- df_cleantown %>% 
-  filter(!is.na(df_cleantown$Hometown))
+  filter(!is.na(df_cleantown$Hometown)) #because of the split some of Hometown is NA, we need to remove them
 
 df_cleantown$Hometown <- toupper(df_cleantown$Hometown) #Returns the lowercase string.
-
+#some of the Hometwon need fix
 df_cleantown$Hometown[(df_cleantown$Hometown == "D.C")] = "DC" 
 df_cleantown$Hometown[(df_cleantown$Hometown == "D.C.")] = "DC" 
 df_cleantown$Hometown[(df_cleantown$Hometown == "DISTRICT OF COLUMBI")] = "DC" 
@@ -267,38 +268,41 @@ df_cleantown$Hometown[(df_cleantown$Hometown == " VA  22033")] = "VA"
 
 
 ```{r}
-all_states<-map_data("state")
+all_states<-map_data("state") # this is a data set that contain all the US states with their coordinates
 
-all_states$abb <- state.abb[match(all_states$region,tolower(state.name))]
-all_states$abb[is.na(all_states$abb)] = "DC"
-
-all_states$long = as.numeric(all_states$long)
+all_states$abb <- state.abb[match(all_states$region,tolower(state.name))] 
+all_states$abb[is.na(all_states$abb)] = "DC" # state data set shows "DC" as NA, we need to changed it to DC
+#class change for both long and lat
+all_states$long = as.numeric(all_states$long) 
 all_states$lat = as.numeric(all_states$lat)
 all_states <- all_states[,-c(4,5,6)] #Remove unwanted columns
 ```
 
 
 ```{r}
+#keep only the rows that match the state data frame(keep just US)
 df_cleantown <- df_cleantown[(df_cleantown$Hometown%in%all_states$abb),] 
 
 i <- df_cleantown %>% group_by(Hometown) %>% 
-  summarise(count = n())
+  summarise(count = n()) #group by Hometown and count how many people is from each state
 ```
 
 ```{r}
 all_states <- i %>%
-  full_join(all_states,by=c("Hometown" ="abb"))
+  full_join(all_states,by=c("Hometown" ="abb")) #join the count of each state to the state data set
 
 ```
 
 
 ```{r}
+#map plot for number of runners for each state
 p<- ggplot(all_states, aes(long, lat, group = group, fill=count, colour= count)) + geom_polygon(color="grey")+
   scale_fill_gradientn(colours = cm.colors(4),name='count',trans ="log",
                        breaks=c(20,50,100,200,1000,5000,10000,100000), na.value = "grey50") 
 ```
 
 ```{r}
+#here we try to write the state names on the map 
 centroids <- data.frame(region=tolower(state.name), long=state.center$x, lat=state.center$y)
 
 centroids$Hometown<-state.abb[match(centroids$region,tolower(state.name))]
@@ -328,6 +332,7 @@ p +  with(centroids,
 
 
 ```{r}
+#Here we do the same map plot but instead of number of runners we do for average time for each runner to see which states runs fast
 b <- df_cleantown %>% group_by(Hometown) %>% 
   summarise(meanTime = mean(Time.y))
 
@@ -360,11 +365,11 @@ ggplot(all_states02, aes(long, lat, group = group, fill=meanTime, colour= meanTi
 
 
 ```{r warning=F}
-load("cts_per_yeargender.Rdata")
+load("cts_per_yeargender.Rdata") #data set that count number of people in each year
 
-ct_yrsex <- ct_yrsex[which(ct_yrsex$sex != "NA"), ]
-ct_yrsex %>% filter(Year <= 2019) %>% 
-ggplot(aes(x = Year, y = n))+
+ct_yrsex <- ct_yrsex[which(ct_yrsex$sex != "NA"), ] #remove NA 
+ct_yrsex %>% filter(Year <= 2019) %>% #because there is big drop after 2019 we decide to filter it before 2019 
+ggplot(aes(x = Year, y = n))+ #plot number of each each people in each year
   geom_line(aes(color = factor(sex)))+
   scale_x_discrete(limits = c(1973:2019))+
   guides( color = guide_legend(title = "SEX"))+
@@ -380,12 +385,14 @@ ggplot(aes(x = Year, y = n))+
 
 
 ```{r}
+#plot the finish time grouped by sex
 all_data %>% ggplot(aes(x = Time.y, color = sex, fill = sex))+
   geom_histogram(fill = "white", binwidth = 2)+
   ggtitle("Stacked Histogram of Finishing Times(minutes) grouped by Sex")
 ```
 
 ```{r}
+#We group the runners into a 10-years age interval and plot the summaries for each subgroup in the form of a box plot
 womensub = Wdat[Wdat$Time.y>30 & Wdat$Age>15,]
 agecut = cut(womensub$Age, breaks = c(seq(15,75,10),90))
 table(agecut)
@@ -395,12 +402,12 @@ plot(womensub$Time.y ~ agecut, xlab = "Age (year)", ylab = "Run Time (minutes)",
 
 
 ```{r}
-agecut02 = cut(Wdat$Age, breaks = c(seq(8,80,12),90))
+agecut02 = cut(Wdat$Age, breaks = c(seq(8,80,12),90)) #create a sequence of age element
 
-Race_group02 = case_when( Wdat$Race >= 1973 & Wdat$Race < 2000 ~ "1973-2000", Wdat$Race >= 2000 & Wdat$Race<2005 ~ "2000-2005", Wdat$Race >= 2005 &Wdat$Race<2010 ~ "2005-2010", Wdat$Race>= 2010 & Wdat$Race<2015 ~ "2010-2015", Wdat$Race >= 2015 & Wdat$Race< 2020 ~ "2015-2020",Wdat$Race >= 2020 ~"2020-2022" )
+Race_group02 = case_when( Wdat$Race >= 1973 & Wdat$Race < 2000 ~ "1973-2000", Wdat$Race >= 2000 & Wdat$Race<2005 ~ "2000-2005", Wdat$Race >= 2005 &Wdat$Race<2010 ~ "2005-2010", Wdat$Race>= 2010 & Wdat$Race<2015 ~ "2010-2015", Wdat$Race >= 2015 & Wdat$Race< 2020 ~ "2015-2020",Wdat$Race >= 2020 ~"2020-2022" ) #making time period
 
-Wdat  = Wdat %>% mutate(Race_group02)
-
+Wdat  = Wdat %>% mutate(Race_group02) #adding time period that we made to our data set
+#plot age group in each time priod for all women
 ggplot(Wdat, aes(x = Race_group02, fill = agecut02))+
   geom_bar(position = "dodge")+ 
   scale_fill_discrete(name = "Age Group")+
@@ -411,6 +418,7 @@ ggplot(Wdat, aes(x = Race_group02, fill = agecut02))+
 ```
 
 ```{r}
+#same thing as above but for men
 agecut03 = cut(Mdat$Age, breaks = c(seq(8,80,12),90))
 
 Race_group03 = case_when( Mdat$Race >= 1973 & Mdat$Race < 2000 ~ "1973-2000", Mdat$Race >= 2000 & Mdat$Race<2005 ~ "2000-2005", Mdat$Race >= 2005 &Mdat$Race<2010 ~ "2005-2010", Mdat$Race>= 2010 & Mdat$Race<2015 ~ "2010-2015", Mdat$Race >= 2015 & Mdat$Race< 2020 ~ "2015-2020",Mdat$Race >= 2020 ~"2020-2022" )
@@ -521,18 +529,6 @@ confidenceEllipse(model.log)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ```{r}
 #Get median time and age for each state
 median_sample <- df_cleantown %>% group_by(Hometown) %>% select(Age, Hometown, Time.y) %>% mutate(median_Age = median(Age), median_Time = median(Time.y))
@@ -584,8 +580,6 @@ map_dbl(m, ac)
 Ward has the highest value
 
 
-
-
 ```{r}
 hc3 <- agnes(median_sample, method = "ward")
 pltree(hc3, cex = 0.6, hang = -1, main = "Dendrogram of agnes") 
@@ -615,9 +609,6 @@ median_sample %>% mutate(cluster = sub_grp)
 plot(hc5, cex = 0.6)
 rect.hclust(hc5, k = 4, border = 2:5)
 ```
-
-
-
 
 
 ```{r}
